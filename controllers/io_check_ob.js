@@ -43,6 +43,18 @@ module.exports = function(io){
               var emptyob = 0;
               var doverie = 0;
 
+              var enable_gold_status = 0;
+              var enable_premium_status = 0;
+              var enable_classic_status = 0;
+              var enable_quick_status = 0;
+              var enable_easy_status = 0;
+
+              var count_gold_status = 0;
+              var count_premium_status = 0;
+              var count_classic_status = 0;
+              var count_quick_status = 0;
+              var count_easy_status = 0;
+
 
               //io.sockets.in(email).emit('check_ob_action', {msg: 'test',rows:rows});
 
@@ -66,6 +78,18 @@ module.exports = function(io){
                             doverie = 1;
                           }
 
+                          enable_gold_status = results[1][0].enable_gold_status;
+                          enable_premium_status = results[1][0].enable_premium_status;
+                          enable_classic_status = results[1][0].enable_classic_status;
+                          enable_quick_status = results[1][0].enable_quick_status;
+                          enable_easy_status = results[1][0].enable_easy_status;
+
+                          count_gold_status = results[1][0].count_gold_status;
+                          count_premium_status = results[1][0].count_premium_status;
+                          count_classic_status = results[1][0].count_classic_status;
+                          count_quick_status = results[1][0].count_quick_status;
+                          count_easy_status = results[1][0].count_easy_status;
+
                           if(results[1][0].enable_cash == "1"){
                               check_cash = 1;
                           }
@@ -81,6 +105,18 @@ module.exports = function(io){
                           if(results[2][0].doverie == "1"){
                             doverie = 1;
                           }
+
+                          enable_gold_status = results[2][0].enable_gold_status;
+                          enable_premium_status = results[2][0].enable_premium_status;
+                          enable_classic_status = results[2][0].enable_classic_status;
+                          enable_quick_status = results[2][0].enable_quick_status;
+                          enable_easy_status = results[2][0].enable_easy_status;
+
+                          count_gold_status = results[2][0].count_gold_status;
+                          count_premium_status = results[2][0].count_premium_status;
+                          count_classic_status = results[2][0].count_classic_status;
+                          count_quick_status = results[2][0].count_quick_status;
+                          count_easy_status = results[2][0].count_easy_status;
 
                           if(results[2][0].enable_cash == "1"){
                               check_cash = 1;
@@ -121,7 +157,7 @@ module.exports = function(io){
                       //datecheck_limit 0/1 datelimit
                       //check_limit 0/1 check_limit
 
-                      io.sockets.in(email).emit('check_ob_action', {msg: 'ok',doverie:doverie,checkblockuser:checkblockuser,check_cash:check_cash,datecheck_limit:datecheck_limit,check_limit:check_limit});
+                      io.sockets.in(email).emit('check_ob_action', {msg:'ok',doverie:doverie,checkblockuser:checkblockuser,check_cash:check_cash,datecheck_limit:datecheck_limit,check_limit:check_limit,enable_gold_status:enable_gold_status,enable_premium_status:enable_premium_status,enable_classic_status:enable_classic_status,enable_quick_status:enable_quick_status,enable_easy_status:enable_easy_status,count_gold_status:count_gold_status,count_premium_status:count_premium_status,count_classic_status:count_classic_status,count_quick_status:count_quick_status,count_easy_status:count_easy_status});
                     });
 
 

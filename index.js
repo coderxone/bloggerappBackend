@@ -16,6 +16,41 @@ require('./controllers/io_check_ob.js')(io);
 require('./controllers/load_all_info.js')(io);
 
 
+//watson
+var fs = require('fs');
+var CombinedStream = require('combined-stream');
+
+var SpeechToTextV1 = require('watson-developer-cloud/speech-to-text/v1');
+var speechToText = new SpeechToTextV1({
+  iam_apikey: 'O7qQl47NDjlXEVFpTp3q0Uyh1WYszBsRggQxbLwjnyxx',
+  url: 'https://gateway-syd.watsonplatform.net/speech-to-text/api'
+});
+
+
+
+var combinedStream = CombinedStream.create();
+combinedStream.append(fs.createReadStream('audio-file1.flac'));
+combinedStream.append(fs.createReadStream('audio-file2.flac'));
+
+var recognizeParams = {
+  audio: combinedStream,
+  content_type: 'audio/flac',
+  timestamps: true,
+  word_alternatives_threshold: 0.9,
+  keywords: ['colorado', 'tornado', 'tornadoes'],
+  keywords_threshold: 0.5
+};
+
+speechToText.recognize(recognizeParams, function(error, speechRecognitionResults) {
+  if (error) {
+    console.log(error);
+  } else {
+    console.log(JSON.stringify(speechRecognitionResults, null, 2));
+  }
+});
+//watson
+
+//gateway-syd.watsonplatform.net
 
 
 //socket io another files
