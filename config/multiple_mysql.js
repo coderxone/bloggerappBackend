@@ -2,9 +2,11 @@ var mysql = require('mysql');
 var connection = mysql.createConnection({
   multipleStatements: true,
   host     : 'localhost',
-  user     : 'test',
-  password : 'test',
-  database : 'mydb'
+  user     : 'root',
+  password : 'googlehack',
+  database : 'Rides'
 });
 
 module.exports = connection;
+
+//ostanovilsya na insert

@@ -2,6 +2,8 @@ var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var request = require('request');
+var get_currencies = require("./services/get_currencies.js");
+
 
 
 var bodyParser = require('body-parser');
@@ -12,45 +14,16 @@ var db = require('./config/db.js');
 
 //socket io another files
 
-require('./controllers/io_check_ob.js')(io);
-require('./controllers/load_all_info.js')(io);
+//1 Start initialUserData table contains request from Form and Users contains Data
+require('./controllers/getUsersData.js')(io);
+require('./controllers/google_auto_login.js')(io);	//google login
+require('./controllers/setRole.js')(io);		//setUsersRole
+require('./controllers/searchCity.js')(io);		//main page searchCities
+//Role 1 searching people //role 2 delivering people
+require('./controllers/sendFormData.js')(io);	//send from Form UsersData table from role 1 and role 2
+require('./controllers/getDetailsData.js')(io);	//
 
 
-//watson
-var fs = require('fs');
-var CombinedStream = require('combined-stream');
-
-var SpeechToTextV1 = require('watson-developer-cloud/speech-to-text/v1');
-var speechToText = new SpeechToTextV1({
-  iam_apikey: 'O7qQl47NDjlXEVFpTp3q0Uyh1WYszBsRggQxbLwjnyxx',
-  url: 'https://gateway-syd.watsonplatform.net/speech-to-text/api'
-});
-
-
-
-var combinedStream = CombinedStream.create();
-combinedStream.append(fs.createReadStream('audio-file1.flac'));
-combinedStream.append(fs.createReadStream('audio-file2.flac'));
-
-var recognizeParams = {
-  audio: combinedStream,
-  content_type: 'audio/flac',
-  timestamps: true,
-  word_alternatives_threshold: 0.9,
-  keywords: ['colorado', 'tornado', 'tornadoes'],
-  keywords_threshold: 0.5
-};
-
-speechToText.recognize(recognizeParams, function(error, speechRecognitionResults) {
-  if (error) {
-    console.log(error);
-  } else {
-    console.log(JSON.stringify(speechRecognitionResults, null, 2));
-  }
-});
-//watson
-
-//gateway-syd.watsonplatform.net
 
 
 //socket io another files
@@ -71,7 +44,7 @@ app.use('/service', [checkob]);
 //connect to database
 
 io.on('connection', function(socket){
-  //console.log('a user connected');
+  console.log('a user connected');
 
   socket.on('disconnect', function(){
     //console.log('user disconnected');
@@ -86,34 +59,9 @@ io.on('connection', function(socket){
 
   // });
 
-   socket.on('chat message', function(data){
-      console.log(data);
-
-        socket.emit("chat message",data);
-
-
-  });
-
-		socket.on('obinfo',function(msg){
-
-				//io.emit('obinfo', JSON.stringify(ob));
-				db.query(
-						'SELECT * FROM `obinfo`',
-						function(err, results, fields) {
-							var database_request = JSON.stringify(results);
-
-							io.emit('obinfo', {database: database_request});
-							console.log(results); // results contains rows returned by server
-							console.log(fields); // fields contains extra meta data about results, if available
-						}
-				);
-
-
-				//io.emit('obinfo', msg);
 
 
 
-		});
 
 });
 
@@ -144,7 +92,7 @@ function setMessage_email(){
 
 				 })
 
-	console.log("send_message");
+			 	console.log("send_message");
 
 
 }
@@ -163,7 +111,7 @@ setInterval(function(){
 
 	if((time_message_obj["time"] == hour) && (time_message_obj['minutes'] == minutes) &&
 	 (time_message_obj['seconds'] == seconds)){
-		setMessage_email();
+		//setMessage_email();
 	}
 
 	// if((time_message_obj2["time"] == hour) && (time_message_obj2['minutes'] == minutes) &&
@@ -175,6 +123,13 @@ setInterval(function(){
 
 
 },1000);
+
+
+setInterval(function(){
+
+	//var currencies = get_currencies.get_russian_currencies();
+
+},300000);
 
 
 //Чтобы отправить событие всем, Socket.IO дает нам io.emit:
@@ -197,3 +152,10 @@ setInterval(function(){
 http.listen(3000, function(){
   console.log('listening on *:3000');
 });
+
+
+//oauth
+
+//id - 576874011707-msm2ukk539im8j2eb7g4r7nfai6t6kvi.apps.googleusercontent.com
+//secret - dVZQNbA7gdgonbBNk0Nl3cLC
+//api key - AIzaSyAx_uUJAVLwV39R89rVE4SscXjDan0i1cE
