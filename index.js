@@ -22,6 +22,10 @@ require('./controllers/searchCity.js')(io);		//main page searchCities
 //Role 1 searching people //role 2 delivering people
 require('./controllers/sendFormData.js')(io);	//send from Form UsersData table from role 1 and role 2
 require('./controllers/getDetailsData.js')(io);	//
+require('./controllers/message.js')(io);	//
+require('./controllers/onlineUsers.js')(io);	//
+require('./controllers/notification.js')(io);	//
+require('./controllers/favorite.js')(io);	//
 
 
 
