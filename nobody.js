@@ -103,21 +103,21 @@ function setMessage_email(){
 }
 
 
-setInterval(function(){
-
-
-	var date = new Date();
-
-	var hour = date.getHours();
-
-	var minutes = date.getMinutes();
-
-	var seconds = date.getSeconds();
-
-	if((time_message_obj["time"] == hour) && (time_message_obj['minutes'] == minutes) &&
-	 (time_message_obj['seconds'] == seconds)){
+// setInterval(function(){
+//
+//
+// 	var date = new Date();
+//
+// 	var hour = date.getHours();
+//
+// 	var minutes = date.getMinutes();
+//
+// 	var seconds = date.getSeconds();
+//
+// 	if((time_message_obj["time"] == hour) && (time_message_obj['minutes'] == minutes) &&
+// 	 (time_message_obj['seconds'] == seconds)){
 		//setMessage_email();
-	}
+//	}
 
 	// if((time_message_obj2["time"] == hour) && (time_message_obj2['minutes'] == minutes) &&
 	//  (time_message_obj2['seconds'] == seconds)){
@@ -127,14 +127,14 @@ setInterval(function(){
 	//console.log(hour + " : " + minutes + " : " + seconds);
 
 
-},1000);
+// },1000);
 
 
-setInterval(function(){
+// setInterval(function(){
 
 	//var currencies = get_currencies.get_russian_currencies();
 
-},300000);
+// },300000);
 
 
 //Чтобы отправить событие всем, Socket.IO дает нам io.emit:
@@ -154,7 +154,7 @@ setInterval(function(){
 
 
 
-http.listen(3000, function(){
+http.listen(3002, function(){
   console.log('listening on *:3000');
 });
 
