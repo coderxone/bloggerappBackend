@@ -27,6 +27,7 @@ require('./controllers/onlineUsers.js')(io);	//
 require('./controllers/notification.js')(io);	//
 require('./controllers/favorite.js')(io);	//
 require('./controllers/setPhoneNumber.js')(io);	//
+require('./controllers/authorization.js')(io);	//
 
 
 
