@@ -56,8 +56,8 @@ module.exports = function(io){
                      if(results.length > 0){
 
                             if(results[0].password == password){
-                              io.sockets.in(data.deviceid).emit('setLogin', {status: 'correct',data:results});
-                            }else if(){
+                              io.sockets.in(data.deviceid).emit('setLogin', {status: 'correct',data:results[0]});
+                            }else if(results[0].password != password){
                               io.sockets.in(data.deviceid).emit('setLogin', {status: 'notcorrect'});
                             }
 
