@@ -17,7 +17,7 @@ module.exports = function(io){
                 var role = data.role;
                 var email = data.email;
 
-                socket.join(device);
+                socket.join(email);
 
                 //console.log(data);
 
@@ -31,7 +31,7 @@ module.exports = function(io){
                   }
 
 
-                    io.sockets.in(device).emit('getAllData',{sdata:results[0],userdata:results[1],message:data.message} );
+                    io.sockets.in(email).emit('getAllData',{sdata:results[0],userdata:results[1],message:data.message} );
                   });
 
 
@@ -45,11 +45,12 @@ module.exports = function(io){
               socket.on('searchUsersData', function (data) {
 
                 var device = data.device;
-
-                socket.join(device);
-
                 var role = data.role;
                 var email = data.email;
+
+                socket.join(email);
+
+
 
                 var search_number = formHelper.cleanString(data.searchnumber);
 
@@ -62,8 +63,8 @@ module.exports = function(io){
                           results[i].time = timeconverter.timeConverter_us_time(results[i].time);
                         }
 
+                        io.sockets.in(email).emit('searchUsersData',{sdata:results} );
 
-                        io.sockets.in(device).emit('searchUsersData',{sdata:results} );
                       });
 
 

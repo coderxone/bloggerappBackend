@@ -19,28 +19,39 @@ module.exports = function(io){
 
                 socket.join(device);
 
-                db_multiple.query('SELECT * FROM `Users` WHERE `name` = ? OR `email` = ?', [name, email], function (error, results, fields) {
+                db_multiple.query('SELECT * FROM `Users` WHERE `email` = ? LIMIT 1', [email], function (error, results, fields) {
+
+                  //console.log(results);
 
                   if(results.length > 0){
 
                         //console.log(results);
                         role = results[0].role;
 
-                        io.sockets.to(device).emit('google_auth',{user:"olduser",email:email,image_url:image_url,role:role} );
+                        var data = {
+                          user:"olduser",
+                          email:email,
+                          role:role,
+                          image_url:image_url
+                        }
+
+                        io.sockets.to(device).emit('google_auth',data);
+
+
 
                       }else{
 
                         var insertdata  = {name: name,email: email,image_url:image_url};
 
                         var query = db_multiple.query('INSERT INTO Users SET ?', insertdata, function (error, results, fields) {
-                          if (error) throw error;
 
-                          io.sockets.to(device).emit('google_auth',{user:"newuser",email:email,image_url:image_url,role:role} );
+                          io.sockets.to(device).emit('google_auth',{user:"newuser",email:email,role:role,image_url:image_url} );
 
                         });
 
 
                       }
+
 
 
                     });
