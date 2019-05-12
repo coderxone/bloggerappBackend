@@ -22,7 +22,7 @@ module.exports = function(io){
                 //console.log(data);
 
 
-                  db_multiple.query("SELECT * FROM `UsersData` WHERE email != ? AND role = ? ORDER BY id desc; SELECT * FROM `Users` WHERE email = ?;",[email,role,email], function (error, results, fields) {
+                  db_multiple.query("SELECT * FROM `UsersData` WHERE email != ? AND role = ? ORDER BY id DESC; SELECT * FROM `Users` WHERE email = ?;",[email,role,email], function (error, results, fields) {
                   // connected!
                   //console.log(results);
                   for(var i = 0;i < results[0].length;i++){

@@ -26,7 +26,7 @@ module.exports = function(io){
                         //console.log(results);
                         role = results[0].role;
 
-                        io.sockets.in(device).emit('google_auth',{user:"olduser",email:email,image_url:image_url,role:role} );
+                        io.sockets.to(device).emit('google_auth',{user:"olduser",email:email,image_url:image_url,role:role} );
 
                       }else{
 
@@ -35,7 +35,7 @@ module.exports = function(io){
                         var query = db_multiple.query('INSERT INTO Users SET ?', insertdata, function (error, results, fields) {
                           if (error) throw error;
 
-                          io.sockets.in(device).emit('google_auth',{user:"newuser",email:email,image_url:image_url,role:role} );
+                          io.sockets.to(device).emit('google_auth',{user:"newuser",email:email,image_url:image_url,role:role} );
 
                         });
 

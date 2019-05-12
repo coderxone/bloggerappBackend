@@ -27,7 +27,6 @@ module.exports = function(io){
 
                         var password = String(results[0].password);
 
-
                         var mailOptions = {
                             from: '2clickorg@gmail.com',
                             to: sendemail,

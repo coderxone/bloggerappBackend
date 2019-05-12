@@ -29,6 +29,7 @@ require('./controllers/favorite.js')(io);	//
 require('./controllers/setPhoneNumber.js')(io);	//
 require('./controllers/authorization.js')(io);	//
 require('./controllers/sendmail.js')(io);	//
+require('./controllers/myrequest.js')(io);	//
 
 
 
