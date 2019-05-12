@@ -28,6 +28,33 @@ module.exports = function(io){
 
               });
 
+              socket.on('setDeleteorUpdate', function (data) {
+
+                   socket.join(data.email);
+
+                   var id = data.id;
+                   var status = data.status;
+
+                   var updatestatus = 1;
+
+                   if(status == 1){
+                     updatestatus = 0;
+                   }
+
+
+                   multiple_db.query('UPDATE UsersData SET status = ? WHERE id = ?', [updatestatus,id], function (error, results, fields) {
+
+                     if(results.changedRows == 1){
+                     }
+
+                     io.sockets.to(data.email).emit('setDeleteorUpdate', {status: "updated"});
+
+
+                   });
+
+
+              });
+
 
 
         });

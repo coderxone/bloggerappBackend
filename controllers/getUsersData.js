@@ -22,7 +22,7 @@ module.exports = function(io){
                 //console.log(data);
 
 
-                  db_multiple.query("SELECT * FROM `UsersData` WHERE email != ? AND role = ? ORDER BY id DESC; SELECT * FROM `Users` WHERE email = ?;",[email,role,email], function (error, results, fields) {
+                  db_multiple.query("SELECT * FROM `UsersData` WHERE email != ? AND role = ? AND status = ? ORDER BY id DESC; SELECT * FROM `Users` WHERE email = ?;",[email,role,1,email], function (error, results, fields) {
                   // connected!
                   //console.log(results);
                   for(var i = 0;i < results[0].length;i++){
@@ -54,7 +54,7 @@ module.exports = function(io){
                 var search_number = formHelper.cleanString(data.searchnumber);
 
 
-                      db_multiple.query("SELECT * FROM `UsersData` WHERE role = '" + role + "' AND email != '" + email + "' AND fromPoint LIKE '%" + search_number + "%' OR toPoint LIKE '%" + search_number + "%' AND role = '" + role + "' AND email != '" + email + "' ORDER BY id desc", function (error, results, fields) {
+                      db_multiple.query("SELECT * FROM `UsersData` WHERE role = '" + role + "' AND email != '" + email + "' AND status = '1' AND fromPoint LIKE '%" + search_number + "%' OR toPoint LIKE '%" + search_number + "%' AND role = '" + role + "' AND email != '" + email + "' AND status = '1' ORDER BY id DESC", function (error, results, fields) {
                         // connected!
                         //console.log(results);
                         for(var i = 0;i < results.length;i++){
