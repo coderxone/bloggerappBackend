@@ -8,7 +8,7 @@ module.exports = function(io){
         io.on('connection', function(socket){
 
 
-              socket.on('google_auth', function (data) {
+              socket.on('googleAuth', function (data) {
 
                 var device = data.device;
 
@@ -35,7 +35,7 @@ module.exports = function(io){
                           image_url:image_url
                         }
 
-                        io.sockets.to(device).emit('google_auth',data);
+                        io.sockets.to(device).emit('googleAuth',data);
 
 
 
@@ -45,7 +45,7 @@ module.exports = function(io){
 
                         var query = db_multiple.query('INSERT INTO Users SET ?', insertdata, function (error, results, fields) {
 
-                          io.sockets.to(device).emit('google_auth',{user:"newuser",email:email,role:role,image_url:image_url} );
+                          io.sockets.to(device).emit('googleAuth',{user:"newuser",email:email,role:role,image_url:image_url} );
 
                         });
 
