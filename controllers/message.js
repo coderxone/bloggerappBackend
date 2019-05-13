@@ -80,7 +80,9 @@ module.exports = function(io){
                     var not_same_array = new Array();
                     multiple_db.query('SELECT Messages.id,Messages.date,Messages.message, Messages.fromEmail,Messages.toEmail, Users.image_url,Users.name,Users.online FROM Messages INNER JOIN Users ON Messages.toEmail = Users.email WHERE Messages.fromEmail = ? ORDER BY id DESC', [data.email], function (error, results, fields) {
 
+
                       if(results){
+
                          if(results.length > 0){
 
                             //filtration the same from 1 people
@@ -114,9 +116,8 @@ module.exports = function(io){
 
                             }
 
-
-
                             multiple_db.query('SELECT Messages.id,Messages.date,Messages.message, Messages.fromEmail,Messages.toEmail, Users.image_url,Users.name,Users.online FROM Messages INNER JOIN Users ON Messages.fromEmail = Users.email WHERE Messages.toEmail = ? ORDER BY id DESC', [data.email], function (error, resultstwo, fields) {
+
 
                               for(var i = 0;i < resultstwo.length;i++){
 
@@ -149,13 +150,10 @@ module.exports = function(io){
 
                               }
 
-
                             });
 
-                            //console.log(not_same_array);
+
                             //filtration the same
-
-
 
                               //counting
                                   multiple_db.query('SELECT fromEmail,toEmail FROM Messages WHERE toEmail = ? AND read_status = ? ORDER BY id DESC', [data.email,0], function (error, resultstthree, fields) {
@@ -177,19 +175,77 @@ module.exports = function(io){
 
 
 
+                            }else{
+                              ///-----------------------
+                              multiple_db.query('SELECT Messages.id,Messages.date,Messages.message, Messages.fromEmail,Messages.toEmail, Users.image_url,Users.name,Users.online FROM Messages INNER JOIN Users ON Messages.fromEmail = Users.email WHERE Messages.toEmail = ? ORDER BY id DESC', [data.email], function (error, resultstwo, fields) {
 
 
+                                for(var i = 0;i < resultstwo.length;i++){
+
+                                  if(not_same_array.length > 0){
+
+                                    var fix = 0;
+                                    for(var j = 0;j < not_same_array.length;j++){
+                                      //filtruem odinakovih otpravitelei s predidushimi zapisyami and s novimi zapisyami
+                                        if((resultstwo[i].fromEmail == not_same_array[j].toEmail) || (resultstwo[i].fromEmail == not_same_array[j].fromEmail)){
+
+                                          fix = 1;
+
+                                        }
+                                    }
+
+                                    if(fix == 0){
+
+                                      if(data.email != resultstwo[i].fromEmail){
+                                        resultstwo[i].date = timeconverter.timeConverter_us_time(resultstwo[i].date); //date convertiong function
+                                        resultstwo[i].count = 0;
+                                        not_same_array.push(resultstwo[i]);
+                                      }
+
+                                    }
+                                  }else{
+                                    resultstwo[i].date = timeconverter.timeConverter_us_time(resultstwo[i].date); //date convertiong function
+                                    resultstwo[i].count = 0;
+                                    not_same_array.push(resultstwo[i]);
+                                  }
+
+                                }
+
+                              });
 
 
+                              //filtration the same
 
+                                //counting
+                                    multiple_db.query('SELECT fromEmail,toEmail FROM Messages WHERE toEmail = ? AND read_status = ? ORDER BY id DESC', [data.email,0], function (error, resultstthree, fields) {
 
+                                        for(var p = 0;p < not_same_array.length;p++){
+                                          for(var o = 0;o < resultstthree.length;o++){
+                                            if(not_same_array[p].toEmail == resultstthree[o].fromEmail){
+                                                not_same_array[p].count += 1;
+                                            }else if(not_same_array[p].fromEmail == resultstthree[o].fromEmail){ //and check new record
+                                                not_same_array[p].count += 1;
+                                            }
+                                          }
+                                        }
 
+                                        io.sockets.to(data.email).emit('getAllContactsMessages', {data: not_same_array});
 
+                                    });
+                                  //counting
+                              ///-----------------------
                             }
+
+
+
+
                         }
 
 
                         });
+
+
+
 
 
 
@@ -201,7 +257,7 @@ module.exports = function(io){
 
               socket.join(data.toEmail);
 
-              console.log(data);
+              //console.log(data);
 
                   multiple_db.query('UPDATE Messages SET read_status = ? WHERE message = ? AND toEmail = ? AND fromEmail = ? ORDER BY id DESC LIMIT 1', [1,data.message,data.toEmail,data.fromEmail], function (error, results, fields) {
 
