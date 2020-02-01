@@ -5,7 +5,7 @@ var connection = mysql.createConnection({
   user     : 'root',
   password : 'googlehack',
   // password : 'hack7777',
-  database : 'Rides'
+  database : 'Neiron'
 });
 
 module.exports = connection;

@@ -5,13 +5,17 @@
   "dependencies": {
     "body-parser": "^1.18.3",
     "express": "^4.16.0",
+    "firebase-admin": "^8.4.0",
     "get-value": "^3.0.1",
     "moment": "^2.22.2",
     "moment-timezone": "^0.5.23",
     "mysql": "^2.16.0",
     "mysql2": "^1.5.3",
+    "node-storage": "0.0.8",
     "nodemailer": "^6.1.1",
+    "php-serialize": "^3.0.0",
     "request": "^2.88.0",
+    "short-uuid": "^3.1.1",
     "socket.io": "^2.1.0",
     "xml2js": "^0.4.19"
   }

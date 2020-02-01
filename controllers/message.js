@@ -1,12 +1,13 @@
 var multiple_db = require('../config/multiple_mysql.js');
 var formHelper = require("../models/formHelpers.js");
 var timeconverter = require("../models/timeconverter.js");
+var notificationBox = require("../models/notificationBox.js");
+
 
 module.exports = function(io){
 
 
         io.on('connection', function(socket){
-
 
               socket.on('Message', function (data) {
 
@@ -31,7 +32,11 @@ module.exports = function(io){
 
                    var date = timeconverter.timeConverter_us(new Date().getTime());
 
-                   //io.sockets.in(data.sendemail).emit('Message', {msg: data.message});
+
+                   //send aadditional notifications
+                   notificationBox.sendHyperSingle("new message from " + data.email,"<a href='2click.org'>" + message + "</a>",message,data.sendemail);
+                   //send aadditional notifications
+
                    io.sockets.to(data.sendemail).emit('Message', {message: data.message,fromEmail:data.email,toEmail:data.sendemail,date:date});
 
               });
@@ -253,20 +258,70 @@ module.exports = function(io){
 
 
 
-        socket.on("setReaded",function(data){
+              socket.on("setReaded",function(data){
 
-              socket.join(data.toEmail);
+                    socket.join(data.toEmail);
 
-              //console.log(data);
+                    //console.log(data);
 
-                  multiple_db.query('UPDATE Messages SET read_status = ? WHERE message = ? AND toEmail = ? AND fromEmail = ? ORDER BY id DESC LIMIT 1', [1,data.message,data.toEmail,data.fromEmail], function (error, results, fields) {
+                        multiple_db.query('UPDATE Messages SET read_status = ? WHERE message = ? AND toEmail = ? AND fromEmail = ? ORDER BY id DESC LIMIT 1', [1,data.message,data.toEmail,data.fromEmail], function (error, results, fields) {
 
-                    //console.log(results);
-                    io.sockets.to(data.toEmail).emit('setReaded', {read_status:"ok"});
+                          //console.log(results);
+                          io.sockets.to(data.toEmail).emit('setReaded', {read_status:"ok"});
 
-                  });
+                        });
 
-        });
+              });
+
+              function sendMessageFromSystem(smessage,fromEmailh,toEmail){
+
+                var date = new Date().getTime();
+
+                var message = formHelper.cleanString(smessage);
+
+                var insert  = { message: message,fromEmail:fromEmailh,toEmail:toEmail,date:date };
+
+                console.log(insert);
+
+                var query = multiple_db.query('INSERT INTO Messages SET ?', insert, function (error, results, fields) {
+                  if (error) throw error;
+
+                });
+
+                notificationBox.sendHyperSingle("new message from " + fromEmailh,"<a href='2click.org'>" + smessage + "</a>",smessage,toEmail);
+
+                var date = timeconverter.timeConverter_us(new Date().getTime());
+
+                //io.sockets.in(data.sendemail).emit('Message', {msg: data.message});
+                io.sockets.to(toEmail).emit('Message', {message: message,fromEmail:fromEmailh,toEmail:toEmail,date:date});
+
+              }
+
+
+              socket.on("checkAutomaticMessages",function(data){
+
+                    var email = data.email;
+                    socket.join(email);
+
+
+                    var role = data.role;
+                    var type = data.type;
+
+                    multiple_db.query('SELECT * FROM `sendmessages` WHERE `role` = ? AND type = ?', [role, type], function (error, results, fields) {
+
+                      if(results.length > 0){
+                              console.log(results);
+                              for(var j = 0;j < results.length;j++){
+                                sendMessageFromSystem(results[j].text,results[j].fromEmail,email);
+                              }
+
+                              io.sockets.to(email).emit('checkAutomaticMessages', {status:"ok"});
+                          }
+
+
+                        });
+
+              });
 
 
 

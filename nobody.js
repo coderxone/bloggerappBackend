@@ -4,8 +4,6 @@ var io = require('socket.io')(http);
 var request = require('request');
 var get_currencies = require("./services/get_currencies.js");
 
-
-
 var bodyParser = require('body-parser');
 app.use(bodyParser.json()); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
@@ -15,7 +13,7 @@ var db = require('./config/db.js');
 //socket io another files
 
 //1 Start initialUserData table contains request from Form and Users contains Data
-require('./controllers/getUsersData.js')(io);
+require('./controllers/getAllData.js')(io);
 require('./controllers/google_auto_login.js')(io);	//google login
 require('./controllers/setRole.js')(io);		//setUsersRole
 require('./controllers/searchCity.js')(io);		//main page searchCities
@@ -30,6 +28,13 @@ require('./controllers/setPhoneNumber.js')(io);	//
 require('./controllers/authorization.js')(io);	//
 require('./controllers/sendmail.js')(io);	//
 require('./controllers/myrequest.js')(io);	//
+require('./controllers/load_all_info.js')(io);	//
+require('./controllers/setVideoUrl.js')(io);	//
+require('./controllers/check_user_pay.js')(io);	//
+require('./controllers/getmoney.js')(io);	//
+require('./controllers/publicmodule.js')(io);	//
+require('./controllers/adminController.js')(io);	//
+//require('./controllers/managementPaypal.js')(io);	//
 
 
 
@@ -133,11 +138,14 @@ function setMessage_email(){
 // },1000);
 
 
-// setInterval(function(){
+setInterval(function(){
 
-	//var currencies = get_currencies.get_russian_currencies();
+	var currencies = get_currencies.get_russian_currencies();
+	console.log("currencies");
 
-// },300000);
+},3600000);
+
+// },15000);
 
 
 //Чтобы отправить событие всем, Socket.IO дает нам io.emit:
@@ -158,7 +166,7 @@ function setMessage_email(){
 
 
 http.listen(3002, function(){
-  console.log('listening on *:3000');
+  console.log('listening on *:3002');
 });
 
 

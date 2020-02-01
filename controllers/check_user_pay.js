@@ -1,6 +1,7 @@
 var db_multiple = require('../config/multiple_mysql.js');
 var request = require('request');
 var timeconverter = require("../models/timeconverter.js");
+var Serialize = require('php-serialize');
 
 
 module.exports = function(io){
@@ -30,18 +31,7 @@ module.exports = function(io){
 
                   if(results.length > 0){
 
-                    //console.log(current_unix_time + "_" + results[0].unix_time);
-
-                    //1550 8092 4685 0_1550 8078 2846 4
-
-                    // if(current_unix_time > results[0].unix_time){
-                    //   console.log("current >" + current_unix_time + ">");
-                    // }else{
-                    //   console.log("base >" + results[0].unix_time + ">");
-                    // }
                     payment_status = 1;
-
-                    //console.log(results[0].id);
 
                     results[0].unix_time = timeconverter.timeConverter_ru(results[0].unix_time);
 
@@ -62,12 +52,103 @@ module.exports = function(io){
 
                   }
 
-
-
                   io.sockets.in(device).emit('check_user_pay',{payment_status:payment_status,data:results[0]} );
 
                 });
               //  io.sockets.in(device).emit('yandex_api',{data:data} );
+
+
+              });
+
+
+
+              socket.on('setCardData', function (data) {
+
+                var email = data.email;
+
+                socket.join(email);
+
+
+                var location_point = data.location;
+                var location_name = data.data.location;
+                var address = data.data.address;
+                var cardname = data.data.cardname;
+                var cardnumber = data.data.cardnumber;
+                var bankname = data.data.bankname;
+
+
+
+                db_multiple.query('SELECT * FROM `carddata` WHERE `cardnumber` = ?', [cardnumber], function (error, results, fields) {
+
+                  if(results.length > 0){
+                      io.sockets.in(email).emit('setCardData',{status:"existcard"} );
+                  }else{
+
+                    var insert  = {
+                      location_point: Serialize.serialize(location_point),
+                      location_name:location_name,
+                      address:address,
+                      cardname:cardname,
+                      cardname:cardname,
+                      cardnumber:cardnumber,
+                      user_email:email,
+                      bankname:bankname
+                    };
+
+                    var query = db_multiple.query('INSERT INTO carddata SET ?', insert, function (error, results, fields) {
+
+                      io.sockets.in(email).emit('setCardData',{status:"inserted"} );
+
+                    });
+
+                  }
+
+
+                    });
+
+
+
+              //
+
+
+              });
+
+
+              socket.on('checkCardData', function (data) {
+
+                var email = data.email;
+
+                socket.join(email);
+
+                db_multiple.query('SELECT * FROM `carddata` WHERE `user_email` = ? ORDER BY `id` DESC', [email], function (error, results, fields) {
+
+                    if(results.length > 0){
+                        io.sockets.in(email).emit('checkCardData',{status:"ok",data:results} );
+                    }else{
+                        io.sockets.in(email).emit('checkCardData',{status:"noinfo"} );
+                    }
+
+                });
+
+
+              });
+
+
+
+              socket.on('deleteCard', function (data) {
+
+                var email = data.email;
+                var id = data.id;
+
+                socket.join(email);
+
+                db_multiple.query('DELETE FROM carddata WHERE id = ?', [id], function (error, results, fields) {
+
+
+                    io.sockets.in(email).emit('deleteCard',{status:"ok",status:"deleted"} );
+
+
+                });
 
 
               });

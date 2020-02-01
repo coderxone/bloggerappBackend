@@ -17,6 +17,7 @@ module.exports = {
 
 
                     var ru_kzt = 0;
+                    var ru_usd = 0;
 
                     for(var i = 0;i < result.ValCurs.Valute.length;i++){
 
@@ -33,6 +34,27 @@ module.exports = {
                           //console.log(ru_kzt);
 
                           db_multiple.query('UPDATE currency SET ru_kzt_russia = ?,unix_time = ? WHERE id = ?', [ru_kzt,update_unix_time,1], function (error, results, fields) {
+
+                            if(results.changedRows == 1){
+                              //update_record = 1;
+                            }
+
+
+                          });
+
+                        }else if(result.ValCurs.Valute[i].CharCode == "USD"){
+
+                          var b = Number(result.ValCurs.Valute[i].Nominal[0]);
+                          var c = parseInt(result.ValCurs.Valute[i].Value[0]);
+                          var update_unix_time = new Date().getTime();
+
+                          ru_usd = c / b;
+
+                          ru_usd = ru_usd.toFixed(2);
+                          //Math.ceil
+                          //console.log(ru_kzt);
+
+                          db_multiple.query('UPDATE currency SET ru_usd = ?,unix_time = ? WHERE id = ?', [ru_usd,update_unix_time,1], function (error, results, fields) {
 
                             if(results.changedRows == 1){
                               //update_record = 1;

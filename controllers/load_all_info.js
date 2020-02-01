@@ -10,25 +10,21 @@ module.exports = function(io){
 
               socket.on('load_all_info', function (data) {
 
-                var device = data.device;
+                var email = data.email;
 
-                socket.join(device);
+                socket.join(email);
 
-                  var agent_tarif = 0;
-                  var client_tarif = 0;
-                  var bonus = 0;
-                  var ru_currency = 0;
 
-                  db_multiple.query('SELECT * FROM `tarif` LIMIT 1;SELECT * FROM `currency`;', function (error, results, fields) {
+                  var currency_usd = 0;
+                  var alldata = 0;
+
+                  db_multiple.query('SELECT * FROM `currency` LIMIT 1;SELECT * FROM `appParams` LIMIT 1;', function (error, results, fields) {
 
                     //console.log(results[0]);
-                    agent_tarif = results[0][0].agent_tarif;
-                    client_tarif = results[0][0].client_tarif;
-                    bonus = results[0][0].bonus;
+                    currency_usd = results[0][0].ru_usd;
+                    alldata = results[1][0];
 
-                    ru_currency = results[1][0].ru_kzt_russia;
-
-                    io.sockets.in(device).emit('load_all_info',{agent_tarif:agent_tarif,client_tarif:client_tarif,bonus:bonus,ru_currency:ru_currency} );
+                    io.sockets.in(email).emit('load_all_info',{currency_usd:currency_usd,alldata:alldata} );
 
                   });
 
