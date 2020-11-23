@@ -43,11 +43,16 @@ module.exports = function(io){
               socket.on('getAllDataE', function (data) {//role 1 for employeer
                 // lat:this.latitude,
                 // long:this.longitude,
+                //console.log(data);
                 var f_lat = data.lat;
                 var f_long = data.long;
                 var device = data.device;
                 var role = 2; //show promote records
                 var email = data.email;
+
+                if(email == ''){
+                  return false;
+                }
 
                 socket.join(email);
 
@@ -63,6 +68,7 @@ module.exports = function(io){
                     db_multiple.query('SELECT *, ( 6371 * acos( cos( radians(" ' + f_lat + ' ") ) * cos( radians( lat ) ) * cos( radians( lng ) - radians(" ' + f_long + ' ") ) + sin( radians(" '+ f_lat +' ") ) * sin( radians( lat ) ) ) ) AS distance FROM UsersData HAVING distance < ' + distance + ' AND role = ? AND pay_status = 1 AND status = 1 ORDER BY priority DESC; SELECT * FROM `Users` WHERE email = ?;SELECT * FROM `complete_task` WHERE `user_email` = ?;SELECT * FROM `UserApproveTasks` ORDER BY priority DESC;SELECT * FROM `complete_approve_task` WHERE `user_email` = ?;',[role,email,email,email], function (error, results, fields) {
 
             //check user approve status
+            //console.log(results[1]);
             var approve_status = results[1][0].approvestatus;
 
             //check user approve status

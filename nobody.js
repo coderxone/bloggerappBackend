@@ -1,6 +1,11 @@
 var app = require('express')();
-var http = require('http').Server(app);
-var io = require('socket.io')(http);
+const fs = require('fs');
+var https = require('https').Server({
+  key: fs.readFileSync('certificates/2clickkey.pem'),
+  cert: fs.readFileSync('certificates/2click_orgcrt.pem')
+},app);
+
+var io = require('socket.io')(https);
 var request = require('request');
 var get_currencies = require("./services/get_currencies.js");
 
@@ -165,7 +170,7 @@ setInterval(function(){
 
 
 
-http.listen(3002, function(){
+https.listen(3002, function(){
   console.log('listening on *:3002');
 });
 
