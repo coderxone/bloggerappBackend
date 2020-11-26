@@ -45,7 +45,7 @@ module.exports = {
                        //console.log(err);
                        console.log(err);
                    } else {
-                     //console.log(res);
+                     console.log(res);
 
 
                    }
@@ -135,6 +135,11 @@ module.exports = {
                              },
                              token: registrationToken
                            };
+
+                      if(registrationToken == ""){
+                        return false;
+                      }
+
 
                            admin.messaging().send(message)
                              .then((response) => {
@@ -236,6 +241,10 @@ module.exports = {
                           resolve("not token");
                         }
 
+                    }
+
+                    if(registrationToken == ""){
+                      return false;
                     }
 
                     var message = {

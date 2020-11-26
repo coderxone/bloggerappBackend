@@ -1,11 +1,58 @@
 var app = require('express')();
 const fs = require('fs');
-var https = require('https').Server({
-  key: fs.readFileSync('certificates/2clickkey.pem'),
-  cert: fs.readFileSync('certificates/2click_orgcrt.pem')
-},app);
+// var https = require('https').Server({
+//   key: fs.readFileSync('certificates/2clickkey.pem'),
+//   cert: fs.readFileSync('certificates/2click_orgcrt.pem')
+// },app);
 
-var io = require('socket.io')(https);
+
+
+
+// var https = require('http').Server(app, {
+//   cors: {
+//     origin: "*",
+//     //methods: ["GET", "POST"],
+//     //allowedHeaders: ["my-custom-header"],
+//     //credentials: true
+//   }
+// });
+
+var https = require('http').createServer(function(req,res){
+
+    // Set CORS headers
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Request-Method', '*');
+    res.setHeader('Access-Control-Allow-Methods', '*');
+    res.setHeader('Access-Control-Allow-Headers', '*');
+
+
+});
+
+var io = require('socket.io')(https, {
+    handlePreflightRequest: (req, res) => {
+        const headers = {
+            "Access-Control-Allow-Headers": "*",
+            "Access-Control-Allow-Origin": "*", //or the specific origin you want to give access to,
+            //"Access-Control-Allow-Origin": req.headers.origin, //or the specific origin you want to give access to,
+          //  "Access-Control-Allow-Credentials": true
+        };
+        res.writeHead(200, headers);
+        res.end();
+    }
+});
+
+// const sio = require("socket.io")(server, {
+//     handlePreflightRequest: (req, res) => {
+//         const headers = {
+//             "Access-Control-Allow-Headers": "Content-Type, Authorization",
+//             "Access-Control-Allow-Origin": req.headers.origin, //or the specific origin you want to give access to,
+//             "Access-Control-Allow-Credentials": true
+//         };
+//         res.writeHead(200, headers);
+//         res.end();
+//     }
+// });
+
 var request = require('request');
 var get_currencies = require("./services/get_currencies.js");
 
@@ -170,8 +217,8 @@ setInterval(function(){
 
 
 
-https.listen(3002, function(){
-  console.log('listening on *:3002');
+https.listen(3004, function(){
+  console.log('listening on *:3004');
 });
 
 
