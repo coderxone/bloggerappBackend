@@ -2,6 +2,7 @@ var multiple_db = require('../config/multiple_mysql.js');
 var formHelper = require("../models/formHelpers.js");
 var timeconverter = require("../models/timeconverter.js");
 var notificationBox = require("../models/notificationBox.js");
+var cryptLibrary = require("../models/cryptLibrary.js");
 
 
 module.exports = function(io){
@@ -293,12 +294,14 @@ module.exports = function(io){
                 var date = timeconverter.timeConverter_us(new Date().getTime());
 
                 //io.sockets.in(data.sendemail).emit('Message', {msg: data.message});
-                io.sockets.to(toEmail).emit('Message', {message: message,fromEmail:fromEmailh,toEmail:toEmail,date:date});
+                io.sockets.to(toEmail).emit('Message', cryptLibrary.encrypt({message: message,fromEmail:fromEmailh,toEmail:toEmail,date:date}));
 
               }
 
 
-              socket.on("checkAutomaticMessages",function(data){
+              socket.on("checkAutomaticMessages",function(encryptData){
+
+                    var data = cryptLibrary.decrypt(encryptData);
 
                     var email = data.email;
                     socket.join(email);
@@ -315,7 +318,7 @@ module.exports = function(io){
                                 sendMessageFromSystem(results[j].text,results[j].fromEmail,email);
                               }
 
-                              io.sockets.to(email).emit('checkAutomaticMessages', {status:"ok"});
+                              io.sockets.to(email).emit('checkAutomaticMessages', cryptLibrary.encrypt({status:"ok"}));
                           }
 
 

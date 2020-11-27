@@ -38,7 +38,7 @@ var users = {};
                 var update_unix_time = new Date().getTime();
 
                 multiple_db.query('UPDATE Users SET online = ?, online_latest_time = ? WHERE socketid = ?', [0,update_unix_time,socket.id], function (error, results, fields) {
-                    io.sockets.emit('onlineUsers', {status: 'offline',username:users[socket.id]});
+                    io.sockets.emit('onlineUsers', cryptLibrary.encrypt({status: 'offline',username:users[socket.id]}));
                 });
 
               });

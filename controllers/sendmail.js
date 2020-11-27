@@ -2,6 +2,7 @@ var multiple_db = require('../config/multiple_mysql.js');
 var formHelper = require("../models/formHelpers.js");
 var timeconverter = require("../models/timeconverter.js");
 var nodemailer = require('nodemailer');
+var cryptLibrary = require("../models/cryptLibrary.js");
 
 
 
@@ -12,12 +13,14 @@ module.exports = function(io){
         io.on('connection', function(socket){
 
 
-              socket.on('sendmail', function (data) {
+              socket.on('sendmail', function (encryptData) {
 
+                    var data = cryptLibrary.decrypt(encryptData);
 
                    socket.join(data.deviceid);
                    var sendemail = formHelper.cleanString(data.sendemail);
 
+                   //console.log(data);
 
 
                    multiple_db.query('SELECT * FROM `Users` WHERE `email` = ?', [sendemail], function (error, results, fields) {
@@ -39,23 +42,23 @@ module.exports = function(io){
                             service: 'gmail',
                             auth: {
                               user: '2clickorg@gmail.com',
-                              pass: 'googlehack7777'
+                              pass: 'googlehackA&'
                             }
                           });
 
 
-                          transporter.sendMail(mailOptions, function (err, res) {
-                              if(err){
-                                  //console.log(err);
-                              } else {
-                                //  console.log(res);
-                              }
-                          })
+                          // transporter.sendMail(mailOptions, function (err, res) {
+                          //     if(err){
+                          //
+                          //     } else {
+                          //
+                          //     }
+                          // })
 
-                            io.sockets.in(data.deviceid).emit('sendmail', {status: 'sended'});
+                            io.sockets.in(data.deviceid).emit('sendmail', cryptLibrary.encrypt({status: 'sended'}));
 
                          }else{
-                           io.sockets.in(data.deviceid).emit('sendmail', {status: 'notfound'});
+                           io.sockets.in(data.deviceid).emit('sendmail', cryptLibrary.encrypt({status: 'notfound'}));
                          }
 
                        });
