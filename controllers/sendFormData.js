@@ -15,27 +15,27 @@ module.exports = function(io){
                    socket.join(data.deviceid);
 
                    var role = data.role;
-                   var locationPoints = data.location;
+                   var locationPoints = data.data.fullData;
 
-                   var geometryLat = locationPoints.places[0].geometry.location.lat;
-                   var geometryLong = locationPoints.places[0].geometry.location.lng;
+                   var geometryLat = data.data.geometry.location.lat;
+                   var geometryLong = data.data.geometry.location.lng;
 
                    //console.log(role);
 
                    var insert  = {
-                     url: formHelper.cleanString(data.data.url),
+                     url: formHelper.cleanString(data.data.title),
                      location_name:formHelper.cleanString(data.data.location),
                      location_points:Serialize.serialize(locationPoints),//shifr
                      lat:geometryLat,
                      lng:geometryLong,
                      date: new Date(data.data.date).getTime(),
                      time: new Date(data.data.time).getTime(),
-                     sum: formHelper.cleanString(data.data.sum),
+                     sum: formHelper.cleanString(data.data.amount),
                      description: formHelper.cleanString(data.data.description),
-                     role:role,
+                     role:2,
                      email:data.email,
-                     peoplecount:formHelper.cleanString(data.data.minviews),
-                     countvideo:formHelper.cleanString(data.data.minvideos)
+                     peoplecount:formHelper.cleanString(1),
+                     countvideo:formHelper.cleanString(1)
                    };
 
 
