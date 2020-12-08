@@ -2,6 +2,7 @@ var multiple_db = require('../config/multiple_mysql.js');
 var formHelper = require("../models/formHelpers.js");
 var Serialize = require('php-serialize');
 var timeconverter = require("../models/timeconverter.js");
+var cryptLibrary = require("../models/cryptLibrary.js");
 
 
 module.exports = function(io){
@@ -10,32 +11,39 @@ module.exports = function(io){
         io.on('connection', function(socket){
 
 
-              socket.on('sendFormData', function (data) {
+              socket.on('sendFormData', function (encrypt) {
+
+                   var data = cryptLibrary.decrypt(encrypt);
 
                    socket.join(data.deviceid);
 
-                   var role = data.role;
-                   var locationPoints = data.data.fullData;
+                   var LocationData = JSON.parse(data.data.coord)
 
-                   var geometryLat = data.data.geometry.location.lat;
-                   var geometryLong = data.data.geometry.location.lng;
+                   var locationPoints = LocationData.fullData;
 
+                   var geometryLat = LocationData.geometry.lat;
+                   var geometryLong = LocationData.geometry.lng;
+
+                   // console.log(LocationData);
+                   // return false;
                    //console.log(role);
 
+
                    var insert  = {
-                     url: formHelper.cleanString(data.data.title),
-                     location_name:formHelper.cleanString(data.data.location),
+                     url: formHelper.cleanString(data.title),
+                     location_name:formHelper.cleanString(LocationData.title),
                      location_points:Serialize.serialize(locationPoints),//shifr
                      lat:geometryLat,
                      lng:geometryLong,
-                     date: new Date(data.data.date).getTime(),
-                     time: new Date(data.data.time).getTime(),
+                     date: new Date(data.date).getTime(),
+                     time: new Date(data.time).getTime(),
                      sum: formHelper.cleanString(data.data.amount),
                      description: formHelper.cleanString(data.data.description),
                      role:2,
                      email:data.email,
-                     peoplecount:formHelper.cleanString(1),
-                     countvideo:formHelper.cleanString(1)
+                     peoplecount:formHelper.cleanString(data.data.peopleCount),
+                     subscribers:formHelper.cleanString(data.data.subscribers),
+                     countvideo:formHelper.cleanString(data.data.peopleCount)
                    };
 
 

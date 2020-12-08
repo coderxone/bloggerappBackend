@@ -86,6 +86,7 @@ require('./controllers/check_user_pay.js')(io);	//
 require('./controllers/getmoney.js')(io);	//
 require('./controllers/publicmodule.js')(io);	//
 require('./controllers/adminController.js')(io);	//
+require('./controllers/subscribersCore.js')(io);	//
 //require('./controllers/managementPaypal.js')(io);	//
 
 
