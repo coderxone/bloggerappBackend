@@ -3,6 +3,7 @@ var formHelper = require("../models/formHelpers.js");
 var Serialize = require('php-serialize');
 var timeconverter = require("../models/timeconverter.js");
 var cryptLibrary = require("../models/cryptLibrary.js");
+var timeLibrary = require("../models/timeconverter.js");
 
 
 module.exports = function(io){
@@ -28,15 +29,14 @@ module.exports = function(io){
                    // return false;
                    //console.log(role);
 
-
                    var insert  = {
-                     url: formHelper.cleanString(data.title),
+                     url: formHelper.cleanString(data.data.title),
                      location_name:formHelper.cleanString(LocationData.title),
                      location_points:Serialize.serialize(locationPoints),//shifr
                      lat:geometryLat,
                      lng:geometryLong,
-                     date: new Date(data.date).getTime(),
-                     time: new Date(data.time).getTime(),
+                     date: timeLibrary.convertToUnixjsGetTime(formHelper.cleanString(data.data.date)),
+                     time: timeLibrary.getUnixfromDate_Time(formHelper.cleanString(data.data.date + " " + data.data.time)),
                      sum: formHelper.cleanString(data.data.amount),
                      description: formHelper.cleanString(data.data.description),
                      role:2,
@@ -49,12 +49,15 @@ module.exports = function(io){
 
 
                      var query = multiple_db.query('INSERT INTO UsersData SET ?', insert, function (error, results, fields) {
-                       if (error) throw error;
+                       if (error){
+                          console.log(error);
+                       }
 
-                       //console.log(results.insertId);
-                       //console.log(fields);
+                       console.log(results.insertId);
 
-                       io.sockets.in(data.deviceid).emit('sendFormData', {status:"ok",insertId:results.insertId});
+                       var encrypt = cryptLibrary.encrypt({status:"ok",insertId:results.insertId});
+
+                       io.sockets.in(data.deviceid).emit('sendFormData',encrypt );
 
                      });
 
@@ -65,38 +68,94 @@ module.exports = function(io){
               });
 
 
-              socket.on('setPaymentDb', function (data) {
+              socket.on('setPaymentDb', function (encrypt) {
 
-                   socket.join(data.email);
-                   var id = data.id;
+                   var data = cryptLibrary.decrypt(encrypt);
 
-                   multiple_db.query('UPDATE UsersData SET pay_status = ? WHERE id = ?', [1,id], function (error, results, fields) {
+                   socket.join(data.deviceid);
+                   var insertId = data.insertId;
+                   var transactionData = data.transactionData;
+
+                   // var sendObject = {
+                   //      "insertId":insertId,
+                   //      "transactionId":transactionId,
+                   //      "orderId":orderId,
+                   //      "payerID":payerID,
+                   //      "payerEmail":payerEmail,
+                   //      "given_name":given_name,
+                   //      "surname":surname,
+                   //      "amount":amount
+                   //    }
+
+                   multiple_db.query('UPDATE UsersData SET pay_status = ? WHERE id = ?', [1,insertId], function (error, results, fields) {
 
 
-                       io.sockets.in(data.email).emit('setPaymentDb', {status:"ok"});
+                     var insert  = {
+                       transactionId: transactionData.transactionId,
+                       orderId:transactionData.orderId,
+                       unix_time:timeLibrary.convertPayPalDateToUnix(transactionData.create_time),
+                       payerID:transactionData.payerID,
+                       email:transactionData.payerEmail,
+                       given_name:transactionData.given_name,
+                       surname:transactionData.surname,
+                       amount:transactionData.amount
+                     };
+
+
+                     var query = multiple_db.query('INSERT INTO transactions SET ?', insert, function (error, results, fields) {
+
+                       if(error){
+                         console.log(error);
+                       }
+
+                       io.sockets.in(data.deviceid).emit('setPaymentDb', cryptLibrary.encrypt({status:"ok"}));
+
+                     });
 
 
 
                    });
 
 
+
+
               });
 
 
-              socket.on('checkPayments', function (data) {
+              socket.on('checkPayments', function (encrypt) {
 
-                   socket.join(data.email);
+                   var data = cryptLibrary.decrypt(encrypt);
+                   socket.join(data.deviceid);
+                   var checkid = data.id;
 
                    var montharray = new Array();//filtration copy
                    var monthcount = new Array();//count array
 
-                   multiple_db.query('SELECT * FROM UsersData WHERE pay_status = ?', [1], function (error, results, fields) {
+                   multiple_db.query('SELECT * FROM UsersData WHERE pay_status = ? AND id = ?', [1,checkid], function (error, results, fields) {
 
 
                      if(results.length > 0){
 
                        for(var i = 0;i < results.length;i++){
                          results[i].month = timeconverter.getunixMonth(results[i].date);
+                         var CurrentMonth = timeconverter.getcurrentMonth();
+
+                         var unixDate = timeconverter.getUnixDate(results[i].date);
+                         var currentDate = timeconverter.getcurrentDate();
+
+                         if(results[i].month == CurrentMonth){
+                           results[i].monthVerified = true;
+                         }else{
+                           results[i].monthVerified = false;
+                         }
+
+                         if(unixDate == currentDate){
+                           results[i].dateVerified = true;
+                         }else{
+                           results[i].dateVerified = false;
+                         }
+
+
 
                          if(montharray.length > 0){
                            var fix = 0;
@@ -117,10 +176,10 @@ module.exports = function(io){
                          }
                        }
 
-                       io.sockets.in(data.email).emit('checkPayments', {status: 'ok',count:results.length,montharray:montharray,monthcount:monthcount,data:results});
+                       io.sockets.in(data.deviceid).emit('checkPayments', cryptLibrary.encrypt({status: 'ok',count:results.length,montharray:montharray,monthcount:monthcount,data:results}));
 
                      }else{
-                       io.sockets.in(data.email).emit('checkPayments', {status: 'false'});
+                       io.sockets.in(data.deviceid).emit('checkPayments', cryptLibrary.encrypt({status: 'false'}));
                      }
 
 

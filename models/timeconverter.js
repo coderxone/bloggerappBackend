@@ -48,6 +48,7 @@ module.exports = {
 
    },
 
+
     timeConverter_us_date:function(UNIX_timestamp){
 
      return moment.unix(UNIX_timestamp / 1000).format("MM/DD/YYYY");
@@ -83,6 +84,25 @@ module.exports = {
         //'2012.08.10'
         var converdate = parseInt((new Date(jsdate).getTime() / 1000).toFixed(0));
 
+        return converdate;
+
+    },
+    convertPayPalDateToUnix:function(jsdate){
+        //new Date().getTime()
+        //'2012.08.10'
+        var converdate = Date.parse(jsdate);
+
+        return converdate;
+
+    },
+
+    convertToUnixjsGetTime:function(jsdate){
+        //new Date().getTime()
+        //'2012.08.10'
+        var converdate = parseInt((new Date(jsdate).getTime() / 1000).toFixed(0));
+
+        return converdate;
+
     },
 
     converUnixTojsTime:function(UNIX_timestamp){
@@ -100,6 +120,12 @@ module.exports = {
       return time;
 
     },
+
+    getUnixfromDate_Time:function(value){
+
+       return moment(value, "MM/dd/yyyy HH:mm:ss").unix();
+
+     },
 
     getUnixtime:function(){
 
@@ -119,7 +145,36 @@ module.exports = {
      // var sec = a.getSeconds();
      //var time = date + ' ' + month + ' ' + year + ' ' + hour + ':' + min + ':' + sec ;
      return month;
-   }
+   },
 
+    getcurrentMonth:function(){
+     var a = new Date();
+     var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+     var year = a.getFullYear();
+     var month = months[a.getMonth()];
+     // var date = a.getDate();
+     // var hour = a.getHours();
+     // var min = a.getMinutes();
+     // var sec = a.getSeconds();
+     //var time = date + ' ' + month + ' ' + year + ' ' + hour + ':' + min + ':' + sec ;
+     return month;
+   },
+
+   getUnixDate:function(UNIX_timestamp){
+
+    var today = new Date(UNIX_timestamp * 1000);
+    var dd = String(today.getDate()).padStart(2, '0');
+
+    return dd;
+   },
+
+    getcurrentDate:function(){
+
+     var today = new Date();
+     var dd = String(today.getDate()).padStart(2, '0');
+
+     return dd;
+    },
+    
 
 }
