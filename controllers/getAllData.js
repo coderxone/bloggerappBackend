@@ -3,6 +3,8 @@ var request = require('request');
 var timeconverter = require("../models/timeconverter.js");
 var formHelper = require("../models/formHelpers.js");
 var short = require('short-uuid');
+var cryptLibrary = require("../models/cryptLibrary.js");
+var timeLibrary = require("../models/timeconverter.js");
 
 
 
@@ -12,11 +14,15 @@ module.exports = function(io){
         io.on('connection', function(socket){
 
 
-              socket.on('getAllData', function (data) {//role 2 promote role
+              socket.on('getAllData', function (encryptData) {//role 2 promote role
+
+                var data = cryptLibrary.decrypt(encryptData);
 
                 var device = data.device;
                 var role = data.role;
                 var email = data.email;
+
+                //console.log(data);
 
                 socket.join(email);
 
@@ -32,7 +38,7 @@ module.exports = function(io){
                   }
 
 
-                    io.sockets.in(email).emit('getAllData',{sdata:results[0],userdata:results[1],message:data.message} );
+                    io.sockets.in(email).emit('getAllData',cryptLibrary.encrypt({sdata:results[0],userdata:results[1],message:data.message}) );
                   });
 
 

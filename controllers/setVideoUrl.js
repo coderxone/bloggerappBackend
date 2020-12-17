@@ -1,6 +1,8 @@
 var multiple_db = require('../config/multiple_mysql.js');
 var formHelper = require("../models/formHelpers.js");
 var timeconverter = require("../models/timeconverter.js");
+var cryptLibrary = require("../models/cryptLibrary.js");
+var timeLibrary = require("../models/timeconverter.js");
 
 module.exports = function(io){
 
@@ -41,11 +43,14 @@ module.exports = function(io){
               });
 
 
-              socket.on('checkvideo', function (data) {
+              socket.on('checkvideo', function (encrypt) {
 
-                   socket.join(data.email);
+                   var data = cryptLibrary.decrypt(encrypt);
+
+                   socket.join(data.deviceid);
                    //timeconverter.getunixMonth
-                   var project_id = data.project_id;
+                   console.log(data);
+                   var project_id = data.data.project_id;
                    var user_email = data.email;
                    var montharray = new Array();//filtration copy
                    var monthcount = new Array();//count array
@@ -76,9 +81,9 @@ module.exports = function(io){
                          }
                        }
 
-                       io.sockets.in(data.email).emit('checkvideo', {status: 'ok',count:results.length,montharray:montharray,monthcount:monthcount,data:results});
+                       io.sockets.in(data.deviceid).emit('checkvideo', cryptLibrary.encrypt({status: 'ok',count:results.length,montharray:montharray,monthcount:monthcount,data:results}));
                      }else{
-                       io.sockets.in(data.email).emit('checkvideo', {status: 'false'});
+                       io.sockets.in(data.deviceid).emit('checkvideo', cryptLibrary.encrypt({status: 'false'}));
                      }
 
 
