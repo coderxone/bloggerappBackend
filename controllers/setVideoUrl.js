@@ -102,7 +102,7 @@ module.exports = function(io){
 
                    socket.join(data.deviceid);
                    //timeconverter.getunixMonth
-                   console.log(data);
+                   //console.log(data);
                    var project_id = data.data.project_id;
                    var user_email = data.email;
                    var montharray = new Array();//filtration copy
@@ -225,17 +225,25 @@ module.exports = function(io){
 
 
 
-              socket.on('checkviews', function (data) {
+              socket.on('checkviews', function (encrypt) {
 
-                   socket.join(data.email);
+                   var data = cryptLibrary.decrypt(encrypt);
+                   socket.join(data.deviceid);
+                   var project_id = data.project_id;
 
-                   var hash = data.hash;
+                   multiple_db.query('SELECT uniquenames.hash FROM `uniquenames` WHERE `project_id` = ?;', [project_id], function (error, results, fields) {
 
-                   multiple_db.query('SELECT * FROM `views` WHERE `hash` = ?', [hash], function (error, results, fields) {
+                      if(results.length > 0){
+                        var hash = results[0].hash;
+
+                        multiple_db.query('SELECT * FROM `views` WHERE `hash` = ?', [hash], function (error, results, fields) {
 
 
-                     io.sockets.in(data.email).emit('checkviews', {status: 'ok',count:results.length});
+                              io.sockets.in(data.deviceid).emit('checkviews', cryptLibrary.encrypt({status: 'ok',count:results.length}));
 
+
+                            });
+                      }
 
                        });
 
