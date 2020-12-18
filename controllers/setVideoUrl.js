@@ -49,13 +49,13 @@ module.exports = function(io){
 
                    socket.join(data.deviceid);
                    //timeconverter.getunixMonth
-                   console.log(data);
+                  // console.log(data);
                    var project_id = data.data.project_id;
                    var user_email = data.email;
                    var montharray = new Array();//filtration copy
                    var monthcount = new Array();//count array
 
-                   multiple_db.query('SELECT * FROM `usersvideo` WHERE `project_id` = ? AND `user_email` = ?', [project_id,user_email], function (error, results, fields) {
+                   multiple_db.query('SELECT * FROM `usersvideo` WHERE `project_id` = ? AND `user_email` = ? AND `status` = ?', [project_id,user_email,2], function (error, results, fields) {
 
                      if(results.length > 0){
 
@@ -89,6 +89,80 @@ module.exports = function(io){
 
 
                        });
+
+
+
+              });
+
+
+
+              socket.on('checkvideoApproved', function (encrypt) {
+
+                   var data = cryptLibrary.decrypt(encrypt);
+
+                   socket.join(data.deviceid);
+                   //timeconverter.getunixMonth
+                   console.log(data);
+                   var project_id = data.data.project_id;
+                   var user_email = data.email;
+                   var montharray = new Array();//filtration copy
+                   var monthcount = new Array();//count array
+
+                   multiple_db.query('SELECT * FROM `usersvideo` WHERE `project_id` = ? AND `user_email` = ? AND `status` = ?', [project_id,user_email,1], function (error, results, fields) {
+
+                     if(results.length > 0){
+
+                       for(var i = 0;i < results.length;i++){
+                         results[i].month = timeconverter.getunixMonth(results[i].date);
+
+                         if(montharray.length > 0){
+                           var fix = 0;
+                           for(var j = 0;j < montharray.length;j++){
+                             if(montharray[j].month == results[i].month){
+                               fix = 1;
+                               monthcount[j] = monthcount[j] + 1;
+                             }
+                           }
+
+                           if(fix == 0){
+                             montharray.push(results[i]);
+                             monthcount.push(1);
+                           }
+                         }else{
+                           montharray.push(results[i]);
+                           monthcount.push(1);
+                         }
+                       }
+
+                       io.sockets.in(data.deviceid).emit('checkvideoApproved', cryptLibrary.encrypt({status: 'ok',count:results.length,montharray:montharray,monthcount:monthcount,data:results}));
+                     }else{
+                       io.sockets.in(data.deviceid).emit('checkvideoApproved', cryptLibrary.encrypt({status: 'false'}));
+                     }
+
+
+
+                       });
+
+
+
+              });
+
+
+
+              socket.on('setApprove', function (encrypt) {
+
+                   var data = cryptLibrary.decrypt(encrypt);
+
+                   socket.join(data.deviceid);
+                   //timeconverter.getunixMonth
+                   console.log(data);
+                   var update_id = data.id;
+
+                   multiple_db.query('UPDATE usersvideo SET status = ? WHERE id = ?', [1,update_id], function (error, results, fields) {
+
+                       io.sockets.in(data.deviceid).emit('setApprove', cryptLibrary.encrypt({status: 'ok'}));
+
+                   });
 
 
 
