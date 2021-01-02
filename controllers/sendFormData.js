@@ -11,7 +11,6 @@ module.exports = function(io){
 
         io.on('connection', function(socket){
 
-
               socket.on('sendFormData', function (encrypt) {
 
                    var data = cryptLibrary.decrypt(encrypt);
