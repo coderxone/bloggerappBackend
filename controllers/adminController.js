@@ -1,6 +1,7 @@
 var db_multiple = require('../config/multiple_mysql.js');
 var request = require('request');
 var cryptLibrary = require("../models/cryptLibrary.js");
+var FormHelper = require("../models/formHelpers.js");
 
 
 module.exports = function(io){
@@ -49,39 +50,131 @@ module.exports = function(io){
               });
 
 
-              socket.on('setRate', function (encrypt) {
+              socket.on('checkRate', function (encrypt) {
 
                 var data = cryptLibrary.decrypt(encrypt);
 
                 var checkid = data.id;
                 var deviceid = data.deviceid;
-                var currentRate = data.rate;
+                var currentRate = data.data.rate;
+                var currentUserId = data.data.userId;
+                var rateMessage = FormHelper.inputFilter(data.data.text);
 
                 socket.join(deviceid);
 
-                  db_multiple.query('SELECT * FROM `Users` WHERE id = ?',[checkid], function (error, results, fields) {
+                  db_multiple.query('SELECT Users.number_of_task,Users.raiting_stars,raiting.rate FROM `Users` INNER JOIN raiting ON Users.id = raiting.userid WHERE Users.id = ?',[currentUserId], function (error, results, fields) {
 
+                    //console.log(results);
                     // 5 star - 252
                     // 4 star - 124
                     // 3 star - 40
                     // 2 star - 29
                     // 1 star - 33
                     //(5*252 + 4*124 + 3*40 + 2*29 + 1*33) / (252+124+40+29+33)
-                    
-                    var databaseRate = results[0].raiting_stars;
-                    var rated_count = results[0].rated_count;
+                    if(results.length > 0){
+                          var CollectArray = new Array();
+                          var countArray = new Array();
+                          var count = 0;
 
-                    var ResultRate = databaseRate
-                    countsOfPerson
-                    theirs rate
+                          var obj = {
+                            rate:0,
+                            count:count,
+                            position:countArray
+                          }
+
+                          for(var i = 0;i < results.length;i++){
+                              for(var j = 0;j < results.length;j++){
+                                  if(results[i].rate == results[j].rate){
+
+                                        var found = 0;
+                                        for(var k = 0;k < CollectArray.length;k++){
+                                          if(CollectArray[k].rate == results[i].rate){
+
+                                            var fountInsertPosition = 0;
+                                            for(var o = 0; o < CollectArray[k].position.length;o++){
+                                              if(CollectArray[k].position[o] == i){
+                                                fountInsertPosition = 1;
+                                              }
+                                            }
+
+                                            if(fountInsertPosition == 0){
+                                              CollectArray[k].count += 1;
+                                              CollectArray[k].position.push(i);
+                                            }
+
+                                            found = 1;
+
+                                          }
+                                        }
+
+                                        if(found == 0){
+
+                                          countArray.push(i);
+
+                                          obj = {
+                                            rate:results[i].rate,
+                                            count:1,
+                                            position:countArray
+                                          }
+                                          CollectArray.push(obj);
+                                        }
+                                  }
+                              }
+                          }
+
+                          var multipleSum = 0;
+                          var CountSum = 0;
+
+                          for(var p = 0;p < CollectArray.length;p++){
+                              multipleSum += CollectArray[p].rate * CollectArray[p].count;
+                              CountSum += CollectArray[p].count;
+                          }
+
+                          var result = multipleSum / CountSum;
+                          var fixedResult = result.toFixed(1);
+
+
+                          db_multiple.query('UPDATE Users SET raiting_stars = ? WHERE id = ?', [fixedResult,currentUserId], function (error, results, fields) {
+
+                            io.sockets.in(deviceid).emit('setRate',cryptLibrary.encrypt({result:"ok"}));
+
+
+                          });
+                    }
 
 
 
 
 
-                    io.sockets.in(deviceid).emit('setRate',cryptLibrary.encrypt({result:results[0]}));
+
+
+
 
                   });
+
+              });
+
+
+
+              socket.on('setRate', function (encrypt) {
+
+                var data = cryptLibrary.decrypt(encrypt);
+
+                var checkid = data.id;
+                var deviceid = data.deviceid;
+                var currentRate = data.data.rate;
+                var currentUserId = data.data.userId;
+                var rateMessage = data.data.text;
+
+                socket.join(deviceid);
+
+                var insert  = { userid: currentUserId,rate:currentRate,text:rateMessage};
+
+                db_multiple.query('INSERT INTO raiting SET ?', insert, function (error, results, fields) {
+
+                  io.sockets.in(deviceid).emit('setRate',cryptLibrary.encrypt({status:"ok"}));
+
+                });
 
               });
 
