@@ -168,13 +168,24 @@ module.exports = function(io){
 
                 socket.join(deviceid);
 
-                var insert  = { userid: currentUserId,rate:currentRate,text:rateMessage};
+                db_multiple.query('SELECT * FROM `raiting` WHERE `userid` = ?', [currentUserId], function (error, results, fields) {
 
-                db_multiple.query('INSERT INTO raiting SET ?', insert, function (error, results, fields) {
+                  if(results.length > 0){
+                      io.sockets.in(deviceid).emit('setRate',cryptLibrary.encrypt({status:"exist_user"}));
+                  }else{
+                    var insert  = { userid: currentUserId,rate:currentRate,text:rateMessage};
 
-                  io.sockets.in(deviceid).emit('setRate',cryptLibrary.encrypt({status:"ok"}));
+                    db_multiple.query('INSERT INTO raiting SET ?', insert, function (error, results, fields) {
 
-                });
+                      io.sockets.in(deviceid).emit('setRate',cryptLibrary.encrypt({status:"ok"}));
+
+                    });
+                  }
+
+
+                    });
+
+
 
               });
 
