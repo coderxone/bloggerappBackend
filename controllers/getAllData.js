@@ -46,10 +46,12 @@ module.exports = function(io){
               });
 
 
-              socket.on('getAllDataE', function (data) {//role 1 for employeer
+              socket.on('getAllDataE', function (encrypt) {//role 1 for employeer
                 // lat:this.latitude,
                 // long:this.longitude,
                 //console.log(data);
+                var data = cryptLibrary.decrypt(encrypt);
+
                 var f_lat = data.lat;
                 var f_long = data.long;
                 var device = data.device;
@@ -63,9 +65,10 @@ module.exports = function(io){
                 socket.join(email);
 
 
-                var distance = 100;
+                var distance = 10;
                 var trycount = 0;
                 var minsearchPoint = 1;
+                var searchdistance = 10;
 
 
 
@@ -81,13 +84,13 @@ module.exports = function(io){
                 //task main model
                 var jObject;
 
-                if(approve_status == 1){
+                //if(approve_status == 1){
                     if(results[0].length < minsearchPoint){
 
                         if(trycount > 20){
                           return false;
                         }
-                        distance += 500;
+                        distance += searchdistance;
                         //console.log(distance);
                         searchNearMe();
                         trycount++;
@@ -122,7 +125,7 @@ module.exports = function(io){
                           if(results[0].length == 1){
                             minsearchPoint++;
                             console.log(fix + "first ");
-                            distance += 500;
+                            distance += searchdistance;
                             trycount++;
                             searchNearMe();
                             return false;
@@ -132,7 +135,7 @@ module.exports = function(io){
                           if(results[0].length == count){
                             minsearchPoint++;
                             console.log(fix + "-2");
-                            distance += 500;
+                            distance += searchdistance;
                             trycount++;
                             searchNearMe();
                             return false;
@@ -165,7 +168,7 @@ module.exports = function(io){
                       if(newsendarray.length < 1){
                         minsearchPoint++;
                         console.log(fix + "-3");
-                        distance += 500;
+                        distance += searchdistance;
                         trycount++;
                         searchNearMe();
                         return false;
@@ -181,7 +184,8 @@ module.exports = function(io){
                               userdata:results[1],
                               message:data.message,
                               findtask:results[2],
-                              approvestatus:1
+                              approvestatus:1,
+                              distance:distance
                             };
                         }else{
                             jObject = {
@@ -189,47 +193,48 @@ module.exports = function(io){
                               userdata:results[1],
                               message:data.message,
                               findtask:results[2],
-                              approvestatus:1
+                              approvestatus:1,
+                              distance:distance
                             };
                         }
 
-                        io.sockets.in(email).emit('getAllDataE', jObject);
+                        io.sockets.in(email).emit('getAllDataE', cryptLibrary.encrypt(jObject));
 
                       //task main model
 
-                    }else{  //approve status
-
-                      var newsendarray = new Array();
-                      //deleting from array
-
-
-                      for(var b = 0;b < results[3].length;b++){
-
-                        var fixf = 0;
-
-                        for(var l = 0;l < results[4].length;l++){
-                          if(results[3][b].id == results[4][l].task_id){
-                              fixf = 1;
-                          }
-                        }
-                        if(fixf == 0){
-                          newsendarray.push(results[3][b]);
-                        }
-                      }
-
-
-                        jObject = {
-                          sdata:newsendarray,
-                          userdata:results[1],
-                          message:data.message,
-                          findtask:results[2],
-                          approvestatus:0
-                        };
-
-                        io.sockets.in(email).emit('getAllDataE', jObject);
-
-
-                    }
+                    // }else{  //approve status
+                    //
+                    //   var newsendarray = new Array();
+                    //   //deleting from array
+                    //
+                    //
+                    //   for(var b = 0;b < results[3].length;b++){
+                    //
+                    //     var fixf = 0;
+                    //
+                    //     for(var l = 0;l < results[4].length;l++){
+                    //       if(results[3][b].id == results[4][l].task_id){
+                    //           fixf = 1;
+                    //       }
+                    //     }
+                    //     if(fixf == 0){
+                    //       newsendarray.push(results[3][b]);
+                    //     }
+                    //   }
+                    //
+                    //
+                    //     jObject = {
+                    //       sdata:newsendarray,
+                    //       userdata:results[1],
+                    //       message:data.message,
+                    //       findtask:results[2],
+                    //       approvestatus:0
+                    //     };
+                    //
+                    //     io.sockets.in(email).emit('getAllDataE', cryptLibrary.encrypt(jObject));
+                    //
+                    //
+                    // }
 
 
 

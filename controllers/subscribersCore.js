@@ -45,7 +45,7 @@ module.exports = function(io){
                        var readableData = HelpLibrary.readableNumber(countOfSubscribers);
                        //console.log(countOfSubscribers);
 
-                       io.sockets.in(data.deviceid).emit('subscriberCore', cryptLibrary.encrypt({subscribersResult:readableData,countOfBloggers:ThirstCount}));
+                       io.sockets.in(data.deviceid).emit('subscriberCore', cryptLibrary.encrypt({subscribersResult:readableData,originalNumber:countOfSubscribers,countOfBloggers:ThirstCount}));
 
                      }else{
                        io.sockets.in(data.deviceid).emit('subscriberCore', cryptLibrary.encrypt({status: 'false'}));

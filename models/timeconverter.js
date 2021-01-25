@@ -51,12 +51,12 @@ module.exports = {
 
     timeConverter_us_date:function(UNIX_timestamp){
 
-     return moment.unix(UNIX_timestamp / 1000).format("MM/DD/YYYY");
+     return moment.unix(UNIX_timestamp).format("MM/DD/YYYY");
 
    },
     timeConverter_us_time:function(UNIX_timestamp){
 
-     return moment.unix(UNIX_timestamp / 1000).format("hh:mm");
+     return moment.unix(UNIX_timestamp).format("hh:mm");
 
    },
 
@@ -175,6 +175,6 @@ module.exports = {
 
      return dd;
     },
-    
+
 
 }
