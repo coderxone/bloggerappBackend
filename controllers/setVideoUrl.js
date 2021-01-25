@@ -10,7 +10,9 @@ module.exports = function(io){
         io.on('connection', function(socket){
 
 
-              socket.on('setvideo', function (data) {
+              socket.on('setvideo', function (encrypt) {
+
+                   var data = cryptLibrary.decrypt(encrypt);
 
                    socket.join(data.email);
 
@@ -22,14 +24,14 @@ module.exports = function(io){
                    multiple_db.query('SELECT * FROM `usersvideo` WHERE `url` = ?', [url], function (error, results, fields) {
 
                      if(results.length > 0){
-                            io.sockets.in(data.email).emit('setvideo', {status: 'exist'});
+                            io.sockets.in(data.email).emit('setvideo', cryptLibrary.encrypt({status: 'exist'}));
                          }else{
 
                              var insert  = { url: url,	project_id:	project_id,user_email:user_email,date:date};
 
                              var query = multiple_db.query('INSERT INTO usersvideo SET ?', insert, function (error, results, fields) {
 
-                               io.sockets.in(data.email).emit('setvideo', {status: 'inserted'});
+                               io.sockets.in(data.email).emit('setvideo', cryptLibrary.encrypt({status: 'inserted'}));
 
                              });
 

@@ -305,10 +305,13 @@ module.exports = function(io){
                 });
 
 
-              socket.on('makeHref', function (data) {
+              socket.on('makeHref', function (encrypt) {
 
+                var data = cryptLibrary.decrypt(encrypt);
+
+                var deviceid = data.deviceid;
                 var email = data.email;
-                socket.join(email);
+                socket.join(deviceid);
 
                 var status = data.status;
 
@@ -320,11 +323,9 @@ module.exports = function(io){
 
                   db_multiple.query("SELECT * FROM `uniquenames` WHERE `project_id` = ? AND `user_email` = ?",[project_id,email], function (error, results, fields) {
 
-
                     if(results.length > 0){
                       //existing
-                      io.sockets.in(email).emit('makeHref',{status:"ok",url:results[0].hash} );
-
+                      io.sockets.in(deviceid).emit('makeHref',cryptLibrary.encrypt({status:"ok",url:results[0].hash}));
                     }
 
 
@@ -332,10 +333,9 @@ module.exports = function(io){
                 }else if(status == "set"){
                   db_multiple.query("SELECT * FROM `uniquenames` WHERE `project_id` = ? AND `user_email` = ?",[project_id,email], function (error, results, fields) {
 
-
                     if(results.length > 0){
                       //existing
-                      io.sockets.in(email).emit('makeHref',{status:"ok",url:results[0].hash} );
+                      io.sockets.in(deviceid).emit('makeHref',cryptLibrary.encrypt({status:"ok",url:results[0].hash}) );
 
                     }else{
                       //insert
@@ -344,7 +344,7 @@ module.exports = function(io){
                       var query = db_multiple.query('INSERT INTO uniquenames SET ?', insert, function (error, results, fields) {
 
                         //console.log(error);
-                        io.sockets.in(email).emit('makeHref',{status:"ok",url:generatedId} );
+                        io.sockets.in(deviceid).emit('makeHref',cryptLibrary.encrypt({status:"ok",url:generatedId}));
 
                       });
                     }
