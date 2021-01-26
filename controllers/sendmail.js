@@ -47,13 +47,13 @@ module.exports = function(io){
                           });
 
 
-                          // transporter.sendMail(mailOptions, function (err, res) {
-                          //     if(err){
-                          //
-                          //     } else {
-                          //
-                          //     }
-                          // })
+                          transporter.sendMail(mailOptions, function (err, res) {
+                              if(err){
+
+                              } else {
+
+                              }
+                          })
 
                             io.sockets.in(data.deviceid).emit('sendmail', cryptLibrary.encrypt({status: 'sended'}));
 

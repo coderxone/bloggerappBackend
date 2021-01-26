@@ -17,17 +17,18 @@ module.exports = function(io){
                    socket.join(data.email);
 
                    var url = data.url;
-                   var project_id = data.project_id;
+                   var project_id = data.id;
                    var user_email = data.email;
                    var date = timeconverter.getUnixtime();
+                   var videotype = data.videotype;
 
-                   multiple_db.query('SELECT * FROM `usersvideo` WHERE `url` = ?', [url], function (error, results, fields) {
+                   multiple_db.query('SELECT * FROM `usersvideo` WHERE `url` = ? AND `type` = ? AND `project_id` = ?', [url,videotype,project_id], function (error, results, fields) {
 
                      if(results.length > 0){
                             io.sockets.in(data.email).emit('setvideo', cryptLibrary.encrypt({status: 'exist'}));
                          }else{
 
-                             var insert  = { url: url,	project_id:	project_id,user_email:user_email,date:date};
+                             var insert  = { url: url,	project_id:	project_id,user_email:user_email,date:date,type:videotype};
 
                              var query = multiple_db.query('INSERT INTO usersvideo SET ?', insert, function (error, results, fields) {
 
@@ -57,7 +58,7 @@ module.exports = function(io){
                    var montharray = new Array();//filtration copy
                    var monthcount = new Array();//count array
 
-                   multiple_db.query('SELECT * FROM `usersvideo` WHERE `project_id` = ? AND `status` = ?', [project_id,2], function (error, results, fields) {
+                   multiple_db.query('SELECT * FROM `usersvideo` WHERE `project_id` = ? AND `user_email` = ? AND `status` = ?', [project_id,user_email,2], function (error, results, fields) {
 
                      if(results.length > 0){
 
