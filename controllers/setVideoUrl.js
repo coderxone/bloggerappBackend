@@ -14,25 +14,25 @@ module.exports = function(io){
 
                    var data = cryptLibrary.decrypt(encrypt);
 
-                   socket.join(data.email);
-
+                   var deviceid = data.deviceid;
                    var url = data.url;
                    var project_id = data.id;
                    var user_email = data.email;
                    var date = timeconverter.getUnixtime();
                    var videotype = data.videotype;
+                   socket.join(deviceid);
 
                    multiple_db.query('SELECT * FROM `usersvideo` WHERE `url` = ? AND `type` = ? AND `project_id` = ?', [url,videotype,project_id], function (error, results, fields) {
 
                      if(results.length > 0){
-                            io.sockets.in(data.email).emit('setvideo', cryptLibrary.encrypt({status: 'exist'}));
+                            io.sockets.in(deviceid).emit('setvideo', cryptLibrary.encrypt({status: 'exist'}));
                          }else{
 
                              var insert  = { url: url,	project_id:	project_id,user_email:user_email,date:date,type:videotype};
 
                              var query = multiple_db.query('INSERT INTO usersvideo SET ?', insert, function (error, results, fields) {
 
-                               io.sockets.in(data.email).emit('setvideo', cryptLibrary.encrypt({status: 'inserted'}));
+                               io.sockets.in(deviceid).emit('setvideo', cryptLibrary.encrypt({status: 'inserted'}));
 
                              });
 
@@ -48,12 +48,14 @@ module.exports = function(io){
 
               socket.on('checkvideo', function (encrypt) {
 
-                   var data = cryptLibrary.decrypt(encrypt);
 
-                   socket.join(data.deviceid);
+                   var data = cryptLibrary.decrypt(encrypt);
+                   var deviceid = data.deviceid;
+
+                   socket.join(deviceid);
                    //timeconverter.getunixMonth
                   // console.log(data);
-                   var project_id = data.data.project_id;
+                   var project_id = data.id;
                    var user_email = data.email;
                    var montharray = new Array();//filtration copy
                    var monthcount = new Array();//count array
@@ -344,20 +346,34 @@ module.exports = function(io){
               });
 
 
-              socket.on('closeorders', function (data) {
+              socket.on('closeorders', function (encrypt) {
 
-                   socket.join(data.email);
+                  var data = cryptLibrary.decrypt(encrypt);
+
+                  var deviceid = data.deviceid;
+                   socket.join(deviceid);
                    var update_id = data.id;
                    var approvetask = data.approvetask;
 
                    if(approvetask == 0){
-                     var insert  = { user_email: data.email,task_id:update_id};
 
-                     var query = multiple_db.query('INSERT INTO complete_task SET ?', insert, function (error, results, fields) {
+                     multiple_db.query('SELECT * FROM `complete_task` WHERE `task_id` = ? AND user_email = ?', [update_id, data.email], function (error, results, fields) {
 
-                       io.sockets.in(data.email).emit('closeorders', {status: 'updated'});
+                       if(results.length > 0){
+                              io.sockets.in(deviceid).emit('closeorders', cryptLibrary.encrypt({status: 'updated',currentStatus:0}));
+                           }else{
+                             var insert  = { user_email: data.email,task_id:update_id,status:approvetask};
 
-                     });
+                             var query = multiple_db.query('INSERT INTO complete_task SET ?', insert, function (error, results, fields) {
+
+                               io.sockets.in(deviceid).emit('closeorders', cryptLibrary.encrypt({status: 'updated',currentStatus:0}));
+
+                             });
+                           }
+
+                         });
+
+
                    }else if(approvetask == 1){
 
                      multiple_db.query('SELECT * FROM `UserApproveTasks`;SELECT * FROM `complete_approve_task` WHERE user_email = ?;', [data.email], function (error, results, fields) {
@@ -374,7 +390,7 @@ module.exports = function(io){
 
                                 multiple_db.query('UPDATE Users SET approvestatus = ? WHERE email = ?', [1,data.email], function (error, results, fields) {
 
-                                    io.sockets.in(data.email).emit('closeorders', {status: 'updated'});
+                                    io.sockets.in(deviceid).emit('closeorders', cryptLibrary.encrypt({status: 'updated'}));
 
                                 });
 
@@ -386,7 +402,7 @@ module.exports = function(io){
 
                             var query = multiple_db.query('INSERT INTO complete_approve_task SET ?', insert, function (error, results, fields) {
 
-                              io.sockets.in(data.email).emit('closeorders', {status: 'updated'});
+                              io.sockets.in(deviceid).emit('closeorders', cryptLibrary.encrypt({status: 'updated'}));
 
                             });
                         }
