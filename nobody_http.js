@@ -17,12 +17,12 @@ const fs = require('fs');
 //   }
 // });
 
-var privateKey  = fs.readFileSync('certificates/echohub.key', 'utf8');
-var certificate = fs.readFileSync('certificates/echohub.cert', 'utf8');
+var privateKey  = fs.readFileSync('certificates/2clickkey.pem', 'utf8');
+var certificate = fs.readFileSync('certificates/2click_orgcrt.pem', 'utf8');
 var credentials = {key: privateKey, cert: certificate};
 
-//var https = require('http').createServer(function(req,res){
-var https = require('https').createServer(credentials,function(req,res){
+var https = require('http').createServer(function(req,res){
+//var https = require('https').createServer(credentials,function(req,res){
 
     // Set CORS headers
     res.setHeader('Access-Control-Allow-Origin', '*');
