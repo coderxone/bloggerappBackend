@@ -53,8 +53,9 @@ module.exports = function(io){
                    var deviceid = data.deviceid;
 
                    socket.join(deviceid);
+
                    //timeconverter.getunixMonth
-                  // console.log(data);
+                   //console.log(data);
                    var project_id = data.id;
                    var user_email = data.email;
                    var montharray = new Array();//filtration copy
@@ -96,6 +97,83 @@ module.exports = function(io){
               });
 
 
+
+              socket.on('checkvideoByProject', function (encrypt) {
+
+
+                   var data = cryptLibrary.decrypt(encrypt);
+                   var deviceid = data.deviceid;
+
+                   socket.join(deviceid);
+                   //console.log(data);
+
+                   //timeconverter.getunixMonth
+
+                   var project_id = data.data.project_id;
+                   var user_email = data.email;
+                   var montharray = new Array();//filtration copy
+                   var monthcount = new Array();//count array
+                    //console.log(project_id);
+
+                   multiple_db.query('SELECT Users.raiting_stars, Users.approvestatus,Users.online,Users.image_url, usersvideo.id,usersvideo.url,usersvideo.project_id,usersvideo.user_email,usersvideo.date,usersvideo.status,usersvideo.type FROM Users INNER JOIN usersvideo ON usersvideo.user_email = Users.email WHERE usersvideo.project_id = ? AND usersvideo.status = ?', [project_id,2], function (error, results, fields) {
+
+                      if(error){
+                        return false;
+                      }
+
+                     if(results.length > 0){
+
+                       var filtratedArray = new Array();
+
+                       for(var i = 0;i < results.length;i++){
+                         results[i].month = timeconverter.getunixMonth(results[i].date);
+
+                         if(montharray.length > 0){
+                           var fix = 0;
+                           for(var j = 0;j < montharray.length;j++){
+                             if(montharray[j].month == results[i].month){
+                               fix = 1;
+                               monthcount[j] = monthcount[j] + 1;
+                             }
+                           }
+
+                           if(fix == 0){
+                             montharray.push(results[i]);
+                             monthcount.push(1);
+                           }
+                         }else{
+                           montharray.push(results[i]);
+                           monthcount.push(1);
+                         }
+
+                         //filtration by user_email
+                         var foundX = 0;
+                         for(var b = 0;b < filtratedArray.length;b++){
+                           if(filtratedArray[b].user_email == results[i].user_email){
+                             foundX = 1;
+                           }
+                         }
+                         if(foundX == 0){
+                           filtratedArray.push(results[i]);;
+                         }
+                         //filtration by user_email
+
+                       }
+
+
+
+
+
+                       io.sockets.in(data.deviceid).emit('checkvideoByProject', cryptLibrary.encrypt({status: 'ok',count:results.length,montharray:montharray,monthcount:monthcount,data:filtratedArray}));
+                     }else{
+                       io.sockets.in(data.deviceid).emit('checkvideoByProject', cryptLibrary.encrypt({status: 'false'}));
+                     }
+
+                       });
+
+              });
+
+
               socket.on('checkvideosByUser', function (encrypt) {
 
                    var data = cryptLibrary.decrypt(encrypt);
@@ -108,16 +186,16 @@ module.exports = function(io){
                    var blogger_email = data.data.blogger_email;
                    var montharray = new Array();//filtration copy
                    var monthcount = new Array();//count array
-                   console.log(blogger_email);
-                   console.log(project_id);
+                   //console.log(blogger_email);
+                   //console.log(project_id);
 
                    multiple_db.query('SELECT * FROM `usersvideo` WHERE `project_id` = ? AND `user_email` = ? AND `status` = ?', [project_id,blogger_email,2], function (error, results, fields) {
 
-                     console.log(error);
-                     console.log(results);
+                     //console.log(error);
+                     //console.log(results);
                      if(results.length > 0){
 
-                       console.log(results);
+                       //console.log(results);
 
                        for(var i = 0;i < results.length;i++){
                          results[i].month = timeconverter.getunixMonth(results[i].date);
@@ -211,7 +289,7 @@ module.exports = function(io){
 
                    socket.join(data.deviceid);
                    //timeconverter.getunixMonth
-                   console.log(data);
+                   //console.log(data);
                    var update_id = data.id;
 
                    multiple_db.query('UPDATE usersvideo SET status = ? WHERE id = ?', [3,update_id], function (error, results, fields) {
@@ -383,7 +461,7 @@ module.exports = function(io){
                         var action = commonTasks - (userCompleteTasks + 1);
 
                         if((action == 0) && (commonTasks > userCompleteTasks)){
-                              console.log("need insert and update");
+                              //console.log("need insert and update");
                               var insert  = { user_email: data.email,task_id:update_id};
 
                               var query = multiple_db.query('INSERT INTO complete_approve_task SET ?', insert, function (error, results, fields) {
@@ -397,7 +475,7 @@ module.exports = function(io){
                               });
 
                         }else if((action > 0) && (commonTasks > userCompleteTasks)){
-                            console.log("need insert");
+                            //console.log("need insert");
                             var insert  = { user_email: data.email,task_id:update_id};
 
                             var query = multiple_db.query('INSERT INTO complete_approve_task SET ?', insert, function (error, results, fields) {
@@ -409,8 +487,8 @@ module.exports = function(io){
                        // if(results.length > 0){
                        //
                        //     }
-                       console.log(commonTasks);
-                       console.log(userCompleteTasks);
+                       //console.log(commonTasks);
+                       //console.log(userCompleteTasks);
 
 
                          });

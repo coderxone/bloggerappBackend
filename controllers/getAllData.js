@@ -178,6 +178,8 @@ module.exports = function(io){
 
                       //deleting from array
 
+                      //console.log(newsendarray.length);
+
                       if(deleteArray.length > 0){
                             jObject = {
                               sdata:newsendarray,
