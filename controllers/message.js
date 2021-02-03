@@ -42,9 +42,11 @@ module.exports = function(io){
 
               });
 
-              socket.on("getAllMessages",function(data){
+              socket.on("getAllMessages",function(encrypt){
 
-                    socket.join(data.email);
+                    var data = cryptLibrary.decrypt(encrypt);
+
+                    socket.join(data.deviceid);
 
                     var newArray = new Array();
 
@@ -60,7 +62,7 @@ module.exports = function(io){
                                 }
 
                               }
-                              io.sockets.to(data.email).emit('getAllMessages', {data: newArray});
+                              io.sockets.to(data.deviceid).emit('getAllMessages', cryptLibrary.encrypt({data: newArray}));
                           }
 
 
