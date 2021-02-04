@@ -10,7 +10,9 @@ module.exports = function(io){
 
         io.on('connection', function(socket){
 
-              socket.on('Message', function (data) {
+              socket.on('Message', function (encrypt) {
+
+                   var data = cryptLibrary.decrypt(encrypt);
 
                    socket.join(data.email);
 
@@ -35,10 +37,10 @@ module.exports = function(io){
 
 
                    //send aadditional notifications
-                   notificationBox.sendHyperSingle("new message from " + data.email,"<a href='2click.org'>" + message + "</a>",message,data.sendemail);
+                   notificationBox.sendHyperSingle("new message from " + data.email,"<a href='echohub.io'>" + message + "</a>",message,data.sendemail);
                    //send aadditional notifications
 
-                   io.sockets.to(data.sendemail).emit('Message', {message: data.message,fromEmail:data.email,toEmail:data.sendemail,date:date});
+                   io.sockets.to(data.sendemail).emit('Message', cryptLibrary.encrypt({message: data.message,fromEmail:data.email,toEmail:data.sendemail,date:date}));
 
               });
 
@@ -261,16 +263,19 @@ module.exports = function(io){
 
 
 
-              socket.on("setReaded",function(data){
+              socket.on("setReaded",function(encrypt){
+
+                    var data = cryptLibrary.decrypt(encrypt);
 
                     socket.join(data.toEmail);
+
+                    //{message: data.message,fromEmail:data.email,,date:date}
 
                     //console.log(data);
 
                         multiple_db.query('UPDATE Messages SET read_status = ? WHERE message = ? AND toEmail = ? AND fromEmail = ? ORDER BY id DESC LIMIT 1', [1,data.message,data.toEmail,data.fromEmail], function (error, results, fields) {
 
-                          //console.log(results);
-                          io.sockets.to(data.toEmail).emit('setReaded', {read_status:"ok"});
+                          io.sockets.to(data.toEmail).emit('setReaded', cryptLibrary.encrypt({read_status:"ok"}));
 
                         });
 
@@ -291,7 +296,7 @@ module.exports = function(io){
 
                 });
 
-                notificationBox.sendHyperSingle("new message from " + fromEmailh,"<a href='2click.org'>" + smessage + "</a>",smessage,toEmail);
+                notificationBox.sendHyperSingle("new message from " + fromEmailh,"<a href='echohub.io'>" + smessage + "</a>",smessage,toEmail);
 
                 var date = timeconverter.timeConverter_us(new Date().getTime());
 
