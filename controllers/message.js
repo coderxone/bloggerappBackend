@@ -16,6 +16,7 @@ module.exports = function(io){
 
                    socket.join(data.email);
 
+                   var projectId = data.projectId;
                    //console.log(socket.rooms);
 
                    if(data.message == "init"){
@@ -26,7 +27,7 @@ module.exports = function(io){
 
                    var message = formHelper.cleanString(data.message);
 
-                   var insert  = { message: message,fromEmail:data.email,toEmail:data.sendemail,date:date};
+                   var insert  = { message: message,fromEmail:data.email,toEmail:data.sendemail,date:date,projectId:projectId};
 
                    var query = multiple_db.query('INSERT INTO Messages SET ?', insert, function (error, results, fields) {
                      if (error) throw error;
@@ -83,9 +84,10 @@ module.exports = function(io){
               });
 
 
-              socket.on("getAllContactsMessages",function(data){
+              socket.on("getAllContactsMessages",function(encrypt){
 
-                    socket.join(data.email);
+                    var data = cryptLibrary.decrypt(encrypt);
+                    socket.join(data.deviceid);
 
                     var not_same_array = new Array();
                     multiple_db.query('SELECT Messages.id,Messages.date,Messages.message, Messages.fromEmail,Messages.toEmail, Users.image_url,Users.name,Users.online FROM Messages INNER JOIN Users ON Messages.toEmail = Users.email WHERE Messages.fromEmail = ? ORDER BY id DESC', [data.email], function (error, results, fields) {
@@ -178,7 +180,7 @@ module.exports = function(io){
                                         }
                                       }
 
-                                      io.sockets.to(data.email).emit('getAllContactsMessages', {data: not_same_array});
+                                      io.sockets.to(data.deviceid).emit('getAllContactsMessages', cryptLibrary.encrypt({data: not_same_array}));
 
                                   });
                                 //counting
@@ -239,7 +241,7 @@ module.exports = function(io){
                                           }
                                         }
 
-                                        io.sockets.to(data.email).emit('getAllContactsMessages', {data: not_same_array});
+                                        io.sockets.to(data.deviceid).emit('getAllContactsMessages', cryptLibrary.encrypt({data: not_same_array}));
 
                                     });
                                   //counting
