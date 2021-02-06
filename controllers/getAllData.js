@@ -77,7 +77,9 @@ module.exports = function(io){
                     db_multiple.query('SELECT *, ( 6371 * acos( cos( radians(" ' + f_lat + ' ") ) * cos( radians( lat ) ) * cos( radians( lng ) - radians(" ' + f_long + ' ") ) + sin( radians(" '+ f_lat +' ") ) * sin( radians( lat ) ) ) ) AS distance FROM UsersData HAVING distance < ' + distance + ' AND role = ? AND pay_status = 1 AND status = 1 ORDER BY priority DESC; SELECT * FROM `Users` WHERE email = ?;SELECT * FROM `complete_task` WHERE `user_email` = ?;SELECT * FROM `UserApproveTasks` ORDER BY priority DESC;SELECT * FROM `complete_approve_task` WHERE `user_email` = ?;',[role,email,email,email], function (error, results, fields) {
 
             //check user approve status
-            //console.log(results[1]);
+            console.log(results[0].length);
+            console.log(distance);
+            console.log(trycount);
             var approve_status = results[1][0].approvestatus;
 
             //check user approve status
@@ -86,10 +88,17 @@ module.exports = function(io){
 
                 //if(approve_status == 1){
                     if(results[0].length < minsearchPoint){
-
+                              console.log("first");
                         if(trycount > 20){
+                          jObject = {
+                            sdata:[],
+                            status:"later",
+                          };
+                          io.sockets.in(email).emit('getAllDataE', cryptLibrary.encrypt(jObject));
                           return false;
                         }
+
+                        console.log("continue first");
                         distance += searchdistance;
                         //console.log(distance);
                         searchNearMe();
@@ -107,7 +116,7 @@ module.exports = function(io){
 
                     var deleteArray = new Array();
 
-                      //find done task
+                      //find and add done task
                       for(var u = 0;u < results[2].length;u++){
                         for(var h = 0;h < results[0].length;h++){
                           if(results[0][h].id == results[2][u].task_id){
@@ -120,21 +129,22 @@ module.exports = function(io){
                       //find done task
 
                       if(fix == 1){
-
-                          //if result length == 1 //search more
+                          //if result length == 1 //search more if found == 1 task only and it done search more
                           if(results[0].length == 1){
+                            console.log("second");
                             minsearchPoint++;
-                            console.log(fix + "first ");
+                            //console.log(fix + "first ");
                             distance += searchdistance;
                             trycount++;
                             searchNearMe();
                             return false;
                           }
 
-                          //if(result length == complete task //search more result
+                          //if result length == 1 //search more if found == 1 task only and it done search more
                           if(results[0].length == count){
+                            console.log("three");
                             minsearchPoint++;
-                            console.log(fix + "-2");
+                            //console.log(fix + "-2");
                             distance += searchdistance;
                             trycount++;
                             searchNearMe();
@@ -167,7 +177,7 @@ module.exports = function(io){
                       //if found only 1 or lower then find more
                       if(newsendarray.length < 1){
                         minsearchPoint++;
-                        console.log(fix + "-3");
+                        //console.log(fix + "-3");
                         distance += searchdistance;
                         trycount++;
                         searchNearMe();
@@ -187,7 +197,8 @@ module.exports = function(io){
                               message:data.message,
                               findtask:results[2],
                               approvestatus:1,
-                              distance:distance
+                              distance:distance,
+                              status:"ok",
                             };
                         }else{
                             jObject = {
@@ -196,7 +207,8 @@ module.exports = function(io){
                               message:data.message,
                               findtask:results[2],
                               approvestatus:1,
-                              distance:distance
+                              distance:distance,
+                              status:"ok",
                             };
                         }
 
@@ -327,6 +339,7 @@ module.exports = function(io){
 
                     if(results.length > 0){
                       //existing
+                      console.log("found");
                       io.sockets.in(deviceid).emit('makeHref',cryptLibrary.encrypt({status:"ok",url:results[0].hash}));
                     }
 

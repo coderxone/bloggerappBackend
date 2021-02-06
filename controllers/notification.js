@@ -18,11 +18,11 @@ module.exports = function(io){
 
                    socket.join(data.deviceid);
 
-                   multiple_db.query('SELECT fromEmail,toEmail FROM Messages WHERE toEmail = ? AND read_status = ? ORDER BY id DESC', [data.email,0], function (error, resultstthree, fields) {
+                   multiple_db.query('SELECT fromEmail,toEmail,projectId,message FROM Messages WHERE toEmail = ? AND read_status = ? ORDER BY id DESC', [data.email,0], function (error, resultstthree, fields) {
 
                         if(resultstthree){
                           if(resultstthree.length > 0){
-                            io.sockets.to(data.deviceid).emit('checkNewMessage', cryptLibrary.encrypt({count: resultstthree.length}));
+                            io.sockets.to(data.deviceid).emit('checkNewMessage', cryptLibrary.encrypt({count: resultstthree.length,details:resultstthree}));
                           }
                         }
 
