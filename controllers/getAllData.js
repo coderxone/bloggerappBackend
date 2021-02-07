@@ -54,7 +54,7 @@ module.exports = function(io){
 
                 var f_lat = data.lat;
                 var f_long = data.long;
-                var device = data.device;
+                var deviceId = data.deviceId;
                 var role = 2; //show promote records
                 var email = data.email;
 
@@ -62,7 +62,7 @@ module.exports = function(io){
                   return false;
                 }
 
-                socket.join(email);
+                socket.join(deviceId);
 
 
                 var distance = 10;
@@ -94,7 +94,7 @@ module.exports = function(io){
                             sdata:[],
                             status:"later",
                           };
-                          io.sockets.in(email).emit('getAllDataE', cryptLibrary.encrypt(jObject));
+                          io.sockets.in(deviceId).emit('getAllDataE', cryptLibrary.encrypt(jObject));
                           return false;
                         }
 
@@ -212,43 +212,9 @@ module.exports = function(io){
                             };
                         }
 
-                        io.sockets.in(email).emit('getAllDataE', cryptLibrary.encrypt(jObject));
+                        io.sockets.in(deviceId).emit('getAllDataE', cryptLibrary.encrypt(jObject));
 
-                      //task main model
 
-                    // }else{  //approve status
-                    //
-                    //   var newsendarray = new Array();
-                    //   //deleting from array
-                    //
-                    //
-                    //   for(var b = 0;b < results[3].length;b++){
-                    //
-                    //     var fixf = 0;
-                    //
-                    //     for(var l = 0;l < results[4].length;l++){
-                    //       if(results[3][b].id == results[4][l].task_id){
-                    //           fixf = 1;
-                    //       }
-                    //     }
-                    //     if(fixf == 0){
-                    //       newsendarray.push(results[3][b]);
-                    //     }
-                    //   }
-                    //
-                    //
-                    //     jObject = {
-                    //       sdata:newsendarray,
-                    //       userdata:results[1],
-                    //       message:data.message,
-                    //       findtask:results[2],
-                    //       approvestatus:0
-                    //     };
-                    //
-                    //     io.sockets.in(email).emit('getAllDataE', cryptLibrary.encrypt(jObject));
-                    //
-                    //
-                    // }
 
 
 
@@ -259,6 +225,50 @@ module.exports = function(io){
                 }
 
                 searchNearMe();
+
+
+
+
+
+
+              });
+
+
+
+              socket.on('getAllDataTask', function (encrypt) {//role 1 for employeer
+                // lat:this.latitude,
+                // long:this.longitude,
+                //console.log(data);
+                var data = cryptLibrary.decrypt(encrypt);
+
+
+                var deviceid = data.deviceId;
+                var email = data.email;
+
+                if(email == ''){
+                  return false;
+                }
+
+                socket.join(deviceid);
+
+                                                                                                                                                                                                                                                                                                                                           //1                                   //2                                             //3
+                    db_multiple.query("SELECT UsersData.id, UsersData.date,UsersData.description,UsersData.email,UsersData.time,UsersData.sum, UsersData.status,UsersData.pay_status,UsersData.peoplecount,UsersData.subscribers,UsersData.url,uniquenames.project_id,uniquenames.user_email,uniquenames.hash FROM uniquenames INNER JOIN UsersData ON uniquenames.project_id = UsersData.id WHERE uniquenames.user_email = ?",[data.email], function (error, results, fields) {
+
+                      if(results.length > 0){
+                        for(var i = 0;i < results.length;i++){
+                          results[i].date = timeconverter.timeConverter_us_date(results[i].date);
+                          results[i].time = timeconverter.timeConverter_us_time(results[i].time);
+                        }
+
+
+
+                          io.sockets.in(deviceid).emit('getAllDataTask', cryptLibrary.encrypt({data:results,status:"ok"}));
+                      }
+
+
+
+
+                    });
 
 
 
