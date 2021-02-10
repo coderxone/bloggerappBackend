@@ -312,9 +312,9 @@ module.exports = function(io){
 
                     var data = cryptLibrary.decrypt(encryptData);
 
-                    var email = data.email;
-                    socket.join(email);
 
+                    socket.join(data.deviceId);
+                    var email = data.email;
 
                     var role = data.role;
                     var type = data.type;
@@ -322,12 +322,16 @@ module.exports = function(io){
                     multiple_db.query('SELECT * FROM `sendmessages` WHERE `role` = ? AND type = ?', [role, type], function (error, results, fields) {
 
                       if(results.length > 0){
-                              console.log(results);
+                              //console.log(results);
                               for(var j = 0;j < results.length;j++){
-                                sendMessageFromSystem(results[j].text,results[j].fromEmail,email);
+                                var sendStatus = results[j].status;
+                                if(sendStatus == 1){
+                                  sendMessageFromSystem(results[j].text,results[j].fromEmail,email);
+                                }
+
                               }
 
-                              io.sockets.to(email).emit('checkAutomaticMessages', cryptLibrary.encrypt({status:"ok"}));
+                              io.sockets.to(data.deviceId).emit('checkAutomaticMessages', cryptLibrary.encrypt({status:"ok"}));
                           }
 
 
