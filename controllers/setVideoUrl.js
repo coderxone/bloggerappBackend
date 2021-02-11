@@ -15,7 +15,7 @@ module.exports = function(io){
                    var data = cryptLibrary.decrypt(encrypt);
 
                    var deviceid = data.deviceid;
-                   var url = data.url;
+                   var url = formHelper.cleanUrlString(data.url);
                    var project_id = data.id;
                    var user_email = data.email;
                    var date = timeconverter.getUnixtime();
@@ -41,6 +41,34 @@ module.exports = function(io){
 
                        });
 
+
+
+              });
+
+
+
+              socket.on('editvideo', function (encrypt) {
+
+                   var data = cryptLibrary.decrypt(encrypt);
+
+                   var deviceid = data.deviceid;
+                   var url = formHelper.cleanUrlString(data.url);
+                   var project_id = data.id;
+                   var user_email = data.email;
+                   var date = timeconverter.getUnixtime();
+                   var videotype = data.videotype;
+                   socket.join(deviceid);
+
+                   multiple_db.query('UPDATE usersvideo SET url = ?,date = ? WHERE project_id = ? AND type = ? AND status = ?', [url,date,project_id,videotype,2], function (error, results, fields) {
+
+                     if(results.changedRows == 1){
+                       io.sockets.in(deviceid).emit('editvideo', cryptLibrary.encrypt({status: 'updated'}));
+                     }else{
+                       io.sockets.in(deviceid).emit('editvideo', cryptLibrary.encrypt({status: 'already'}));
+                     }
+
+
+                   });
 
 
               });
@@ -90,6 +118,58 @@ module.exports = function(io){
                        io.sockets.in(data.deviceid).emit('checkvideo', cryptLibrary.encrypt({status: 'ok',count:results.length,montharray:montharray,monthcount:monthcount,data:results}));
                      }else{
                        io.sockets.in(data.deviceid).emit('checkvideo', cryptLibrary.encrypt({status: 'false'}));
+                     }
+
+                       });
+
+              });
+
+
+
+              socket.on('checkBannedvideo', function (encrypt) {
+
+
+                   var data = cryptLibrary.decrypt(encrypt);
+                   var deviceid = data.deviceid;
+
+                   socket.join(deviceid);
+
+                   //timeconverter.getunixMonth
+                   //console.log(data);
+                   var project_id = data.id;
+                   var user_email = data.email;
+                   var montharray = new Array();//filtration copy
+                   var monthcount = new Array();//count array
+
+                   multiple_db.query('SELECT * FROM `usersvideo` WHERE `project_id` = ? AND `user_email` = ? AND `status` = ?', [project_id,user_email,3], function (error, results, fields) {
+
+                     if(results.length > 0){
+
+                       for(var i = 0;i < results.length;i++){
+                         results[i].month = timeconverter.getunixMonth(results[i].date);
+
+                         if(montharray.length > 0){
+                           var fix = 0;
+                           for(var j = 0;j < montharray.length;j++){
+                             if(montharray[j].month == results[i].month){
+                               fix = 1;
+                               monthcount[j] = monthcount[j] + 1;
+                             }
+                           }
+
+                           if(fix == 0){
+                             montharray.push(results[i]);
+                             monthcount.push(1);
+                           }
+                         }else{
+                           montharray.push(results[i]);
+                           monthcount.push(1);
+                         }
+                       }
+
+                       io.sockets.in(data.deviceid).emit('checkBannedvideo', cryptLibrary.encrypt({status: 'ok',count:results.length,montharray:montharray,monthcount:monthcount,data:results}));
+                     }else{
+                       io.sockets.in(data.deviceid).emit('checkBannedvideo', cryptLibrary.encrypt({status: 'false'}));
                      }
 
                        });
@@ -386,9 +466,11 @@ module.exports = function(io){
               });
 
 
-              socket.on('setviews', function (data) {
+              socket.on('setviews', function (encrypt) {
 
-                   socket.join(data.email);
+                  var data = cryptLibrary.decrypt(encrypt);
+
+                   socket.join(data.deviceid);
 
                    var hash = formHelper.cleanString(data.hash);
                    var ip = data.ip;
@@ -402,18 +484,17 @@ module.exports = function(io){
                            multiple_db.query('SELECT * FROM `views` WHERE `hash` = ? AND `ip` = ?', [hash,ip], function (error, results, fields) {
 
                              if(results.length > 0){
-                               io.sockets.in(data.email).emit('setviews', {status: 'ixist',redirecturl:redirectUrl});
+                               io.sockets.in(data.deviceid).emit('setviews', cryptLibrary.encrypt({status: 'ok',redirecturl:redirectUrl}));
                              }else{
                                var insert  = { hash: hash,ip:ip,date:date};
 
                                var query = multiple_db.query('INSERT INTO views SET ?', insert, function (error, results, fields) {
 
                                 // console.log(error);
-                                 io.sockets.in(data.email).emit('setviews', {status: 'inserted',redirecturl:redirectUrl});
+                                 io.sockets.in(data.deviceid).emit('setviews', cryptLibrary.encrypt({status: 'ok',redirecturl:redirectUrl}));
 
                                });
                              }
-
 
 
                                });

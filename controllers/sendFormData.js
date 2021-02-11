@@ -17,16 +17,13 @@ module.exports = function(io){
 
                    socket.join(data.deviceid);
 
-                   var LocationData = JSON.parse(data.data.coord)
+                   var LocationData = JSON.parse(data.data.coord);
 
                    var locationPoints = LocationData.fullData;
 
                    var geometryLat = LocationData.geometry.lat;
                    var geometryLong = LocationData.geometry.lng;
 
-                   // console.log(LocationData);
-                   // return false;
-                   //console.log(role);
 
                    var insert  = {
                      url: formHelper.cleanString(data.data.title),
