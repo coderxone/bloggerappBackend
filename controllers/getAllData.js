@@ -57,6 +57,7 @@ module.exports = function(io){
                 var deviceId = data.deviceId;
                 var role = 2; //show promote records
                 var email = data.email;
+                var gps = data.gps;
 
                 if(email == ''){
                   return false;
@@ -71,10 +72,9 @@ module.exports = function(io){
                 var searchdistance = 10;
 
 
-
                 function searchNearMe(){
                                                   //0                                                                                                                                                                                                                                                                                                                                             //1                                   //2                                             //3
-                    db_multiple.query('SELECT *, ( 6371 * acos( cos( radians(" ' + f_lat + ' ") ) * cos( radians( lat ) ) * cos( radians( lng ) - radians(" ' + f_long + ' ") ) + sin( radians(" '+ f_lat +' ") ) * sin( radians( lat ) ) ) ) AS distance FROM UsersData HAVING distance < ' + distance + ' AND role = ? AND pay_status = 1 AND status = 1 ORDER BY priority DESC; SELECT * FROM `Users` WHERE email = ?;SELECT * FROM `complete_task` WHERE `user_email` = ?;SELECT * FROM `UserApproveTasks` ORDER BY priority DESC;SELECT * FROM `complete_approve_task` WHERE `user_email` = ?;',[role,email,email,email], function (error, results, fields) {
+                    db_multiple.query('SELECT *, ( 6371 * acos( cos( radians(" ' + f_lat + ' ") ) * cos( radians( lat ) ) * cos( radians( lng ) - radians(" ' + f_long + ' ") ) + sin( radians(" '+ f_lat +' ") ) * sin( radians( lat ) ) ) ) AS distance FROM UsersData HAVING distance < ' + distance + ' AND role = ? AND pay_status = 1 AND status = 1 AND gps = 1 ORDER BY priority DESC; SELECT * FROM `Users` WHERE email = ?;SELECT * FROM `complete_task` WHERE `user_email` = ?;SELECT * FROM `UserApproveTasks` ORDER BY priority DESC;SELECT * FROM `complete_approve_task` WHERE `user_email` = ?;',[role,email,email,email], function (error, results, fields) {
 
             //check user approve status
             console.log(results[0].length);
@@ -199,6 +199,7 @@ module.exports = function(io){
                               approvestatus:1,
                               distance:distance,
                               status:"ok",
+                              gps:gps,
                             };
                         }else{
                             jObject = {
@@ -209,6 +210,7 @@ module.exports = function(io){
                               approvestatus:1,
                               distance:distance,
                               status:"ok",
+                              gps:gps,
                             };
                         }
 
@@ -224,7 +226,99 @@ module.exports = function(io){
 
                 }
 
-                searchNearMe();
+
+
+                function searchWithoutLocation(){
+                                                  //0                                                                                                                                                                                                                                                                                                                                             //1                                   //2                                             //3
+                    db_multiple.query('SELECT * FROM UsersData WHERE role = ? AND pay_status = 1 AND status = 1 AND gps = 2 ORDER BY priority DESC; SELECT * FROM `Users` WHERE email = ?;SELECT * FROM `complete_task` WHERE `user_email` = ?;SELECT * FROM `UserApproveTasks` ORDER BY priority DESC;SELECT * FROM `complete_approve_task` WHERE `user_email` = ?;',[role,email,email,email], function (error, results, fields) {
+
+            //check user approve status
+
+            var approve_status = results[1][0].approvestatus;
+
+            //check user approve status
+                //task main model
+                var jObject;
+
+                //if(approve_status == 1){
+
+                    for(var i = 0;i < results[0].length;i++){
+                      results[0][i].date = timeconverter.timeConverter_us_date(results[0][i].date);
+                      results[0][i].time = timeconverter.timeConverter_us_time(results[0][i].time);
+                    }
+
+                    var deleteArray = new Array();
+
+                      //find and add done task
+                      for(var u = 0;u < results[2].length;u++){
+                        for(var h = 0;h < results[0].length;h++){
+                          if(results[0][h].id == results[2][u].task_id){
+                            deleteArray.push(results[0][h].id);
+                          }
+                        }
+                      }
+                      //find done task
+
+                      //create new find array without completed task
+                      var newsendarray = new Array();
+                      //deleting from array
+
+
+                      for(var b = 0;b < results[0].length;b++){
+
+                        var fixf = 0;
+
+                        for(var l = 0;l < deleteArray.length;l++){
+                          if(results[0][b].id == deleteArray[l]){
+                              fixf = 1;
+                          }
+                        }
+                        if(fixf == 0){
+                          newsendarray.push(results[0][b]);
+                        }
+                      }
+
+
+                      if(deleteArray.length > 0){
+                            jObject = {
+                              sdata:newsendarray,
+                              userdata:results[1],
+                              message:data.message,
+                              findtask:results[2],
+                              approvestatus:1,
+                              distance:distance,
+                              status:"ok",
+                              gps:gps,
+                            };
+                        }else{
+                            jObject = {
+                              sdata:results[0],
+                              userdata:results[1],
+                              message:data.message,
+                              findtask:results[2],
+                              approvestatus:1,
+                              distance:distance,
+                              status:"ok",
+                              gps:gps,
+                            };
+                        }
+                        //console.log("searchAll");
+                        io.sockets.in(deviceId).emit('getAllDataE', cryptLibrary.encrypt(jObject));
+
+
+
+                    });
+
+
+                }
+
+                if(gps == 1){
+                  searchNearMe();
+                }else if(gps == 2){
+                  searchWithoutLocation();
+                }
+
+
 
 
 

@@ -25,6 +25,7 @@ module.exports = function(io){
                    var geometryLong = LocationData.geometry.lng;
 
 
+
                    var insert  = {
                      url: formHelper.cleanString(data.data.title),
                      location_name:formHelper.cleanString(LocationData.title),
@@ -39,7 +40,8 @@ module.exports = function(io){
                      email:data.email,
                      peoplecount:formHelper.cleanString(data.data.peopleCount),
                      subscribers:formHelper.cleanString(data.data.subscribers),
-                     countvideo:formHelper.cleanString(data.data.peopleCount)
+                     countvideo:formHelper.cleanString(data.data.peopleCount),
+                     gps:data.data.gps
                    };
 
 
