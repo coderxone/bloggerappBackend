@@ -19,7 +19,12 @@ const fs = require('fs');
 
 var privateKey  = fs.readFileSync('certificates/echohub.key', 'utf8');
 var certificate = fs.readFileSync('certificates/echohub.cert', 'utf8');
-var credentials = {key: privateKey, cert: certificate};
+var credentials = {
+  key: privateKey,
+  cert: certificate,
+  requestCert: false,
+  rejectUnauthorized: false
+};
 
 //var https = require('http').createServer(function(req,res){
 var https = require('https').createServer(credentials,function(req,res){

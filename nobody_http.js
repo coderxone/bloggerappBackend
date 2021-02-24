@@ -223,7 +223,7 @@ setInterval(function(){
 
 
 
-https.listen(3004, function(){
+https.listen(3002, function(){
   console.log('listening on *:3004');
 });
 
