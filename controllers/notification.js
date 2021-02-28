@@ -30,6 +30,52 @@ module.exports = function(io){
 
               });
 
+              socket.on('checkTasks', function (encrypt) {
+
+                  var data = cryptLibrary.decrypt(encrypt);
+
+                  var email = data.email;
+
+                   socket.join(data.deviceid);
+
+                   multiple_db.query('SELECT UsersData.email, complete_task.task_id FROM UsersData INNER JOIN complete_task ON UsersData.id=complete_task.task_id WHERE UsersData.email = ? LIMIT 1;',[email], function (error, result, fields) {
+                     //console.log(error);
+                     console.log(result);
+                     if(result.length > 0){
+                       io.sockets.to(data.deviceid).emit('checkTasks', cryptLibrary.encrypt({status:"ok",result: result}));
+                     }else{
+                       io.sockets.to(data.deviceid).emit('checkTasks', cryptLibrary.encrypt({status:"false"}));
+                     }
+
+
+                   });
+
+              });
+
+
+              socket.on('setTasks', function (encrypt) {
+
+                  var data = cryptLibrary.decrypt(encrypt);
+
+                  var email = data.email;
+                  var status = data.status;
+                  var task_id = data.task_id;
+                  var user_email = data.user_email;
+
+                  console.log(data);
+
+                   socket.join(data.deviceid);
+
+                   multiple_db.query('UPDATE complete_task SET status = ? WHERE task_id = ? AND user_email = ?;UPDATE usersvideo SET status = ? WHERE project_id = ? AND user_email = ?', [status,task_id,user_email,status,task_id,user_email], function (error, results, fields) {
+
+
+                     io.sockets.to(data.deviceid).emit('setTasks', cryptLibrary.encrypt({status:"ok",status:"ok"}));
+
+
+                   });
+
+              });
+
 
               socket.on('setFirebaseToken', function (data) {
 
@@ -178,7 +224,7 @@ module.exports = function(io){
 
 
 
-          multiple_db.query('SELECT id,email FROM `Users` WHERE sendmail_status = 1 LIMIT 1;SELECT data FROM `EmailTasks` ORDER BY id DESC LIMIT 1', function (error, result, fields) {
+          multiple_db.query('SELECT id,email FROM `Users` WHERE sendmail_status = 1 LIMIT 1;SELECT data FROM `EmailTasks` ORDER BY id DESC LIMIT 1;', function (error, result, fields) {
 
                if(result[0]){
                  if(result[0].length > 0){
@@ -187,7 +233,7 @@ module.exports = function(io){
                    var sendtext = result[1][0].data;
 
                    //console.log(sendmail + "|" + sendtext);
-                   sendMessage("message from 2click",sendtext,sendmail);
+                   sendMessage("message from echohub.io",sendtext,sendmail);
 
                    multiple_db.query('UPDATE Users SET sendmail_status = ? WHERE id = ?', [2,updateid], function (error, results, fields) {
 
@@ -198,6 +244,9 @@ module.exports = function(io){
                }
 
           });
+
+
+          //io.sockets.to(data.deviceid).emit('checkNewMessage', cryptLibrary.encrypt({count: resultstthree.length,details:resultstthree}));
 
 
         },2000);

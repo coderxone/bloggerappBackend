@@ -195,56 +195,83 @@ module.exports = function(io){
                    var monthcount = new Array();//count array
                     //console.log(project_id);
 
-                   multiple_db.query('SELECT Users.raiting_stars, Users.approvestatus,Users.online,Users.image_url, usersvideo.id,usersvideo.url,usersvideo.project_id,usersvideo.user_email,usersvideo.date,usersvideo.status,usersvideo.type FROM Users INNER JOIN usersvideo ON usersvideo.user_email = Users.email WHERE usersvideo.project_id = ? AND usersvideo.status = ?', [project_id,2], function (error, results, fields) {
+                   multiple_db.query('SELECT Users.raiting_stars, Users.approvestatus,Users.online,Users.image_url, usersvideo.id,usersvideo.url,usersvideo.project_id,usersvideo.user_email,usersvideo.date,usersvideo.status,usersvideo.type FROM Users INNER JOIN usersvideo ON usersvideo.user_email = Users.email WHERE usersvideo.project_id = ? AND usersvideo.status = ? OR usersvideo.project_id = ? AND usersvideo.status = ?;SELECT * FROM social_network_list;', [project_id,2,project_id,1], function (error, results, fields) {
 
                       if(error){
                         return false;
                       }
 
-                     if(results.length > 0){
+
+
+                     if(results[0].length > 0){
 
                        var filtratedArray = new Array();
 
-                       for(var i = 0;i < results.length;i++){
-                         results[i].month = timeconverter.getunixMonth(results[i].date);
+
+                       for(var i = 0;i < results[0].length;i++){
+                         results[0][i].month = timeconverter.getunixMonth(results[0][i].date);
 
                          if(montharray.length > 0){
                            var fix = 0;
                            for(var j = 0;j < montharray.length;j++){
-                             if(montharray[j].month == results[i].month){
+                             if(montharray[j].month == results[0][i].month){
                                fix = 1;
                                monthcount[j] = monthcount[j] + 1;
                              }
                            }
 
                            if(fix == 0){
-                             montharray.push(results[i]);
+                             montharray.push(results[0][i]);
                              monthcount.push(1);
                            }
                          }else{
-                           montharray.push(results[i]);
+                           montharray.push(results[0][i]);
                            monthcount.push(1);
                          }
 
+
                          //filtration by user_email
                          var foundX = 0;
+
                          for(var b = 0;b < filtratedArray.length;b++){
-                           if(filtratedArray[b].user_email == results[i].user_email){
+                           if(filtratedArray[b].user_email == results[0][i].user_email){
                              foundX = 1;
+
+                                //add count of task
+                               filtratedArray[b].CountTasks += 1;
+
+                               if(filtratedArray[b].CountTasks == results[1].length){
+                                 filtratedArray[b].complete = 1;
+                               }
+
                            }
                          }
+
+
+
                          if(foundX == 0){
-                           filtratedArray.push(results[i]);;
+                           //counting tasks
+                           results[0][i].CountTasks = 1;
+                           results[0][i].complete = 0;
+                           results[0][i].taskList = results[1];
+
+                           filtratedArray.push(results[0][i]);;
                          }
+
+
+
+
                          //filtration by user_email
 
                        }
 
+                       console.log(filtratedArray);
 
 
 
 
-                       io.sockets.in(data.deviceid).emit('checkvideoByProject', cryptLibrary.encrypt({status: 'ok',count:results.length,montharray:montharray,monthcount:monthcount,data:filtratedArray}));
+
+                       io.sockets.in(data.deviceid).emit('checkvideoByProject', cryptLibrary.encrypt({status: 'ok',count:results[0].length,montharray:montharray,monthcount:monthcount,data:filtratedArray,taskList:results[1]}));
                      }else{
                        io.sockets.in(data.deviceid).emit('checkvideoByProject', cryptLibrary.encrypt({status: 'false'}));
                      }
