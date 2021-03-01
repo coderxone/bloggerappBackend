@@ -41,7 +41,8 @@ module.exports = function(io){
                      peoplecount:formHelper.cleanString(data.data.peopleCount),
                      subscribers:formHelper.cleanString(data.data.subscribers),
                      countvideo:formHelper.cleanString(data.data.peopleCount),
-                     gps:data.data.gps
+                     gps:data.data.gps,
+                     famous:data.data.famous
                    };
 
 

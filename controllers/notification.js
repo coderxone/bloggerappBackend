@@ -38,7 +38,7 @@ module.exports = function(io){
 
                    socket.join(data.deviceid);
 
-                   multiple_db.query('SELECT UsersData.email, complete_task.task_id FROM UsersData INNER JOIN complete_task ON UsersData.id=complete_task.task_id WHERE UsersData.email = ? LIMIT 1;',[email], function (error, result, fields) {
+                   multiple_db.query('SELECT UsersData.email, complete_task.task_id FROM UsersData INNER JOIN complete_task ON UsersData.id=complete_task.task_id WHERE UsersData.email = ? AND complete_task.status = ? LIMIT 1;',[email,0], function (error, result, fields) {
                      //console.log(error);
                      console.log(result);
                      if(result.length > 0){
