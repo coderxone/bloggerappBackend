@@ -71,10 +71,14 @@ module.exports = function(io){
                 var minsearchPoint = 1;
                 var searchdistance = 10;
 
-
+//insert date 7 days
+//when done or rejected
+//create story reject and create done tasks
+//and date for local search
+//add task counter with limit in UsersData
                 function searchNearMe(){
                                                   //0                                                                                                                                                                                                                                                                                                                                             //1                                   //2                                             //3
-                    db_multiple.query('SELECT *, ( 6371 * acos( cos( radians(" ' + f_lat + ' ") ) * cos( radians( lat ) ) * cos( radians( lng ) - radians(" ' + f_long + ' ") ) + sin( radians(" '+ f_lat +' ") ) * sin( radians( lat ) ) ) ) AS distance FROM UsersData HAVING distance < ' + distance + ' AND role = ? AND pay_status = 1 AND status = 1 AND gps = 1 ORDER BY priority DESC; SELECT * FROM `Users` WHERE email = ?;SELECT * FROM `complete_task` WHERE `user_email` = ?;SELECT * FROM `UserApproveTasks` ORDER BY priority DESC;SELECT * FROM `complete_approve_task` WHERE `user_email` = ?;',[role,email,email,email], function (error, results, fields) {
+                    db_multiple.query('SELECT *, ( 6371 * acos( cos( radians(" ' + f_lat + ' ") ) * cos( radians( lat ) ) * cos( radians( lng ) - radians(" ' + f_long + ' ") ) + sin( radians(" '+ f_lat +' ") ) * sin( radians( lat ) ) ) ) AS distance FROM UsersData HAVING distance < ' + distance + ' AND role = ? AND pay_status = 1 AND status = 1 AND gps = 1 ORDER BY priority DESC; SELECT * FROM `Users` WHERE email = ?;SELECT * FROM `complete_task` WHERE `user_email` = ?;SELECT * FROM `UserApproveTasks` ORDER BY priority DESC;SELECT * FROM `complete_approve_task` WHERE `user_email` = ?;SELECT * FROM `rejected_task` WHERE `user_email` = ?;',[role,email,email,email,email], function (error, results, fields) {
 
             //check user approve status
             console.log(results[0].length);
@@ -116,7 +120,7 @@ module.exports = function(io){
 
                     var deleteArray = new Array();
 
-                      //find and add done task
+                      //find and add done tasks
                       for(var u = 0;u < results[2].length;u++){
                         for(var h = 0;h < results[0].length;h++){
                           if(results[0][h].id == results[2][u].task_id){
@@ -126,7 +130,32 @@ module.exports = function(io){
                           }
                         }
                       }
-                      //find done task
+                      //find done tasks
+
+                      //find and add rejected tasks
+                      //console.log(error);
+                      for(var ux = 0;ux < results[5].length;ux++){
+                        for(var hx = 0;hx < results[0].length;hx++){
+                          if(results[0][hx].id == results[5][ux].task_id){
+
+                            var searchFromDelete = 0;
+                            deleteArray.map((element) => {
+                              if(element == results[0][hx].id){
+                                searchFromDelete = 1;
+                              }
+                            });
+
+                            if(searchFromDelete == 0){
+                              fix = 1;
+                              count++;
+                              deleteArray.push(results[0][hx].id);
+                            }
+
+                          }
+                        }
+                      }
+                      //find and add rejected tasks
+
 
                       if(fix == 1){
                           //if result length == 1 //search more if found == 1 task only and it done search more
@@ -155,7 +184,9 @@ module.exports = function(io){
                       }
 
 
-                      //create new find array without completed task
+
+
+                      //create new find array without completed task and rejected task
                       var newsendarray = new Array();
                       //deleting from array
 
@@ -170,11 +201,16 @@ module.exports = function(io){
                           }
                         }
                         if(fixf == 0){
-                          newsendarray.push(results[0][b]);
+                          //add limit for tasks
+                          if(newsendarray.length < 1){ //only 1 task
+                            newsendarray.push(results[0][b]);
+                          }
+
+                          //add limit for tasks
                         }
                       }
 
-                      //if found only 1 or lower then find more
+                      //if didn't find more
                       if(newsendarray.length < 1){
                         minsearchPoint++;
                         //console.log(fix + "-3");
