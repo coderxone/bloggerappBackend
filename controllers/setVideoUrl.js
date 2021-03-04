@@ -552,7 +552,14 @@ module.exports = function(io){
 
                              var query = multiple_db.query('INSERT INTO complete_task SET ?', insert, function (error, results, fields) {
 
-                               io.sockets.in(deviceid).emit('closeorders', cryptLibrary.encrypt({status: 'updated',currentStatus:0}));
+                               multiple_db.query('UPDATE uniquenames SET status = ? WHERE user_email = ? AND project_id = ?', [2,data.email,update_id], function (error, results, fields) {
+
+                                 io.sockets.in(deviceid).emit('closeorders', cryptLibrary.encrypt({status: 'updated',currentStatus:0}));
+
+
+                               });
+
+
 
                              });
                            }
@@ -602,6 +609,22 @@ module.exports = function(io){
                          });
 
 
+                   }else if(approvetask == 4){
+                     multiple_db.query('SELECT * FROM `rejected_task` WHERE `task_id` = ? AND user_email = ?', [update_id, data.email], function (error, results, fields) {
+
+                       if(results.length > 0){
+                              io.sockets.in(deviceid).emit('closeorders', cryptLibrary.encrypt({status: 'updated',currentStatus:0}));
+                           }else{
+                             var insert  = { user_email: data.email,task_id:update_id,status:approvetask};
+
+                             var query = multiple_db.query('INSERT INTO rejected_task SET ?', insert, function (error, results, fields) {
+
+                               io.sockets.in(deviceid).emit('closeorders', cryptLibrary.encrypt({status: 'updated',currentStatus:0}));
+
+                             });
+                           }
+
+                         });
                    }
 
 

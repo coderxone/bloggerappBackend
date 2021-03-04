@@ -49,14 +49,16 @@ module.exports = {
    },
 
 
-    timeConverter_us_date:function(UNIX_timestamp){
+    timeConverter_us_date:function(UNIX_timestamp,executeDay){
 
-     return moment.unix(UNIX_timestamp).format("MM/DD/YYYY");
+     var databaseTime = moment.unix(UNIX_timestamp  + (executeDay * 24 * 60 * 60)).format("MM/DD/YYYY");
+
+     return databaseTime;
 
    },
     timeConverter_us_time:function(UNIX_timestamp){
 
-     return moment.unix(UNIX_timestamp).format("hh:mm");
+     return moment.unix(UNIX_timestamp).format("hh:mm A");
 
    },
 

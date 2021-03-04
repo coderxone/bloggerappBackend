@@ -66,10 +66,10 @@ module.exports = function(io){
                 socket.join(deviceId);
 
 
-                var distance = 10;
+                var distance = 5;
                 var trycount = 0;
                 var minsearchPoint = 1;
-                var searchdistance = 10;
+                var searchdistance = 2;
 
 //insert date 7 days
 //when done or rejected
@@ -78,13 +78,14 @@ module.exports = function(io){
 //add task counter with limit in UsersData
                 function searchNearMe(){
                                                   //0                                                                                                                                                                                                                                                                                                                                             //1                                   //2                                             //3
-                    db_multiple.query('SELECT *, ( 6371 * acos( cos( radians(" ' + f_lat + ' ") ) * cos( radians( lat ) ) * cos( radians( lng ) - radians(" ' + f_long + ' ") ) + sin( radians(" '+ f_lat +' ") ) * sin( radians( lat ) ) ) ) AS distance FROM UsersData HAVING distance < ' + distance + ' AND role = ? AND pay_status = 1 AND status = 1 AND gps = 1 ORDER BY priority DESC; SELECT * FROM `Users` WHERE email = ?;SELECT * FROM `complete_task` WHERE `user_email` = ?;SELECT * FROM `UserApproveTasks` ORDER BY priority DESC;SELECT * FROM `complete_approve_task` WHERE `user_email` = ?;SELECT * FROM `rejected_task` WHERE `user_email` = ?;',[role,email,email,email,email], function (error, results, fields) {
+                    db_multiple.query('SELECT *, ( 6371 * acos( cos( radians(" ' + f_lat + ' ") ) * cos( radians( lat ) ) * cos( radians( lng ) - radians(" ' + f_long + ' ") ) + sin( radians(" '+ f_lat +' ") ) * sin( radians( lat ) ) ) ) AS distance FROM UsersData HAVING distance < ' + distance + ' AND role = ? AND pay_status = 1 AND status = 1 AND gps = 1 ORDER BY priority DESC; SELECT * FROM `Users` WHERE email = ?;SELECT * FROM `complete_task` WHERE `user_email` = ?;SELECT * FROM `UserApproveTasks` ORDER BY priority DESC;SELECT * FROM `complete_approve_task` WHERE `user_email` = ?;SELECT * FROM `rejected_task` WHERE `user_email` = ?;SELECT execute_day FROM `appParams`;',[role,email,email,email,email], function (error, results, fields) {
 
             //check user approve status
             console.log(results[0].length);
             console.log(distance);
             console.log(trycount);
             var approve_status = results[1][0].approvestatus;
+            var execute_day = results[6][0].execute_day;
 
             //check user approve status
                 //task main model
@@ -111,7 +112,7 @@ module.exports = function(io){
                     }
 
                     for(var i = 0;i < results[0].length;i++){
-                      results[0][i].date = timeconverter.timeConverter_us_date(results[0][i].date);
+                      results[0][i].date = timeconverter.timeConverter_us_date(results[0][i].date,execute_day);
                       results[0][i].time = timeconverter.timeConverter_us_time(results[0][i].time);
                     }
 
@@ -266,12 +267,12 @@ module.exports = function(io){
 
                 function searchWithoutLocation(){
                                                   //0                                                                                                                                                                                                                                                                                                                                             //1                                   //2                                             //3
-                    db_multiple.query('SELECT * FROM UsersData WHERE role = ? AND pay_status = 1 AND status = 1 AND gps = 2 ORDER BY priority DESC; SELECT * FROM `Users` WHERE email = ?;SELECT * FROM `complete_task` WHERE `user_email` = ?;SELECT * FROM `UserApproveTasks` ORDER BY priority DESC;SELECT * FROM `complete_approve_task` WHERE `user_email` = ?;',[role,email,email,email], function (error, results, fields) {
+                    db_multiple.query('SELECT * FROM UsersData WHERE role = ? AND pay_status = 1 AND status = 1 AND gps = 2 ORDER BY priority DESC; SELECT * FROM `Users` WHERE email = ?;SELECT * FROM `complete_task` WHERE `user_email` = ?;SELECT * FROM `UserApproveTasks` ORDER BY priority DESC;SELECT * FROM `complete_approve_task` WHERE `user_email` = ?;SELECT * FROM `rejected_task` WHERE `user_email` = ?;SELECT execute_day FROM `appParams`;',[role,email,email,email,email], function (error, results, fields) {
 
             //check user approve status
 
             var approve_status = results[1][0].approvestatus;
-
+            var execute_day = results[6][0].execute_day;
             //check user approve status
                 //task main model
                 var jObject;
@@ -279,7 +280,7 @@ module.exports = function(io){
                 //if(approve_status == 1){
 
                     for(var i = 0;i < results[0].length;i++){
-                      results[0][i].date = timeconverter.timeConverter_us_date(results[0][i].date);
+                      results[0][i].date = timeconverter.timeConverter_us_date(results[0][i].date,execute_day);
                       results[0][i].time = timeconverter.timeConverter_us_time(results[0][i].time);
                     }
 
@@ -294,6 +295,28 @@ module.exports = function(io){
                         }
                       }
                       //find done task
+
+                      //find and add rejected tasks
+                      //console.log(error);
+                      for(var ux = 0;ux < results[5].length;ux++){
+                        for(var hx = 0;hx < results[0].length;hx++){
+                          if(results[0][hx].id == results[5][ux].task_id){
+
+                            var searchFromDelete = 0;
+                            deleteArray.map((element) => {
+                              if(element == results[0][hx].id){
+                                searchFromDelete = 1;
+                              }
+                            });
+
+                            if(searchFromDelete == 0){
+                              deleteArray.push(results[0][hx].id);
+                            }
+
+                          }
+                        }
+                      }
+                      //find and add rejected tasks
 
                       //create new find array without completed task
                       var newsendarray = new Array();
@@ -310,7 +333,10 @@ module.exports = function(io){
                           }
                         }
                         if(fixf == 0){
-                          newsendarray.push(results[0][b]);
+                          if(newsendarray.length < 1){ //only 1 task
+                            newsendarray.push(results[0][b]);
+                          }
+
                         }
                       }
 
@@ -382,7 +408,7 @@ module.exports = function(io){
                 socket.join(deviceid);
 
                                                                                                                                                                                                                                                                                                                                            //1                                   //2                                             //3
-                    db_multiple.query("SELECT UsersData.id, UsersData.date,UsersData.description,UsersData.email,UsersData.time,UsersData.sum, UsersData.status,UsersData.pay_status,UsersData.peoplecount,UsersData.subscribers,UsersData.url,uniquenames.project_id,uniquenames.user_email,uniquenames.hash FROM uniquenames INNER JOIN UsersData ON uniquenames.project_id = UsersData.id WHERE uniquenames.user_email = ?",[data.email], function (error, results, fields) {
+                    db_multiple.query("SELECT UsersData.id, UsersData.date,UsersData.description,UsersData.email,UsersData.time,UsersData.sum, UsersData.status,UsersData.pay_status,UsersData.peoplecount,UsersData.subscribers,UsersData.url,UsersData.location_name,UsersData.location_points,UsersData.peoplecount,UsersData.countvideo,UsersData.lat,UsersData.lng,UsersData.gps,UsersData.famous,uniquenames.project_id,uniquenames.user_email,uniquenames.hash FROM uniquenames INNER JOIN UsersData ON uniquenames.project_id = UsersData.id WHERE uniquenames.user_email = ? AND uniquenames.status = ?;",[data.email,1], function (error, results, fields) {
 
                       if(results.length > 0){
                         for(var i = 0;i < results.length;i++){
