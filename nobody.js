@@ -174,6 +174,39 @@ function setMessage_email(){
 }
 
 
+//test
+
+
+const getFindCoolNumbers = () => {
+
+    var _sum = 0;
+    for (var i = 1; i <= 1000000; i++) {
+        var countedSum = 0;
+        var currentNumber = i;
+        while ((countedSum !== 1) && (countedSum !== 4)) {
+            countedSum = 0;
+            var convertToString = currentNumber + "";
+            var countArray = [];
+            countArray = convertToString.split("");
+
+            for (var j = 0; j < countArray.length; j++) {
+                var current = parseInt(countArray[j]);
+                countedSum += Math.pow(current, 2);
+            }
+            currentNumber = countedSum;
+            if (countedSum === 1) {
+                _sum += i;
+                console.log('cool number: ' + i);
+            }
+        }
+    }
+    return _sum;
+}
+
+console.log(getFindCoolNumbers());
+//test
+
+
 // setInterval(function(){
 //
 //
