@@ -113,7 +113,7 @@ var checkob = require('./controllers/rest_checkobyavl.js');
 
 app.use('/service', [checkob]);
 //connect to database
-
+var imageUpload = require('./routeControllers/imageUpload')(app);
 io.on('connection', function(socket){
   console.log('a user connected');
 
@@ -223,7 +223,7 @@ setInterval(function(){
 
 
 
-https.listen(3002, function(){
+https.listen(3004, function(){
   console.log('listening on *:3004');
 });
 
