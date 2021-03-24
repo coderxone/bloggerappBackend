@@ -68,6 +68,8 @@ var io = require('socket.io')(https, {
     }
 });
 
+io.sockets.setMaxListeners(0);
+
 
 
 var get_currencies = require("./services/get_currencies.js");
@@ -130,10 +132,11 @@ var imageUpload = require('./routeControllers/imageUpload')(app);
 
 
 io.on('connection', function(socket){
-  console.log('a user connected');
+  //console.log('a user connected');
 
   socket.on('disconnect', function(){
-    //console.log('user disconnected');
+    //console.log("disconnected memory cleared");
+    delete io;
   });
 
   // socket.on('chat message2', function(msg){
@@ -167,18 +170,18 @@ var time_message_obj = {
 //time to send
 
 
-function setMessage_email(){
-
-	request.get({url:'http://kazpoisk.kz/public_control/searchusersneirointellect'}, function(err,httpResponse,body){
-
-					console.log(body);
-
-				 })
-
-			 	console.log("send_message");
-
-
-}
+// function setMessage_email(){
+//
+// 	request.get({url:'http://kazpoisk.kz/public_control/searchusersneirointellect'}, function(err,httpResponse,body){
+//
+// 					console.log(body);
+//
+// 				 })
+//
+// 			 	console.log("send_message");
+//
+//
+// }
 
 
 
@@ -210,12 +213,12 @@ function setMessage_email(){
 // },1000);
 
 
-setInterval(function(){
-
-	var currencies = get_currencies.get_russian_currencies();
-	console.log("currencies");
-
-},3600000);
+// setInterval(function(){
+//
+// 	var currencies = get_currencies.get_russian_currencies();
+// 	console.log("currencies");
+//
+// },3600000);
 
 // },15000);
 

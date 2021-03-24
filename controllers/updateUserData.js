@@ -23,7 +23,7 @@ module.exports = function(io){
 
                 var updateData = [
                   formHelper.cleanString(includedData.country),
-                  formHelper.cleanString(includedData.category),
+                  Serialize.serialize(includedData.category),
                   formHelper.cleanString(includedData.age),
                   formHelper.cleanString(includedData.firstName),
                   formHelper.cleanString(includedData.lastName),

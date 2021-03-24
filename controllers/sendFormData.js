@@ -25,34 +25,36 @@ module.exports = function(io){
                    var geometryLong = LocationData.geometry.lng;
 
 
-
                    var insert  = {
-                     url: formHelper.cleanString(data.data.title),
+                     url: formHelper.cleanString(data.data.url),
                      location_name:formHelper.cleanString(LocationData.title),
                      location_points:Serialize.serialize(locationPoints),//shifr
                      lat:geometryLat,
                      lng:geometryLong,
                      date: timeLibrary.convertToUnixjsGetTime(formHelper.cleanString(data.data.date)),
-                     time: timeLibrary.getUnixfromDate_Time(formHelper.cleanString(data.data.date + " " + data.data.time)),
+                     time: timeLibrary.convertToUnixjsGetTime(formHelper.cleanString(data.data.time)),
                      sum: formHelper.cleanString(data.data.amount),
                      description: formHelper.cleanString(data.data.description),
                      role:2,
                      email:data.email,
                      peoplecount:formHelper.cleanString(data.data.peopleCount),
                      subscribers:formHelper.cleanString(data.data.subscribers),
-                     countvideo:formHelper.cleanString(data.data.peopleCount),
+                     countvideo:formHelper.cleanString(data.data.countvideo),
                      gps:data.data.gps,
-                     famous:data.data.famous
+                     famous:data.data.famous,
+                     companyName:formHelper.cleanString(data.data.companyName),
+                     category:Serialize.serialize(data.data.category),
+                     businessAnswers:Serialize.serialize(data.data.businessAnswers),
                    };
 
 
 
                      var query = multiple_db.query('INSERT INTO UsersData SET ?', insert, function (error, results, fields) {
                        if (error){
-                          console.log(error);
+                          //console.log(error);
                        }
 
-                       console.log(results.insertId);
+                       //console.log(results.insertId);
 
                        var encrypt = cryptLibrary.encrypt({status:"ok",insertId:results.insertId});
 

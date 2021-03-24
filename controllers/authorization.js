@@ -28,12 +28,13 @@ module.exports = function(io){
                             var database_email = results[0].email;
                             var role = results[0].role;
                             var validate_pass = false;
+                            var additionalData = results[0].firstName;
 
                             if(database_pass == password){
                               validate_pass = true;
                             }
 
-                            io.sockets.in(data.deviceid).emit('setRegistration', cryptLibrary.encrypt({status: 'olduser',password:validate_pass,role:role}));
+                            io.sockets.in(data.deviceid).emit('setRegistration', cryptLibrary.encrypt({status: 'olduser',password:validate_pass,role:role,additionalData:additionalData}));
                          }else{
                            var insert  = { email: email,password:password};
 
