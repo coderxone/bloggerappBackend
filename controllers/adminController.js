@@ -2,6 +2,7 @@ var db_multiple = require('../config/multiple_mysql.js');
 var request = require('request');
 var cryptLibrary = require("../models/cryptLibrary.js");
 var FormHelper = require("../models/formHelpers.js");
+var Serialize = require('php-serialize');
 
 
 module.exports = function(io){
@@ -10,23 +11,57 @@ module.exports = function(io){
         io.on('connection', function(socket){
 
 
-              socket.on('getAdminData', function (data) {
+              socket.on('getAdminData', function (encrypt) {
 
+                var data = cryptLibrary.decrypt(encrypt);
                 var email = data.email;
 
                 socket.join(email);
 
-                  db_multiple.query('SELECT * FROM `Users`;SELECT * FROM `UsersData` ORDER BY `id` DESC;SELECT complete_task.user_email,UsersData.email,UsersData.url FROM `complete_task` INNER JOIN UsersData ON complete_task.task_id = UsersData.id;', function (error, results, fields) {
+                  db_multiple.query('SELECT * FROM `Users` ORDER BY `id` DESC;SELECT * FROM `UsersData` ORDER BY `id` DESC;SELECT complete_task.user_email,UsersData.email,UsersData.url FROM `complete_task` INNER JOIN UsersData ON complete_task.task_id = UsersData.id;', function (error, results, fields) {
 
-                    //console.log(results[0]);
+                    for(var i = 0;i < results[0].length;i++){
+                      if(results[0][i].socialNetworks != null){
+                        results[0][i].socialNetworks = Serialize.unserialize(results[0][i].socialNetworks);
+                      }else{
+                        results[0][i].socialNetworks = 0;
+                      }
 
-                    io.sockets.in(email).emit('getAdminData',{users:results[0],orders:results[1],complete_task:results[2]});
+                      if(results[0][i].ssn != null){
+                        results[0][i].ssn = Serialize.unserialize(results[0][i].ssn);
+                      }else{
+                        results[0][i].ssn = 0;
+                      }
+
+
+                    }
+
+
+                    io.sockets.in(email).emit('getAdminData',cryptLibrary.encrypt({users:results[0],orders:results[1],complete_task:results[2]}));
 
                   });
 
 
 
               });
+
+              socket.on('ApproveUser', function (encrypt) {
+
+                var data = cryptLibrary.decrypt(encrypt);
+                var email = data.email;
+                var action = data.action;
+                var id = data.id;
+
+                socket.join(email);
+
+                db_multiple.query('UPDATE Users SET verified = ? WHERE id = ?', [action,id], function (error, results, fields) {
+
+                  io.sockets.in(email).emit('ApproveUser',cryptLibrary.encrypt({"status":"ok"}));
+
+                });
+
+              });
+
 
               socket.on('getUserData', function (encrypt) {
 

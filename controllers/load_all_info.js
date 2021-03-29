@@ -43,6 +43,27 @@ module.exports = function(io){
               });
 
 
+              socket.on('getUserStatus', function (encrypt) {
+
+                var data = cryptLibrary.decrypt(encrypt);
+
+                var deviceId = data.deviceId;
+                var email = data.email;
+
+                socket.join(deviceId);
+
+
+                  db_multiple.query('SELECT * FROM `Users` WHERE `email` = ? LIMIT 1;',[email], function (error, results, fields) {
+
+                    io.sockets.in(deviceId).emit('getUserStatus',cryptLibrary.encrypt({results:results,status:"ok"}));
+
+                  });
+
+
+
+              });
+
+
 
         });
 
