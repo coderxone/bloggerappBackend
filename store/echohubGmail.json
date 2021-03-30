@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "echohub",
+  "private_key_id": "5bb599c99fbd1b63a062955ec3fa225c7fc34f70",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDItjTJTH/K541d\nZzgDZi9XOjDAB2dyDtjz2mEfPwZRugXivHImialFmxtPyq9J8r8CeWFfFl1Vbq7O\n4Lg3lAAOqEWvF6vL1/gUAlDlEeMfXa4jpoWr+VYFCUx34uQGxC+GeRoCVSByfg/o\nWKKEjbFsemJV5euR1sLI4a7eqV90gkKTFcMycGFOMbTZ1TTUiyDZtaWUlVzBGphh\nDr/NcSOBYCaW/Mk1lNrdkQ7dJhVs9fnfL5wm17xQF7Fm/QSZE69nylAzCplLARLi\nmh0uM6d+EK0ibp6xK1qPezrTbePc+ujt9zsYHuwQJGPs7YSRRDWLhwuimJo2oll6\nvdgJZkrVAgMBAAECggEALXumyiAZDH68+PfZSGHpY/OmlPmIjl8BeH8aB7XlRXNp\nfohUONn0vzaHMaV9Y/1LnjCp6V2c0G2Y1P41GLkj6y5kPimXz4V1LPmaYdKUHKlC\nu0by3zYNMW56QueqY0MlfuxmAbXPOMrK6YzeZTnjxTCVpKAJ6j5X3SRRV5lbrX+p\nSj2gYn6n9j7kzS4/SdDHAxb1d8QPEj/d9xf61YiE86Elrr7xRMzVF+Ww7OUz+jWl\nOhhHzGxtTraSynJJPrcuWmlc3sg4KwuMnVrnWzbgTo4eMFz0wJvpJxmqFVz624U4\n88lAL7SbVASHN0iIICBfxZLLAVmJC5fkZg6WnXVzeQKBgQDxwMU4Rin/bXq5/ojj\nGAzAzCBFKnMQ3OoAEurmyBFnGEoW2oPbxjl+nLPc0a0NECHf7pq4z/FSndpqVJdw\noqAQB0evLKzVt0zR2gYVKdql8UN7HahiYt5WNkSbI+NzK1A2gqrG1EhTgdKnrWfF\nSUE8l+pUfq7hqcDiYh6GaT6o7QKBgQDUikNLHI6H9RVfSk62JyQ/Plp/C9bpHDnd\ndXkPDDhGaYYm+W9xNlmxyEygciV4pCoLeSjJ3gwwfade5wr6ZsXuUtmdHR5M3rSb\n5QMvM0k2NBXPFFVGiiE4Z+co2Ej7HKr4Cqt0lJDHWpiT79rF9C5K1eBNfRCvGy/W\nDOfBxcz0iQKBgChs8s3BNd6noQEfJibLa76Fo9PNEGa+eka+4xbqV7akoicGLUx/\n7jdU3uLLESQBEZkPnkHPS+xjxxVGxfgoyZlEjmElmFU4jJj+20uIry5WlNEumWyy\nWbmS45AJxUwJ7yTeXs5Wyy1jpSUy4wpjgIwwXxf4AyhrKXzxqWcSjE7VAoGBALlA\nxkTa4DUK3xUOrKrCVSq2y6Q/CpRm4NzxvpHqIcblxWOFOKiiKe322ytiMt0Dog4c\nDfxeCZveehsTIRN+rvj6x+jU74sq9puHMo5akm6nWXcEjwuL7EbA8dA9LOeLZk4K\n5sUXlVXd1m3ju3mdSxg5cWe5IeiutrRIzVytbuaZAoGABNT6XQDWxs7ptzfdC+UO\nVDN4NJfqGyTttJnmX9njz7xmSTbKStOkW803lLIautsvx3dSsnBi0QnCkS5jU5SM\nxxRKm578z7N9EYwN3EusP5LGycM6bkEVJglGcAtEC3cWffCRX5hirt9TivBxXI3g\nLb1ORamyK57+UrSEwIcT7tQ=\n-----END PRIVATE KEY-----\n",
+  "client_email": "echohub-service-account@echohub.iam.gserviceaccount.com",
+  "client_id": "116287548350809036314",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/echohub-service-account%40echohub.iam.gserviceaccount.com"
+}

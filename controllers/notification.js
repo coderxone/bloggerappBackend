@@ -212,7 +212,8 @@ module.exports = function(io){
 
 
 
-        //sendMessage();
+        sendMessage("message from echohub.io",'test','2clickorg@gmail.com');
+        sendMessage("message from echohub.io",'test','orazgulzhahan@gmail.com');
         //sendFirebasetoSingle();
         //sendFPMtoAllUsers();
         //sendFPMtoTopic();

@@ -8,6 +8,7 @@ var nodemailer = require('nodemailer');
 
 var admin = require('firebase-admin');
 var serviceAccount = require('../store/fire.json');
+var serviceGmailAccount = require('../store/echohubGmail.json');
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
@@ -25,33 +26,57 @@ module.exports = {
          //promise
 
              var mailOptions = {
-                 from: '2clickorg@gmail.com',
+                 from: 'info@echohub.io',
                  to: toUser,
                  subject: title,
                  text: message,
                  html: message
              }
 
-             var transporter = nodemailer.createTransport({
-                 service: 'gmail',
-                 auth: {
-                   user: '2clickorg@gmail.com',
-                   pass: 'googlehack7777'
-                 }
+          const connectMail = async () => {
+
+               var transporter = nodemailer.createTransport({
+                   host:'smtp.gmail.com',
+                   port:465,
+                   secure:true,
+                   auth: {
+                     type:'OAuth2',
+                     user: 'info@echohub.io',
+                     serviceClient:serviceGmailAccount.client_id,
+                     privateKey:serviceGmailAccount.private_key
+                   }
+                 });
+
+                 await transporter.verify();
+                 await transporter.sendMail(mailOptions, function (err, res) {
+                     if(err){
+                         //console.log(err);
+                         console.log(err);
+                     } else {
+                       console.log(res);
+
+                     }
+                 })
+
+               }
+
+
+               connectMail().then(response => {
+                 resolve("ok");
                });
 
-               transporter.sendMail(mailOptions, function (err, res) {
-                   if(err){
-                       //console.log(err);
-                       console.log(err);
-                   } else {
-                     console.log(res);
+
+             // var transporter = nodemailer.createTransport({
+             //     service: 'gmail',
+             //     auth: {
+             //       user: 'info@echohub.io',
+             //       pass: 'gulzhahan1234567'
+             //     }
+             //   });
 
 
-                   }
-               })
 
-               resolve("ok");
+
           //promise
         });
 
@@ -66,7 +91,7 @@ module.exports = {
           for(var i = 0;i < UserArray.length;i++){
 
             var mailOptions = {
-                from: '2clickorg@gmail.com',
+                from: 'info@echohub.io',
                 to: UserArray[i],
                 subject: title,
                 text: message,
@@ -76,8 +101,8 @@ module.exports = {
             var transporter = nodemailer.createTransport({
                 service: 'gmail',
                 auth: {
-                  user: '2clickorg@gmail.com',
-                  pass: 'googlehack7777'
+                  user: 'info@echohub.io',
+                  pass: 'gulzhahan1234567'
                 }
               });
 
@@ -399,3 +424,6 @@ module.exports = {
    }
 
 }
+
+
+//https://www.google.com/settings/security/lesssecureapps
