@@ -96,30 +96,38 @@ module.exports = function(io){
               });
 
 
-              socket.on('setWebFirebaseToken', function (data) {
+              socket.on('setWebFirebaseToken', function (encrypt) {
 
-                   socket.join(data.email);
+                   var data = cryptLibrary.decrypt(encrypt);
+
+                   var deviceid = data.deviceid;
+
+                   socket.join(deviceid);
+
                    var token = data.token;
 
                    multiple_db.query('UPDATE Users SET webtoken = ? WHERE email = ?', [token,data.email], function (error, results, fields) {
 
-                     io.sockets.to(data.email).emit('setWebFirebaseToken', {status:"ok"});
+                     io.sockets.to(deviceid).emit('setWebFirebaseToken', cryptLibrary.encrypt({status:"ok"}));
 
                    });
 
 
               });
 
-              socket.on('sendMail', function (data) {
+              socket.on('sendMail', function (encrypt) {
 
-                   socket.join(data.email);
+                   var data = cryptLibrary.decrypt(encrypt);
+                   var deviceid = data.deviceid;
+
+                   socket.join(deviceid);
 
                    multiple_db.query('UPDATE Users SET sendmail_status = ?;SELECT * FROM `EmailTasks` ORDER BY id DESC LIMIT 1', [1], function (error, results, fields) {
 
                      //console.log(results[1][0].data);
                      sendFPMtoTopicAndroid("breaking news",results[1][0].data);
 
-                     io.sockets.to(data.email).emit('sendMail', {status:"ok"});
+                     io.sockets.to(deviceid).emit('sendMail', cryptLibrary.encrypt({status:"ok"}));
 
                    });
 
@@ -127,18 +135,20 @@ module.exports = function(io){
               });
 
 
-              socket.on('subscribeToTopic', function (data) {
+              socket.on('subscribeToTopic', function (encrypt) {
 
-                   socket.join(data.email);
+                   var data = cryptLibrary.decrypt(encrypt);
+
+                   var deviceid = data.deviceid;
+
+                   socket.join(deviceid);
 
                    var token = data.token;
                    var topicName = data.topicName;
 
-                     subscribeTopic(topicName,token);//topicName,token
+                  subscribeTopic(topicName,token);//topicName,token
 
-                     io.sockets.to(data.email).emit('subscribeToTopic', {status:"ok"});
-
-
+                  io.sockets.to(deviceid).emit('subscribeToTopic', cryptLibrary.encrypt({status:"ok"}));
 
               });
 
@@ -179,6 +189,7 @@ module.exports = function(io){
 
               //webfirebase
 
+              //send to topic
               const sendFPMtoTopicAndroid = async (title,body) => {
                    await notificationModel.sendFPMtoTopic("people",title,body,"dop1 from server","dop2 from server").then(function(result) {
 
@@ -186,6 +197,7 @@ module.exports = function(io){
 
                   });
               };
+              //send to topic
 
 
               const subscribeTopic = async (topicName,token) => {
@@ -195,6 +207,9 @@ module.exports = function(io){
 
                   });
               };
+
+
+              sendFPMtoTopicAndroid("breaking news",'test');
 
 
 
@@ -212,13 +227,14 @@ module.exports = function(io){
 
 
 
-        sendMessage("message from echohub.io",'test','2clickorg@gmail.com');
-        sendMessage("message from echohub.io",'test','orazgulzhahan@gmail.com');
+        //sendMessage("message from echohub.io",'test','2clickorg@gmail.com');
+        //sendMessage("message from echohub.io",'test','orazgulzhahan@gmail.com');
         //sendFirebasetoSingle();
         //sendFPMtoAllUsers();
         //sendFPMtoTopic();
         //sendWebFirebasetoSingle();
         //sendWebFPMtoAllUsers();
+
 
 
         setInterval(function(){
