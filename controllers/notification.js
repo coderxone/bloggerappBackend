@@ -77,18 +77,15 @@ module.exports = function(io){
               });
 
 
-              socket.on('setFirebaseToken', function (data) {
+              socket.on('setFirebaseToken', function (encrypt) {
 
-                   socket.join(data.email);
+                   var data = cryptLibrary.decrypt(encrypt);
+                   socket.join(data.deviceid);
                    var token = data.token;
 
                    multiple_db.query('UPDATE Users SET firebaseToken = ? WHERE email = ?', [token,data.email], function (error, results, fields) {
 
-                     if(results.changedRows == 1){
-                       update_record = 1;
-                     }
-
-                     io.sockets.to(data.email).emit('setFirebaseToken', {status:"ok"});
+                     io.sockets.to(data.deviceid).emit('setFirebaseToken', cryptLibrary.encrypt({status:"ok"}));
 
                    });
 

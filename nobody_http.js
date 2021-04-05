@@ -1,28 +1,26 @@
-var app = require('express')();
-const fs = require('fs');
-// var https = require('https').Server({
-//   key: fs.readFileSync('certificates/2clickkey.pem'),
-//   cert: fs.readFileSync('certificates/2click_orgcrt.pem')
-// },app);
+var express = require('express');
+var fs = require('fs');
+var app = express();
+var request = require('request');
+var bodyParser = require('body-parser');
+var cors = require('cors')
 
+app.use(bodyParser.json()); // support json encoded bodies
+app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
+app.options('*', cors());
+app.use(cors());
 
+var privateKey  = fs.readFileSync('certificates/echohub.key', 'utf8');
+var certificate = fs.readFileSync('certificates/echohub.cert', 'utf8');
+var options = {
+  key: privateKey,
+  cert: certificate,
+  requestCert: false,
+  rejectUnauthorized: false
+};
 
-
-// var https = require('http').Server(app, {
-//   cors: {
-//     origin: "*",
-//     //methods: ["GET", "POST"],
-//     //allowedHeaders: ["my-custom-header"],
-//     //credentials: true
-//   }
-// });
-
-var privateKey  = fs.readFileSync('certificates/2clickkey.pem', 'utf8');
-var certificate = fs.readFileSync('certificates/2click_orgcrt.pem', 'utf8');
-var credentials = {key: privateKey, cert: certificate};
-
-var https = require('http').createServer(function(req,res){
-//var https = require('https').createServer(credentials,function(req,res){
+//var https = require('http').createServer(function(req,res){
+var http = require('http').createServer(app,function(req,res){
 
     // Set CORS headers
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -33,7 +31,9 @@ var https = require('http').createServer(function(req,res){
 
 });
 
-var io = require('socket.io')(https, {
+
+
+var io = require('socket.io')(http, {
     handlePreflightRequest: (req, res) => {
         const headers = {
             "Access-Control-Allow-Headers": "*",
@@ -46,24 +46,15 @@ var io = require('socket.io')(https, {
     }
 });
 
-// const sio = require("socket.io")(server, {
-//     handlePreflightRequest: (req, res) => {
-//         const headers = {
-//             "Access-Control-Allow-Headers": "Content-Type, Authorization",
-//             "Access-Control-Allow-Origin": req.headers.origin, //or the specific origin you want to give access to,
-//             "Access-Control-Allow-Credentials": true
-//         };
-//         res.writeHead(200, headers);
-//         res.end();
-//     }
-// });
 
-var request = require('request');
+
+io.sockets.setMaxListeners(0);
+
+
+
 var get_currencies = require("./services/get_currencies.js");
 
-var bodyParser = require('body-parser');
-app.use(bodyParser.json()); // support json encoded bodies
-app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
+
 
 var db = require('./config/db.js');
 
@@ -92,9 +83,8 @@ require('./controllers/getmoney.js')(io);	//
 require('./controllers/publicmodule.js')(io);	//
 require('./controllers/adminController.js')(io);	//
 require('./controllers/subscribersCore.js')(io);	//
+require('./controllers/updateUserData.js')(io);	//
 //require('./controllers/managementPaypal.js')(io);	//
-
-
 
 
 //socket io another files
@@ -106,19 +96,27 @@ app.get('/', function(req, res){
 	res.sendFile(__dirname + '/index.html');
 });
 
-
 //connect to database
 
 var checkob = require('./controllers/rest_checkobyavl.js');
 
 app.use('/service', [checkob]);
 //connect to database
+
+
+
+
+//var checkob = require('./controllers/rest_checkobyavl.js');
 var imageUpload = require('./routeControllers/imageUpload')(app);
+//app.use('/image', [imageUpload]);
+
+
 io.on('connection', function(socket){
-  console.log('a user connected');
+  //console.log('a user connected');
 
   socket.on('disconnect', function(){
-    //console.log('user disconnected');
+    //console.log("disconnected memory cleared");
+    delete io;
   });
 
   // socket.on('chat message2', function(msg){
@@ -129,9 +127,6 @@ io.on('connection', function(socket){
 
 
   // });
-
-
-
 
 
 });
@@ -155,18 +150,20 @@ var time_message_obj = {
 //time to send
 
 
-function setMessage_email(){
+// function setMessage_email(){
+//
+// 	request.get({url:'http://kazpoisk.kz/public_control/searchusersneirointellect'}, function(err,httpResponse,body){
+//
+// 					console.log(body);
+//
+// 				 })
+//
+// 			 	console.log("send_message");
+//
+//
+// }
 
-	request.get({url:'http://kazpoisk.kz/public_control/searchusersneirointellect'}, function(err,httpResponse,body){
 
-					console.log(body);
-
-				 })
-
-			 	console.log("send_message");
-
-
-}
 
 
 // setInterval(function(){
@@ -196,12 +193,12 @@ function setMessage_email(){
 // },1000);
 
 
-setInterval(function(){
-
-	var currencies = get_currencies.get_russian_currencies();
-	console.log("currencies");
-
-},3600000);
+// setInterval(function(){
+//
+// 	var currencies = get_currencies.get_russian_currencies();
+// 	console.log("currencies");
+//
+// },3600000);
 
 // },15000);
 
@@ -223,8 +220,10 @@ setInterval(function(){
 
 
 
-https.listen(3004, function(){
-  console.log('listening on *:3004');
+
+
+http.listen(3002, function(){
+  console.log('listening on *:3002');
 });
 
 

@@ -4,6 +4,8 @@ var app = express();
 var request = require('request');
 var bodyParser = require('body-parser');
 var cors = require('cors')
+var get_currencies = require("./services/get_currencies.js");
+var db = require('./config/db.js');
 
 app.use(bodyParser.json()); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
@@ -12,15 +14,17 @@ app.use(cors());
 
 var privateKey  = fs.readFileSync('certificates/echohub.key', 'utf8');
 var certificate = fs.readFileSync('certificates/echohub.cert', 'utf8');
+var ca = fs.readFileSync('certificates/echohub.ca-bundle', 'utf8');
 var options = {
   key: privateKey,
   cert: certificate,
+  ca:ca,
   requestCert: false,
   rejectUnauthorized: false
 };
 
 //var https = require('http').createServer(function(req,res){
-var http = require('http').createServer(options,app,function(req,res){
+var http = require('http').createServer(app,function(req,res){
 
     // Set CORS headers
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -42,7 +46,7 @@ var https = require('https').createServer(options,app,function(req,res){
 
 });
 
-var io = require('socket.io')(http, {
+var iohttp = require('socket.io')(http, {
     handlePreflightRequest: (req, res) => {
         const headers = {
             "Access-Control-Allow-Headers": "*",
@@ -69,17 +73,10 @@ var io = require('socket.io')(https, {
 });
 
 io.sockets.setMaxListeners(0);
+iohttp.sockets.setMaxListeners(0);
 
 
-
-var get_currencies = require("./services/get_currencies.js");
-
-
-
-var db = require('./config/db.js');
-
-//socket io another files
-
+//https
 //1 Start initialUserData table contains request from Form and Users contains Data
 require('./controllers/getAllData.js')(io);
 require('./controllers/google_auto_login.js')(io);	//google login
@@ -105,6 +102,35 @@ require('./controllers/adminController.js')(io);	//
 require('./controllers/subscribersCore.js')(io);	//
 require('./controllers/updateUserData.js')(io);	//
 //require('./controllers/managementPaypal.js')(io);	//
+//https
+
+//http
+//1 Start initialUserData table contains request from Form and Users contains Data
+require('./controllers/getAllData.js')(iohttp);
+require('./controllers/google_auto_login.js')(iohttp);	//google login
+require('./controllers/setRole.js')(iohttp);		//setUsersRole
+require('./controllers/searchCity.js')(iohttp);		//main page searchCities
+//Role 1 searching people //role 2 delivering people
+require('./controllers/sendFormData.js')(iohttp);	//send from Form UsersData table from role 1 and role 2
+require('./controllers/getDetailsData.js')(iohttp);	//
+require('./controllers/message.js')(iohttp);	//
+require('./controllers/onlineUsers.js')(iohttp);	//
+require('./controllers/notification.js')(iohttp);	//
+require('./controllers/favorite.js')(iohttp);	//
+require('./controllers/setPhoneNumber.js')(iohttp);	//
+require('./controllers/authorization.js')(iohttp);	//
+require('./controllers/sendmail.js')(iohttp);	//
+require('./controllers/myrequest.js')(iohttp);	//
+require('./controllers/load_all_info.js')(iohttp);	//
+require('./controllers/setVideoUrl.js')(iohttp);	//
+require('./controllers/check_user_pay.js')(iohttp);	//
+require('./controllers/getmoney.js')(iohttp);	//
+require('./controllers/publicmodule.js')(iohttp);	//
+require('./controllers/adminController.js')(iohttp);	//
+require('./controllers/subscribersCore.js')(iohttp);	//
+require('./controllers/updateUserData.js')(iohttp);	//
+//require('./controllers/managementPaypal.js')(io);	//
+//http
 
 
 //socket io another files
@@ -139,104 +165,24 @@ io.on('connection', function(socket){
     delete io;
   });
 
-  // socket.on('chat message2', function(msg){
 
-  // 	console.log('message: ' + msg);
-
-  // 	io.emit('chat message2', msg);
-
-
-  // });
 
 
 });
 
+iohttp.on('connection', function(socket){
+  //console.log('a user connected');
 
-
-//time to send
-var time_message_obj = {
-	"time":7,
-	"minutes":0,
-	"seconds":0,
-}
-
-// var time_message_obj2 = {
-// 	"time":15,
-// 	"minutes":0,
-// 	"seconds":0,
-// }
-
-
-//time to send
-
-
-// function setMessage_email(){
-//
-// 	request.get({url:'http://kazpoisk.kz/public_control/searchusersneirointellect'}, function(err,httpResponse,body){
-//
-// 					console.log(body);
-//
-// 				 })
-//
-// 			 	console.log("send_message");
-//
-//
-// }
+  socket.on('disconnect', function(){
+    //console.log("disconnected memory cleared");
+    delete iohttp;
+  });
 
 
 
 
-// setInterval(function(){
-//
-//
-// 	var date = new Date();
-//
-// 	var hour = date.getHours();
-//
-// 	var minutes = date.getMinutes();
-//
-// 	var seconds = date.getSeconds();
-//
-// 	if((time_message_obj["time"] == hour) && (time_message_obj['minutes'] == minutes) &&
-// 	 (time_message_obj['seconds'] == seconds)){
-		//setMessage_email();
-//	}
+});
 
-	// if((time_message_obj2["time"] == hour) && (time_message_obj2['minutes'] == minutes) &&
-	//  (time_message_obj2['seconds'] == seconds)){
-	// 	setMessage_email();
-	// }
-
-	//console.log(hour + " : " + minutes + " : " + seconds);
-
-
-// },1000);
-
-
-// setInterval(function(){
-//
-// 	var currencies = get_currencies.get_russian_currencies();
-// 	console.log("currencies");
-//
-// },3600000);
-
-// },15000);
-
-
-//Чтобы отправить событие всем, Socket.IO дает нам io.emit:
-
-//io.emit('some event', { for: 'everyone' });
-
-// Если вы хотите отправить сообщение всем, кроме определенного сокета, у нас есть broadcastфлаг:
-
-
-// io.on('connection', function(socket){
-//   socket.broadcast.emit('hi');
-// });
-
-//В этом случае, для простоты, мы отправим сообщение всем, включая отправителя.
-
-//io.emit('chat message', msg);
 
 
 
