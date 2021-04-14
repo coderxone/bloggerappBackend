@@ -47,6 +47,109 @@ module.exports = function(io){
 
               });
 
+
+              socket.on('setUserContacts', function (encrypt) {
+
+                   var data = cryptLibrary.decrypt(encrypt);
+
+
+
+                   var deviceid = data.deviceid;
+
+                   socket.join(deviceid);
+
+
+
+
+
+                   if(data.action == "checkstatus"){
+
+                     if(data.type == "temp"){
+                       db_multiple.query('SELECT `deviceid` FROM `Contacts` WHERE `deviceid` = ? LIMIT 1', [deviceid], function (error, results, fields) {
+
+                         var devicestatus = 0;
+                         if(results.length > 0){
+                                checkingstatus = results[0].deviceid;
+                             }
+
+                             if(devicestatus == 0){
+                               io.sockets.in(deviceid).emit('setUserContacts', cryptLibrary.encrypt({action: 'checkstatus',status:devicestatus,type:"temp"}));
+                             }else{
+                               io.sockets.in(deviceid).emit('setUserContacts', cryptLibrary.encrypt({action: 'checkstatus',status:devicestatus,type:"temp"}));
+                             }
+
+
+                           });
+                     }else{
+
+                       var email = data.email;
+
+                       db_multiple.query('SELECT `contactstatus` FROM `Users` WHERE `email` = ? LIMIT 1;', [email], function (error, results, fields) {
+
+                         var checkingstatus = 0;
+
+                         console.log(checkingstatus);
+
+                         if(results.length > 0){
+                                checkingstatus = results[0].contactstatus;
+                             }
+
+                             if(checkingstatus == 0){
+                               io.sockets.in(deviceid).emit('setUserContacts', cryptLibrary.encrypt({action: 'checkstatus',status:checkingstatus,type:"normal"}));
+                             }else{
+                               io.sockets.in(deviceid).emit('setUserContacts', cryptLibrary.encrypt({action: 'checkstatus',status:checkingstatus,type:"normal"}));
+                             }
+
+
+                           });
+                     }
+
+
+
+                   }else if(data.action == "setcontacts"){
+
+                     var array = JSON.parse(data.array);
+
+                     const serialized = Serialize.serialize(array);
+
+                     if(data.type == "temp"){
+
+                       db_multiple.query('SELECT `deviceid` FROM `Contacts` WHERE `deviceid` = ? LIMIT 1', [deviceid], function (error, results, fields) {
+
+                         if(results.length < 1){
+
+                             var insert  = { contacts: serialized,deviceid:deviceid};
+                             db_multiple.query('INSERT INTO Contacts SET ?', insert, function (error, results, fields) {
+                               io.sockets.in(data.deviceid).emit('setUserContacts', cryptLibrary.encrypt({action: 'setcontacts',status:'1',type:"temp"}));
+                             });
+
+                          }
+
+
+
+
+                           });
+
+
+
+                     }else{
+
+                       var email = data.email;
+
+                       db_multiple.query('UPDATE Users SET contacts = ?,contactstatus = ? WHERE email = ?', [serialized, 1, email], function (error, results, fields) {
+
+                          io.sockets.in(data.deviceid).emit('setUserContacts', cryptLibrary.encrypt({action: 'setcontacts',status:'1',type:"normal"}));
+
+                       });
+                     }
+
+
+
+                   }
+
+
+              });
+
         });
 
 };

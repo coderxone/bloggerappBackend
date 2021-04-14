@@ -43,7 +43,7 @@ module.exports = function(io){
                      gps:data.data.gps,
                      famous:data.data.famous,
                      companyName:formHelper.cleanString(data.data.companyName),
-                     category:Serialize.serialize(data.data.category),
+                     category:formHelper.cleanString(data.data.category),
                      businessAnswers:Serialize.serialize(data.data.businessAnswers),
                    };
 

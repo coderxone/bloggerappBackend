@@ -206,7 +206,7 @@ module.exports = function(io){
               };
 
 
-              sendFPMtoTopicAndroid("breaking news",'test');
+            //  sendFPMtoTopicAndroid("breaking news",'test');
 
 
 

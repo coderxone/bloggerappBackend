@@ -190,9 +190,9 @@ https.listen(3004, function(){
   console.log('listening on *:3004');
 });
 
-http.listen(3002, function(){
-  console.log('listening on *:3002');
-});
+// http.listen(3002, function(){
+//   console.log('listening on *:3002');
+// });
 
 
 //oauth
