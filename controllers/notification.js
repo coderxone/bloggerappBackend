@@ -92,6 +92,32 @@ module.exports = function(io){
 
               });
 
+              socket.on('setTemporaryToken', function (encrypt) {
+
+                   var data = cryptLibrary.decrypt(encrypt);
+                   socket.join(data.deviceid);
+                   var token = data.token;
+
+                   multiple_db.query('SELECT * FROM `TempTokens` WHERE `token` = ?', [token], function (error, results, fields) {
+
+                     if(results.length < 1){
+                           multiple_db.query('UPDATE TempTokens SET token = ?', [token], function (error, results, fields) {
+
+                             io.sockets.to(data.deviceid).emit('setTemporaryToken', cryptLibrary.encrypt({status:"ok"}));
+
+                           });
+                         }else{
+                           io.sockets.to(data.deviceid).emit('setTemporaryToken', cryptLibrary.encrypt({status:"exist"}));
+                         }
+
+
+                       });
+
+
+
+
+              });
+
 
               socket.on('setWebFirebaseToken', function (encrypt) {
 
