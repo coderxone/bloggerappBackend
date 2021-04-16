@@ -101,14 +101,17 @@ module.exports = function(io){
                    multiple_db.query('SELECT * FROM `TempTokens` WHERE `token` = ?', [token], function (error, results, fields) {
 
                      if(results.length < 1){
-                           multiple_db.query('UPDATE TempTokens SET token = ?', [token], function (error, results, fields) {
 
-                             io.sockets.to(data.deviceid).emit('setTemporaryToken', cryptLibrary.encrypt({status:"ok"}));
+                           var insert  = { token: token};
 
+                           var query = multiple_db.query('INSERT INTO TempTokens SET ?', insert, function (error, results, fields) {
+
+                              io.sockets.to(data.deviceid).emit('setTemporaryToken', cryptLibrary.encrypt({status:"ok"}));
                            });
-                         }else{
-                           io.sockets.to(data.deviceid).emit('setTemporaryToken', cryptLibrary.encrypt({status:"exist"}));
-                         }
+
+                       }else{
+                         io.sockets.to(data.deviceid).emit('setTemporaryToken', cryptLibrary.encrypt({status:"exist"}));
+                       }
 
 
                        });
