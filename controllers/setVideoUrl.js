@@ -73,6 +73,34 @@ module.exports = function(io){
 
               });
 
+              socket.on('replacevideo', function (encrypt) {
+
+                   var data = cryptLibrary.decrypt(encrypt);
+
+                   var deviceid = data.deviceid;
+                   var url = formHelper.cleanUrlString(data.url);
+                   var project_id = data.id;
+                   var user_email = data.email;
+                   var date = timeconverter.getUnixtime();
+                   var videotype = data.videotype;
+                   socket.join(deviceid);
+
+                   multiple_db.query('UPDATE usersvideo SET url = ?,date = ?,type = ?, status = ? WHERE id = ?', [url,date,videotype,2,project_id], function (error, results, fields) {
+
+                     //console.log(results);
+
+                     if(results.changedRows == 1){
+                       io.sockets.in(deviceid).emit('replacevideo', cryptLibrary.encrypt({status: 'updated'}));
+                     }else{
+                       io.sockets.in(deviceid).emit('replacevideo', cryptLibrary.encrypt({status: 'already'}));
+                     }
+
+
+                   });
+
+
+              });
+
 
               socket.on('checkvideo', function (encrypt) {
 
