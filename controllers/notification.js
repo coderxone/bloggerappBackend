@@ -66,7 +66,7 @@ module.exports = function(io){
 
                    socket.join(data.deviceid);
 
-                   multiple_db.query('UPDATE complete_task SET status = ? WHERE task_id = ? AND user_email = ?;UPDATE usersvideo SET status = ? WHERE project_id = ? AND user_email = ?', [status,task_id,user_email,status,task_id,user_email], function (error, results, fields) {
+                   multiple_db.query('UPDATE complete_task SET status = ? WHERE task_id = ? AND user_email = ?;UPDATE usersvideo SET status = ? WHERE project_id = ? AND user_email = ?;UPDATE uniquenames SET status = ? WHERE project_id = ?', [status,task_id,user_email,status,task_id,user_email,3,task_id], function (error, results, fields) {
 
 
                      io.sockets.to(data.deviceid).emit('setTasks', cryptLibrary.encrypt({status:"ok",status:"ok"}));

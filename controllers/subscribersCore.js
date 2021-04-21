@@ -37,7 +37,7 @@ module.exports = function(io){
                        //now we are calculating platform percent and result price.
                        var percent = (videoPrice / 100) * parseInt(results[0].platform_percent);
 
-                       var FirstCount = videoPrice - percent;
+                       var FirstCount = videoPrice - percent;//here we found 300 - 99;counting sum
                        var SecondCount = FirstCount / parseFloat(results[0].min_pay_rate);
                        var ThirstCount = parseInt(SecondCount);
                        var NewCheckingAmount = 0;
