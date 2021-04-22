@@ -22,7 +22,7 @@ module.exports = function(io){
                   var currency_usd = 0;
                   var alldata = 0;
 
-                  db_multiple.query('SELECT * FROM `currency` LIMIT 1;SELECT * FROM `appParams` LIMIT 1;SELECT * FROM `social_network_list`;SELECT * FROM `categories`;SELECT * FROM `businessCategories`;SELECT * FROM `businessGoals`;', function (error, results, fields) {
+                  db_multiple.query('SELECT * FROM `currency` LIMIT 1;SELECT * FROM `appParams` LIMIT 1;SELECT * FROM `social_network_list`;SELECT * FROM `categories`;SELECT * FROM `businessCategories`;SELECT * FROM `businessGoals`;SELECT * FROM `AppStatus`;', function (error, results, fields) {
 
                     //console.log(results[0]);
                     currency_usd = results[0][0].ru_usd;
@@ -31,10 +31,11 @@ module.exports = function(io){
                     var categories = results[3];
                     var businessCategories = results[4];
                     var businessGoals = results[5];
+                    var appStatus = results[6];
 
                     // console.log(categories);
 
-                    io.sockets.in(deviceId).emit('load_all_info',cryptLibrary.encrypt({currency_usd:currency_usd,alldata:alldata,socialNetworkList:socialNetworkList,categories:categories,businessCategories:businessCategories,businessGoals:businessGoals}));
+                    io.sockets.in(deviceId).emit('load_all_info',cryptLibrary.encrypt({currency_usd:currency_usd,alldata:alldata,socialNetworkList:socialNetworkList,categories:categories,businessCategories:businessCategories,businessGoals:businessGoals,appstatus:appStatus}));
 
                   });
 

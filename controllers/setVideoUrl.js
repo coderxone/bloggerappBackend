@@ -153,6 +153,38 @@ module.exports = function(io){
               });
 
 
+              socket.on('checkcurrentStatus', function (encrypt) {
+
+
+                   var data = cryptLibrary.decrypt(encrypt);
+                   var deviceid = data.deviceid;
+
+                   socket.join(deviceid);
+
+                   //timeconverter.getunixMonth
+                   //console.log(data);
+                   var project_id = data.project_id;
+                   var user_email = data.email;
+
+
+                   multiple_db.query('SELECT UsersData.id, UsersData.date,UsersData.description,UsersData.email,UsersData.time,UsersData.sum,UsersData.pay_status,UsersData.peoplecount,UsersData.subscribers,UsersData.url,UsersData.location_name,UsersData.location_points,UsersData.peoplecount,UsersData.countvideo,UsersData.lat,UsersData.lng,UsersData.gps,UsersData.famous,uniquenames.project_id,uniquenames.user_email,uniquenames.status,uniquenames.hash FROM uniquenames INNER JOIN UsersData ON uniquenames.project_id = UsersData.id WHERE uniquenames.user_email = ? AND uniquenames.project_id;SELECT execute_day FROM `appParams`;', [user_email,project_id], function (error, results, fields) {
+
+                          var executeDay = results[1][0].execute_day;
+
+                           if((results[0].length > 0) || (results[1].length > 0)){
+                             for(var i = 0;i < results[0].length;i++){
+                               results[0][i].date = timeconverter.timeConverter_us_date(results[0][i].date,executeDay);
+                               results[0][i].time = timeconverter.timeConverter_us_time(results[0][i].time);
+                             }
+
+                               io.sockets.in(deviceid).emit('checkcurrentStatus', cryptLibrary.encrypt({data:results[0],status:"ok"}));
+                           }
+
+                       });
+
+              });
+
+
 
               socket.on('checkBannedvideo', function (encrypt) {
 
@@ -215,7 +247,6 @@ module.exports = function(io){
 
                    //timeconverter.getunixMonth
                    //console.log(data);
-                   var project_id = data.id;
                    var user_email = data.email;
                    var montharray = new Array();//filtration copy
                    var monthcount = new Array();//count array
@@ -626,7 +657,13 @@ module.exports = function(io){
                      multiple_db.query('SELECT * FROM `complete_task` WHERE `task_id` = ? AND user_email = ?', [update_id, data.email], function (error, results, fields) {
 
                        if(results.length > 0){
-                              io.sockets.in(deviceid).emit('closeorders', cryptLibrary.encrypt({status: 'updated',currentStatus:0}));
+
+                             multiple_db.query('UPDATE uniquenames SET status = ? WHERE user_email = ? AND project_id = ?', [2,data.email,update_id], function (error, results, fields) {
+
+                                 io.sockets.in(deviceid).emit('closeorders', cryptLibrary.encrypt({status: 'updated',currentStatus:0}));
+
+                             });
+
                            }else{
                              var insert  = { user_email: data.email,task_id:update_id,status:approvetask};
 

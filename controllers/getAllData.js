@@ -408,18 +408,18 @@ module.exports = function(io){
                 socket.join(deviceid);
 
                                                                                                                                                                                                                                                                                                                                            //1                                   //2                                             //3
-                    db_multiple.query("SELECT UsersData.id, UsersData.date,UsersData.description,UsersData.email,UsersData.time,UsersData.sum, UsersData.status,UsersData.pay_status,UsersData.peoplecount,UsersData.subscribers,UsersData.url,UsersData.location_name,UsersData.location_points,UsersData.peoplecount,UsersData.countvideo,UsersData.lat,UsersData.lng,UsersData.gps,UsersData.famous,uniquenames.project_id,uniquenames.user_email,uniquenames.hash FROM uniquenames INNER JOIN UsersData ON uniquenames.project_id = UsersData.id WHERE uniquenames.user_email = ? AND uniquenames.status = ?;SELECT UsersData.id, UsersData.date,UsersData.description,UsersData.email,UsersData.time,UsersData.sum, UsersData.status,UsersData.pay_status,UsersData.peoplecount,UsersData.subscribers,UsersData.url,UsersData.location_name,UsersData.location_points,UsersData.peoplecount,UsersData.countvideo,UsersData.lat,UsersData.lng,UsersData.gps,UsersData.famous,uniquenames.project_id,uniquenames.user_email,uniquenames.hash FROM uniquenames INNER JOIN UsersData ON uniquenames.project_id = UsersData.id WHERE uniquenames.user_email = ?;",[data.email,1,data.email], function (error, results, fields) {
+                    db_multiple.query("SELECT UsersData.id, UsersData.date,UsersData.description,UsersData.email,UsersData.time,UsersData.sum, UsersData.status,UsersData.pay_status,UsersData.peoplecount,UsersData.subscribers,UsersData.url,UsersData.location_name,UsersData.location_points,UsersData.peoplecount,UsersData.countvideo,UsersData.lat,UsersData.lng,UsersData.gps,UsersData.famous,uniquenames.project_id,uniquenames.user_email,uniquenames.hash FROM uniquenames INNER JOIN UsersData ON uniquenames.project_id = UsersData.id WHERE uniquenames.user_email = ? AND uniquenames.status = ?;SELECT UsersData.id, UsersData.date,UsersData.description,UsersData.email,UsersData.time,UsersData.sum,UsersData.pay_status,UsersData.peoplecount,UsersData.subscribers,UsersData.url,UsersData.location_name,UsersData.location_points,UsersData.peoplecount,UsersData.countvideo,UsersData.lat,UsersData.lng,UsersData.gps,UsersData.famous,uniquenames.project_id,uniquenames.user_email,uniquenames.status,uniquenames.hash FROM uniquenames INNER JOIN UsersData ON uniquenames.project_id = UsersData.id WHERE uniquenames.user_email = ?;SELECT execute_day FROM `appParams`;",[data.email,1,data.email], function (error, results, fields) {
 
-
+                      var executeDay = results[2][0].execute_day;
 
 
                       if((results[0].length > 0) || (results[1].length > 0)){
                         for(var i = 0;i < results[0].length;i++){
-                          results[0][i].date = timeconverter.timeConverter_us_date(results[0][i].date);
+                          results[0][i].date = timeconverter.timeConverter_us_date(results[0][i].date,executeDay);
                           results[0][i].time = timeconverter.timeConverter_us_time(results[0][i].time);
                         }
                         for(var j = 0;j < results[1].length;j++){
-                          results[1][j].date = timeconverter.timeConverter_us_date(results[1][j].date);
+                          results[1][j].date = timeconverter.timeConverter_us_date(results[1][j].date,executeDay);
                           results[1][j].time = timeconverter.timeConverter_us_time(results[1][j].time);
                         }
 
