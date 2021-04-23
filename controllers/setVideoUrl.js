@@ -643,6 +643,112 @@ module.exports = function(io){
               });
 
 
+              socket.on('declineorder', function (encrypt) {
+
+                  var data = cryptLibrary.decrypt(encrypt);
+
+                   socket.join(data.deviceid);
+
+                   var project_id = data.project_id;
+                   var email = data.email;
+                   var text = data.text;
+
+
+                   const deleteFromUniqTable = new function () {
+                      return new Promise((resolve, reject) => {
+
+                          multiple_db.query('DELETE FROM uniquenames WHERE project_id = ?;',[project_id], function (error, results, fields) {
+
+                              resolve("ok");
+
+                          });
+
+                        });
+                   };
+
+                   const deleteFromUserVideoTable = new function () {
+                      return new Promise((resolve, reject) => {
+
+                          multiple_db.query('DELETE FROM usersvideo WHERE project_id = ?;',[project_id], function (error, results, fields) {
+
+                              resolve("ok");
+
+                          });
+
+                        });
+                   };
+
+                   const deleteFromCompleteTaskTable = new function () {
+                      return new Promise((resolve, reject) => {
+
+                          multiple_db.query('DELETE FROM complete_task WHERE task_id = ?;',[project_id], function (error, results, fields) {
+
+                              resolve("ok");
+
+                          });
+
+                        });
+                   };
+
+                   const CheckInsertedTaskTable = new function () {
+                      return new Promise((resolve, reject) => {
+
+                        var insert  = { user_email: email,task_id:project_id,text:text};
+
+                        var query = multiple_db.query('SELECT * FROM rejected_task WHERE user_email = ? AND task_id', [email,project_id], function (error, results, fields) {
+
+                            if(results.length > 0){
+                              resolve("false");
+                            }else{
+                              resolve("ok");
+                            }
+
+
+                        });
+
+                        });
+                   };
+
+                   const InsertFromRejected_taskTaskTable = new function () {
+                      return new Promise((resolve, reject) => {
+
+                        var insert  = { user_email: email,task_id:project_id,text:text};
+
+                        var query = multiple_db.query('INSERT INTO rejected_task SET ?', insert, function (error, results, fields) {
+
+                            resolve("ok");
+
+                        });
+
+                        });
+                   };
+
+                   const StepFunction = async function(){
+                      try {
+                          const actionOne = await deleteFromUniqTable();
+                          const actionTwo = await deleteFromUserVideoTable();
+                          const actionThree = await deleteFromCompleteTaskTable();
+                          const actionFour = await CheckInsertedTaskTable();
+                          if(actionFour == "ok"){
+                            const actionFive = await InsertFromRejected_taskTaskTable();
+                          }
+
+                          return "ok";
+                      }catch (e){
+                          //handle errors as needed
+                      }
+                   };
+
+                   StepFunction().then(response => {
+                     console.log(response);
+                     io.sockets.in(data.deviceid).emit('declineorder', cryptLibrary.encrypt({status: 'ok'}));
+                   })
+
+
+
+              });
+
+
               socket.on('closeorders', function (encrypt) {
 
                   var data = cryptLibrary.decrypt(encrypt);
