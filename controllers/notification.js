@@ -179,6 +179,24 @@ module.exports = function(io){
               });
 
 
+              socket.on('sendHtmlMail', function (encrypt) {
+
+                   var data = cryptLibrary.decrypt(encrypt);
+
+                   var deviceid = data.deviceid;
+                   var sendMail = data.sendmail;
+                   var htmlData = data.htmlData;
+                   socket.join(deviceid);
+
+                  // console.log(htmlData);
+
+                  sendHtmlMessage("test message",htmlData,sendMail);//(title,htmldata,sendemail)
+
+                  io.sockets.to(deviceid).emit('sendHtmlMail', {status:"ok"});
+
+              });
+
+
               const sendFirebasetoSingleAndroid = async () => {
                    await notificationModel.sendFPMtoSingle("2clickorg@gmail.com","title test from server","body test from server","dop1 from server","dop2 from server").then(function(result) {
 
@@ -230,6 +248,14 @@ module.exports = function(io){
                    await notificationModel.subscribeTopic(topicName,token).then(function(result) {
 
                       console.log(result);
+
+                  });
+              };
+
+              const sendHtmlMessage = async (title,htmldata,sendemail) => {
+                   await notificationModel.sendHtmlMessage(title,"",htmldata,sendemail).then(function(result) {
+
+                      console.log(result.response);
 
                   });
               };

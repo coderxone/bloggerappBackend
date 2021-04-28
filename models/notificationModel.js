@@ -83,6 +83,70 @@ module.exports = {
 
     },
 
+
+     sendHtmlMessage:async function(title,message,HtmlMessage,toUser){
+
+       return new Promise(function(resolve, reject) {
+         //promise
+
+             var mailOptions = {
+                 from: 'info@echohub.io',
+                 to: toUser,
+                 subject: title,
+                 text: message,
+                 html: HtmlMessage
+             }
+
+          const connectMail = async () => {
+
+               var transporter = nodemailer.createTransport({
+                   host:'smtp.gmail.com',
+                   port:465,
+                   secure:true,
+                   auth: {
+                     type:'OAuth2',
+                     user: 'info@echohub.io',
+                     serviceClient:serviceGmailAccount.client_id,
+                     privateKey:serviceGmailAccount.private_key
+                   }
+                 });
+
+                 await transporter.verify();
+                 await transporter.sendMail(mailOptions, function (err, res) {
+                     if(err){
+                         //console.log(err);
+                         console.log(err);
+                     } else {
+                       console.log(res);
+
+                     }
+                 })
+
+               }
+
+
+               connectMail().then(response => {
+                 resolve("ok");
+               });
+
+
+             // var transporter = nodemailer.createTransport({
+             //     service: 'gmail',
+             //     auth: {
+             //       user: 'info@echohub.io',
+             //       pass: 'gulzhahan1234567'
+             //     }
+             //   });
+
+
+
+
+          //promise
+        });
+
+
+    },
+
      sendToAllMessage:async function(title,message,UserArray){
 
        return new Promise(function(resolve, reject) {
@@ -98,23 +162,39 @@ module.exports = {
                 html: message
             }
 
-            var transporter = nodemailer.createTransport({
-                service: 'gmail',
-                auth: {
-                  user: 'info@echohub.io',
-                  pass: 'gulzhahan1234567'
-                }
-              });
+            const connectMail = async () => {
 
-              transporter.sendMail(mailOptions, function (err, res) {
-                  if(err){
-                      //console.log(err);
-                      console.log(err);
-                  } else {
-                    //console.log(res);
+                 var transporter = nodemailer.createTransport({
+                     host:'smtp.gmail.com',
+                     port:465,
+                     secure:true,
+                     auth: {
+                       type:'OAuth2',
+                       user: 'info@echohub.io',
+                       serviceClient:serviceGmailAccount.client_id,
+                       privateKey:serviceGmailAccount.private_key
+                     }
+                   });
 
-                  }
-              });
+                   await transporter.verify();
+                   await transporter.sendMail(mailOptions, function (err, res) {
+                       if(err){
+                           //console.log(err);
+                           console.log(err);
+                       } else {
+                         console.log(res);
+
+                       }
+                   })
+
+                 }
+
+
+                 connectMail().then(response => {
+                   resolve("ok");
+                 });
+
+
 
           }
 
