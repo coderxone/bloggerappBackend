@@ -101,6 +101,7 @@ require('./controllers/publicmodule.js')(io);	//
 require('./controllers/adminController.js')(io);	//
 require('./controllers/subscribersCore.js')(io);	//
 require('./controllers/updateUserData.js')(io);	//
+require('./controllers/liveTimeDataController.js')(io);	//
 //require('./controllers/managementPaypal.js')(io);	//
 //https
 
@@ -129,6 +130,7 @@ require('./controllers/publicmodule.js')(iohttp);	//
 require('./controllers/adminController.js')(iohttp);	//
 require('./controllers/subscribersCore.js')(iohttp);	//
 require('./controllers/updateUserData.js')(iohttp);	//
+require('./controllers/liveTimeDataController.js')(iohttp);	//
 //require('./controllers/managementPaypal.js')(io);	//
 //http
 
