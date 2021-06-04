@@ -2,6 +2,7 @@ var multiple_db = require('../config/multiple_mysql.js');
 var formHelper = require("../models/formHelpers.js");
 var timeconverter = require("../models/timeconverter.js");
 var cryptLibrary = require("../models/cryptLibrary.js");
+var short = require('short-uuid');
 
 module.exports = function(io){
 
@@ -19,7 +20,9 @@ module.exports = function(io){
 
                    var email = formHelper.cleanString(data.email);
                    var password = formHelper.cleanString(data.password);
-
+                   var name = formHelper.cleanString(data.name);
+                   var picture = formHelper.cleanString(data.picture);
+                   var generatedLink = short.generate();
 
                    multiple_db.query('SELECT * FROM `Users` WHERE `email` = ? LIMIT 1', [email], function (error, results, fields) {
 
@@ -36,12 +39,12 @@ module.exports = function(io){
 
                             io.sockets.in(data.deviceid).emit('setRegistration', cryptLibrary.encrypt({status: 'olduser',password:validate_pass,role:role,additionalData:additionalData}));
                          }else{
-                           var insert  = { email: email,password:password};
+                           var insert  = { email: email,password:password,name:name,image_url:picture,link:generatedLink};
 
                            var query = multiple_db.query('INSERT INTO Users SET ?', insert, function (error, results, fields) {
                              if (error) throw error;
 
-                             io.sockets.in(data.deviceid).emit('setRegistration', cryptLibrary.encrypt({status: 'newuser'}));
+                             io.sockets.in(data.deviceid).emit('setRegistration', cryptLibrary.encrypt({status: 'newuser',link:generatedLink,email:email}));
 
                            });
                          }
@@ -75,6 +78,31 @@ module.exports = function(io){
                          }else{
                               io.sockets.in(data.deviceid).emit('setRestorePassword', cryptLibrary.encrypt({status: 'usernotfound'}));
                          }
+
+
+                       });
+
+
+
+              });
+
+
+              socket.on('setconfirm', function (encryptData) {
+
+
+                   var data = cryptLibrary.decrypt(encryptData);
+
+                   socket.join(data.deviceid);
+
+                   //console.log(data);
+                   var hash = formHelper.cleanString(data.hash);
+                   //console.log(hash);
+
+
+                   multiple_db.query('UPDATE Users SET email_confirmed = ? WHERE link = ?', [1, hash], function (error, results, fields) {
+
+
+                              io.sockets.in(data.deviceid).emit('setconfirm', cryptLibrary.encrypt({status: 'ok'}));
 
 
                        });

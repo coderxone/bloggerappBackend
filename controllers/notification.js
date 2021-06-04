@@ -186,11 +186,12 @@ module.exports = function(io){
                    var deviceid = data.deviceid;
                    var sendMail = data.sendmail;
                    var htmlData = data.htmlData;
+                   var title = data.title;
                    socket.join(deviceid);
 
                   // console.log(htmlData);
 
-                  sendHtmlMessage("test message",htmlData,sendMail);//(title,htmldata,sendemail)
+                  sendHtmlMessage(title,htmlData,sendMail);//(title,htmldata,sendemail)
 
                   io.sockets.to(deviceid).emit('sendHtmlMail', {status:"ok"});
 
@@ -302,7 +303,7 @@ module.exports = function(io){
                    var sendtext = result[1][0].data;
 
                    //console.log(sendmail + "|" + sendtext);
-                   sendMessage("message from echohub.io",sendtext,sendmail);
+                   //sendMessage("message from echohub.io",sendtext,sendmail);
 
                    multiple_db.query('UPDATE Users SET sendmail_status = ? WHERE id = ?', [2,updateid], function (error, results, fields) {
 

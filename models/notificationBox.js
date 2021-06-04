@@ -1,8 +1,24 @@
 var moment = require('moment-timezone');
 var notificationModel = require("./notificationModel.js");
-var domainName = "http://test.com";
+var domainName = "https://echohub.io";
 
 module.exports = {
+
+      sendSingleEmail:function(title,htmlmessage,toUser){
+
+              const sendMessage = async () => {
+                   await notificationModel.sendMessage(title,htmlmessage,toUser).then(function(result) {
+
+                      console.log(result.response);
+
+                  });
+              };
+
+              sendMessage();
+
+              return "ok";
+      },
+
 
       sendHyperSingle:function(title,htmlmessage,cleanmessage,toUser){
 

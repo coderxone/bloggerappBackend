@@ -34,6 +34,10 @@ module.exports = {
 
     cleanString:function(checkString){
 
+          try{
+
+
+
             var validate = ["script","alert","php","xss","*","j&","#","X41","SRC","IMG","refresh","/html","base64","request","%","select","execute","document","-- -","--","<",">","concat","=","<script>","</script>","</"];
 
               //validate function
@@ -41,7 +45,7 @@ module.exports = {
                   for(var i = 0;i < validate.length;i++){
 
                     var tt = checkString;
-                    ttxt = tt.toString();
+                    ttxt = String(tt);
                     var xt = ttxt.indexOf(validate[i]);
 
                     if(xt >= 0){
@@ -62,40 +66,49 @@ module.exports = {
 
 
                     return checkString;
+                  }catch(e){
+                    return false;
+                  }
 
           },
 
 
     cleanUrlString:function(checkString){
 
-            var validate = ["script","alert","php","xss","*","j&","#","X41","SRC","IMG","refresh","/html","base64","request","%","select","execute","document","-- -","--","<",">","concat","<script>","</script>","</"];
+            try{
 
-              //validate function
+                var validate = ["script","alert","php","xss","*","j&","#","X41","SRC","IMG","refresh","/html","base64","request","%","select","execute","document","-- -","--","<",">","concat","<script>","</script>","</"];
 
-                  for(var i = 0;i < validate.length;i++){
+                  //validate function
 
-                    var tt = checkString;
-                    ttxt = tt.toString();
-                    var xt = ttxt.indexOf(validate[i]);
+                      for(var i = 0;i < validate.length;i++){
 
-                    if(xt >= 0){
-                        checkString = " ";
+                        var tt = checkString;
+                        ttxt = String(tt);
+                        var xt = ttxt.indexOf(validate[i]);
+
+                        if(xt >= 0){
+                            checkString = " ";
+                        }
+
+                        }
+
+                        for(var j = 0;j < checkString.length;j++){
+
+                          var y = checkString[j];
+
+                          if(y == validate[i]){
+                            checkString[j] = " ";
+                          }
+
+                        }
+
+
+                        return checkString;
+
+                    }catch(e){
+
                     }
-
-                    }
-
-                    for(var j = 0;j < checkString.length;j++){
-
-                      var y = checkString[j];
-
-                      if(y == validate[i]){
-                        checkString[j] = " ";
-                      }
-
-                    }
-
-
-                    return checkString;
 
           }
 

@@ -3,6 +3,7 @@ var formHelper = require("../models/formHelpers.js");
 var timeconverter = require("../models/timeconverter.js");
 var nodemailer = require('nodemailer');
 var cryptLibrary = require("../models/cryptLibrary.js");
+var notificationBox = require("../models/notificationBox.js");
 
 
 
@@ -19,51 +20,15 @@ module.exports = function(io){
 
                    socket.join(data.deviceid);
                    var sendemail = formHelper.cleanString(data.sendemail);
-
-                   //console.log(data);
-
-
-                   multiple_db.query('SELECT * FROM `Users` WHERE `email` = ?', [sendemail], function (error, results, fields) {
+                   var html = data.html;
 
 
-                     if(results.length > 0){
+                        var title = "Password Reminder from echohub.io";
 
-                        var password = String(results[0].password);
+                        notificationBox.sendSingleEmail(title,html,sendemail);
 
-                        var mailOptions = {
-                            from: '2clickorg@gmail.com',
-                            to: sendemail,
-                            subject: 'Password Reminder from 2click.org',
-                            text: 'your password \"' + password + '\"'
-                        }
-
-
-                        var transporter = nodemailer.createTransport({
-                            service: 'gmail',
-                            auth: {
-                              user: '2clickorg@gmail.com',
-                              pass: 'googlehackA&'
-                            }
-                          });
-
-
-                          transporter.sendMail(mailOptions, function (err, res) {
-                              if(err){
-
-                              } else {
-
-                              }
-                          })
-
-                            io.sockets.in(data.deviceid).emit('sendmail', cryptLibrary.encrypt({status: 'sended'}));
-
-                         }else{
-                           io.sockets.in(data.deviceid).emit('sendmail', cryptLibrary.encrypt({status: 'notfound'}));
-                         }
-
-                       });
-
-
+                        io.sockets.in(data.deviceid).emit('sendmail', cryptLibrary.encrypt({status: 'sended'}));
+                        //io.sockets.in(data.deviceid).emit('sendmail', cryptLibrary.encrypt({status: 'notfound'}));
 
 
               });
