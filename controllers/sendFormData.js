@@ -17,35 +17,63 @@ module.exports = function(io){
 
                    socket.join(data.deviceid);
 
+                   var type = data.data.type;
+
                    var LocationData = JSON.parse(data.data.coord);
-
                    var locationPoints = LocationData.fullData;
-
                    var geometryLat = LocationData.geometry.lat;
                    var geometryLong = LocationData.geometry.lng;
 
+                   var insert = {};
 
-                   var insert  = {
-                     url: formHelper.cleanString(data.data.url),
-                     location_name:formHelper.cleanString(LocationData.title),
-                     location_points:Serialize.serialize(locationPoints),//shifr
-                     lat:geometryLat,
-                     lng:geometryLong,
-                     date: timeLibrary.convertToUnixjsGetTime(formHelper.cleanString(data.data.date)),
-                     time: timeLibrary.convertToUnixjsGetTime(formHelper.cleanString(data.data.time)),
-                     sum: formHelper.cleanString(data.data.amount),
-                     description: formHelper.cleanString(data.data.description),
-                     role:2,
-                     email:data.email,
-                     peoplecount:formHelper.cleanString(data.data.peopleCount),
-                     subscribers:formHelper.cleanString(data.data.subscribers),
-                     countvideo:formHelper.cleanString(data.data.countvideo),
-                     gps:data.data.gps,
-                     famous:data.data.famous,
-                     companyName:formHelper.cleanString(data.data.companyName),
-                     category:formHelper.cleanString(data.data.category),
-                     businessAnswers:Serialize.serialize(data.data.businessAnswers),
-                   };
+                   if(type == 2){
+                     insert  = {
+                       url: formHelper.cleanString(data.data.url),
+                       location_name:formHelper.cleanString(LocationData.title),
+                       location_points:Serialize.serialize(locationPoints),//shifr
+                       lat:geometryLat,
+                       lng:geometryLong,
+                       date: timeLibrary.convertToUnixjsGetTime(formHelper.cleanString(data.data.date)),
+                       time: timeLibrary.convertToUnixjsGetTime(formHelper.cleanString(data.data.time)),
+                       sum: formHelper.cleanString(data.data.amount),
+                       description: formHelper.cleanText(data.data.description),
+                       role:2,
+                       email:data.email,
+                       peoplecount:formHelper.cleanString(data.data.peopleCount),
+                       subscribers:formHelper.cleanString(data.data.subscribers),
+                       countvideo:formHelper.cleanString(data.data.countvideo),
+                       gps:data.data.gps,
+                       famous:data.data.famous,
+                       companyName:formHelper.cleanString(data.data.companyName),
+                       category:formHelper.cleanString(data.data.category),
+                       businessAnswers:Serialize.serialize(data.data.businessAnswers),
+                       type:type
+                     };
+                   }else if(type == 1){
+
+                     var timeNow = timeLibrary.newUnixTimeNow();
+
+                     insert  = {
+                       url: formHelper.cleanString(data.data.url),
+                       location_name:formHelper.cleanString(LocationData.title),
+                       location_points:Serialize.serialize(locationPoints),//shifr
+                       lat:geometryLat,
+                       lng:geometryLong,
+                       date: timeNow,
+                       time: timeNow,
+                       sum: formHelper.cleanString(data.data.amount),
+                       description: formHelper.cleanText(data.data.description),
+                       role:2,
+                       email:data.email,
+                       subscribers:formHelper.cleanString(data.data.subscribers),
+                       companyName:formHelper.cleanString(data.data.companyName),
+                       videourl:formHelper.cleanUrlString(data.data.videourl),
+                       type:type
+                     };
+
+                   }
+
+                   
 
 
 
@@ -54,7 +82,6 @@ module.exports = function(io){
                           //console.log(error);
                        }
 
-                       //console.log(results.insertId);
 
                        var encrypt = cryptLibrary.encrypt({status:"ok",insertId:results.insertId});
 

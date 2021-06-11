@@ -36,8 +36,6 @@ module.exports = {
 
           try{
 
-
-
             var validate = ["script","alert","php","xss","*","j&","#","X41","SRC","IMG","refresh","/html","base64","request","%","select","execute","document","-- -","--","<",">","concat","=","<script>","</script>","</"];
 
               //validate function
@@ -76,7 +74,7 @@ module.exports = {
     cleanUrlString:function(checkString){
 
             try{
-
+                ////https://www.youtube.com/watch?v=uJNkLR4rQZM&t=3s
                 var validate = ["script","alert","php","xss","*","j&","#","X41","SRC","IMG","refresh","/html","base64","request","%","select","execute","document","-- -","--","<",">","concat","<script>","</script>","</"];
 
                   //validate function
@@ -110,7 +108,34 @@ module.exports = {
 
                     }
 
-          }
+          },
+
+          cleanText:function(checkString){
+
+                  try{
+                      ////https://www.youtube.com/watch?v=uJNkLR4rQZM&t=3s
+                      var validate = ["<script","alert","php","xss","*","j&","#","X41","SRC","IMG","refresh","/html","base64","request","%","select","execute","document","-- -","--","<",">","concat","<script>","</script>","</"];
+
+                        //validate function
+
+                              for(var j = 0;j < validate.length;j++){
+
+                                var checkIndex = checkString.indexOf(validate[j]);
+
+                                if(checkIndex >= 0){
+                                  checkString = "";
+                                }
+
+                              }
+
+
+                              return checkString;
+
+                          }catch(e){
+
+                          }
+
+                }
 
 
 }

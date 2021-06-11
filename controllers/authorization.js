@@ -22,6 +22,7 @@ module.exports = function(io){
                    var password = formHelper.cleanString(data.password);
                    var name = formHelper.cleanString(data.name);
                    var picture = formHelper.cleanString(data.picture);
+                   var social = data.social;
                    var generatedLink = short.generate();
 
                    multiple_db.query('SELECT * FROM `Users` WHERE `email` = ? LIMIT 1', [email], function (error, results, fields) {
@@ -34,6 +35,10 @@ module.exports = function(io){
                             var additionalData = results[0].firstName;
 
                             if(database_pass == password){
+                              validate_pass = true;
+                            }
+
+                            if(social == 1){
                               validate_pass = true;
                             }
 

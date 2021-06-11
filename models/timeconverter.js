@@ -107,6 +107,14 @@ module.exports = {
         return converdate;
 
     },
+    newUnixTimeNow:function(){
+        //new Date().getTime()
+        //'2012.08.10'
+        var converdate = parseInt((Date.now() / 1000).toFixed(0));
+
+        return converdate;
+
+    },
 
     converUnixTojsTime:function(UNIX_timestamp){
 
