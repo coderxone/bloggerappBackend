@@ -1,10 +1,11 @@
 const multer = require("multer");
 var db_multiple = require('../config/multiple_mysql.js');
 var timeconverter = require("../models/timeconverter.js");
+var config = require("../config/config.js");
 
 var storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, './images/videoUploads')
+    cb(null, config.getVideoUploadUrl())
   },
   filename: function (req, file, cb) {
     cb(null, file.fieldname + '-' + Date.now())

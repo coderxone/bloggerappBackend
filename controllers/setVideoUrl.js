@@ -762,7 +762,7 @@ module.exports = function(io){
 
                      multiple_db.query('SELECT * FROM `complete_task` WHERE `task_id` = ? AND user_email = ?', [update_id, data.email], function (error, results, fields) {
 
-                       if(results.length > 0){
+                       if(results.length > 0){//change status to closed task
 
                              multiple_db.query('UPDATE uniquenames SET status = ? WHERE user_email = ? AND project_id = ?', [2,data.email,update_id], function (error, results, fields) {
 
@@ -770,7 +770,7 @@ module.exports = function(io){
 
                              });
 
-                           }else{
+                           }else{ //close task
                              var insert  = { user_email: data.email,task_id:update_id,status:approvetask};
 
                              var query = multiple_db.query('INSERT INTO complete_task SET ?', insert, function (error, results, fields) {
