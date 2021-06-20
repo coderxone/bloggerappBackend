@@ -152,6 +152,56 @@ module.exports = function(io){
 
               });
 
+              socket.on('checkApprovedByUservideo', function (encrypt) {
+
+
+                   var data = cryptLibrary.decrypt(encrypt);
+                   var deviceid = data.deviceid;
+
+                   socket.join(deviceid);
+
+                   //timeconverter.getunixMonth
+                   //console.log(data);
+                   var project_id = data.id;
+                   var user_email = data.email;
+                   var montharray = new Array();//filtration copy
+                   var monthcount = new Array();//count array
+
+                   multiple_db.query('SELECT * FROM `usersvideo` WHERE `project_id` = ? AND `user_email` = ? AND `status` = ?', [project_id,user_email,1], function (error, results, fields) {
+
+                     if(results.length > 0){
+
+                       for(var i = 0;i < results.length;i++){
+                         results[i].month = timeconverter.getunixMonth(results[i].date);
+
+                         if(montharray.length > 0){
+                           var fix = 0;
+                           for(var j = 0;j < montharray.length;j++){
+                             if(montharray[j].month == results[i].month){
+                               fix = 1;
+                               monthcount[j] = monthcount[j] + 1;
+                             }
+                           }
+
+                           if(fix == 0){
+                             montharray.push(results[i]);
+                             monthcount.push(1);
+                           }
+                         }else{
+                           montharray.push(results[i]);
+                           monthcount.push(1);
+                         }
+                       }
+
+                       io.sockets.in(data.deviceid).emit('checkApprovedByUservideo', cryptLibrary.encrypt({status: 'ok',count:results.length,montharray:montharray,monthcount:monthcount,data:results}));
+                     }else{
+                       io.sockets.in(data.deviceid).emit('checkApprovedByUservideo', cryptLibrary.encrypt({status: 'false'}));
+                     }
+
+                       });
+
+              });
+
 
               socket.on('checkcurrentStatus', function (encrypt) {
 
@@ -311,6 +361,7 @@ module.exports = function(io){
                         return false;
                       }
 
+                      //console.log(results[0])
 
 
                      if(results[0].length > 0){
@@ -320,6 +371,7 @@ module.exports = function(io){
 
                        for(var i = 0;i < results[0].length;i++){
                          results[0][i].month = timeconverter.getunixMonth(results[0][i].date);
+                         results[0][i].complete = 1;
 
                          if(montharray.length > 0){
                            var fix = 0;
@@ -341,32 +393,33 @@ module.exports = function(io){
 
 
                          //filtration by user_email
-                         var foundX = 0;
+                         // var foundX = 0;
+                         //
+                         // for(var b = 0;b < filtratedArray.length;b++){
+                         //   if(filtratedArray[b].user_email == results[0][i].user_email){
+                         //     foundX = 1;
+                         //
+                         //        //add count of task
+                         //       filtratedArray[b].CountTasks += 1;
+                         //       filtratedArray[b].complete = 1;
+                         //
+                         //       // if(filtratedArray[b].CountTasks == results[1].length){//if(count of tasks == length of social networks (current 5))
+                         //       //   filtratedArray[b].complete = 1;
+                         //       // }
+                         //
+                         //   }
+                         // }
 
-                         for(var b = 0;b < filtratedArray.length;b++){
-                           if(filtratedArray[b].user_email == results[0][i].user_email){
-                             foundX = 1;
-
-                                //add count of task
-                               filtratedArray[b].CountTasks += 1;
-
-                               if(filtratedArray[b].CountTasks == results[1].length){
-                                 filtratedArray[b].complete = 1;
-                               }
-
-                           }
-                         }
 
 
-
-                         if(foundX == 0){
-                           //counting tasks
-                           results[0][i].CountTasks = 1;
-                           results[0][i].complete = 0;
-                           results[0][i].taskList = results[1];
-
-                           filtratedArray.push(results[0][i]);;
-                         }
+                         // if(foundX == 0){
+                         //   //counting tasks
+                         //   results[0][i].CountTasks = 1;
+                         //   results[0][i].complete = 0;
+                         //   results[0][i].taskList = results[1];
+                         //
+                         //   filtratedArray.push(results[0][i]);;
+                         // }
 
 
 
@@ -375,13 +428,10 @@ module.exports = function(io){
 
                        }
 
-                       console.log(filtratedArray);
+                       //console.log(filtratedArray);
+                      //push_not
 
-
-
-
-
-                       io.sockets.in(data.deviceid).emit('checkvideoByProject', cryptLibrary.encrypt({status: 'ok',count:results[0].length,montharray:montharray,monthcount:monthcount,data:filtratedArray,taskList:results[1]}));
+                       io.sockets.in(data.deviceid).emit('checkvideoByProject', cryptLibrary.encrypt({status: 'ok',count:results[0].length,montharray:montharray,monthcount:monthcount,data:results[0],taskList:results[1]}));
                      }else{
                        io.sockets.in(data.deviceid).emit('checkvideoByProject', cryptLibrary.encrypt({status: 'false'}));
                      }
