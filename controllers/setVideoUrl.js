@@ -219,7 +219,7 @@ module.exports = function(io){
                    var user_email = data.email;
 
 
-                   multiple_db.query('SELECT UsersData.id, UsersData.date,UsersData.description,UsersData.email,UsersData.time,UsersData.sum,UsersData.pay_status,UsersData.peoplecount,UsersData.subscribers,UsersData.url,UsersData.location_name,UsersData.location_points,UsersData.peoplecount,UsersData.countvideo,UsersData.lat,UsersData.lng,UsersData.gps,UsersData.famous,uniquenames.project_id,uniquenames.user_email,uniquenames.status,uniquenames.hash FROM uniquenames INNER JOIN UsersData ON uniquenames.project_id = UsersData.id WHERE uniquenames.user_email = ? AND uniquenames.project_id;SELECT execute_day FROM `appParams`;', [user_email,project_id], function (error, results, fields) {
+                   multiple_db.query('SELECT UsersData.id, UsersData.date,UsersData.description,UsersData.email,UsersData.time,UsersData.sum,UsersData.pay_status,UsersData.peoplecount,UsersData.subscribers,UsersData.url,UsersData.location_name,UsersData.location_points,UsersData.peoplecount,UsersData.countvideo,UsersData.lat,UsersData.lng,UsersData.gps,UsersData.famous,uniquenames.project_id,uniquenames.user_email,uniquenames.status,uniquenames.hash FROM uniquenames INNER JOIN UsersData ON uniquenames.project_id = UsersData.id WHERE uniquenames.user_email = ? AND uniquenames.project_id ORDER BY uniquenames.project_id DESC LIMIT 1;SELECT execute_day FROM `appParams`;', [user_email,project_id], function (error, results, fields) {
 
                           var executeDay = results[1][0].execute_day;
 
@@ -228,6 +228,8 @@ module.exports = function(io){
                                results[0][i].date = timeconverter.timeConverter_us_date(results[0][i].date,executeDay);
                                results[0][i].time = timeconverter.timeConverter_us_time(results[0][i].time);
                              }
+
+                             //console.log(results[0]);
 
                                io.sockets.in(deviceid).emit('checkcurrentStatus', cryptLibrary.encrypt({data:results[0],status:"ok"}));
                            }
@@ -892,7 +894,7 @@ module.exports = function(io){
                      multiple_db.query('UPDATE uniquenames SET status = ? WHERE user_email = ? AND project_id = ?', [5,data.email,update_id], function (error, results, fields) {
 
                        io.sockets.in(deviceid).emit('closeorders', cryptLibrary.encrypt({status: 'updated',currentStatus:5}));
-                       ////push_not  
+                       ////push_not
 
                      });
 
