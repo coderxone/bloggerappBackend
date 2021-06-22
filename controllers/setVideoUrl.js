@@ -20,6 +20,7 @@ module.exports = function(io){
                    var user_email = data.email;
                    var date = timeconverter.getUnixtime();
                    var videotype = data.videotype;
+                   let action = data.action;
                    socket.join(deviceid);
 
                    multiple_db.query('SELECT * FROM `usersvideo` WHERE `url` = ? AND `type` = ? AND `project_id` = ?', [url,videotype,project_id], function (error, results, fields) {
@@ -28,16 +29,17 @@ module.exports = function(io){
                             io.sockets.in(deviceid).emit('setvideo', cryptLibrary.encrypt({status: 'exist'}));
                          }else{
 
-                             var insert  = { url: url,	project_id:	project_id,user_email:user_email,date:date,type:videotype};
+                             var insert  = { url: url,	project_id:	project_id,user_email:user_email,date:date,status:action,type:videotype};
 
                              var query = multiple_db.query('INSERT INTO usersvideo SET ?', insert, function (error, results, fields) {
 
-                               io.sockets.in(deviceid).emit('setvideo', cryptLibrary.encrypt({status: 'inserted'}));
+                               io.sockets.in(deviceid).emit('setvideo', cryptLibrary.encrypt({status: 'inserted',videotype:videotype}));
 
                              });
-
+                             //push_not
                          }
-
+                         //
+                         //closeorders
 
                        });
 
@@ -392,34 +394,34 @@ module.exports = function(io){
                          }
 
 
-                         //filtration by user_email
-                         // var foundX = 0;
-                         //
-                         // for(var b = 0;b < filtratedArray.length;b++){
-                         //   if(filtratedArray[b].user_email == results[0][i].user_email){
-                         //     foundX = 1;
-                         //
-                         //        //add count of task
-                         //       filtratedArray[b].CountTasks += 1;
-                         //       filtratedArray[b].complete = 1;
-                         //
-                         //       // if(filtratedArray[b].CountTasks == results[1].length){//if(count of tasks == length of social networks (current 5))
-                         //       //   filtratedArray[b].complete = 1;
-                         //       // }
-                         //
-                         //   }
-                         // }
+                         //filtration by user_email to show only 1 task
+                         var foundX = 0;
+
+                         for(var b = 0;b < filtratedArray.length;b++){
+                           if(filtratedArray[b].user_email == results[0][i].user_email){
+                             foundX = 1;
+
+                                //add count of task
+                               filtratedArray[b].CountTasks += 1;
+                               filtratedArray[b].complete = 1;
+
+                               // if(filtratedArray[b].CountTasks == results[1].length){//if(count of tasks == length of social networks (current 5))
+                               //   filtratedArray[b].complete = 1;
+                               // }
+
+                           }
+                         }
 
 
 
-                         // if(foundX == 0){
-                         //   //counting tasks
-                         //   results[0][i].CountTasks = 1;
-                         //   results[0][i].complete = 0;
-                         //   results[0][i].taskList = results[1];
-                         //
-                         //   filtratedArray.push(results[0][i]);;
-                         // }
+                         if(foundX == 0){
+                           //counting tasks
+                           results[0][i].CountTasks = 1;
+                           results[0][i].complete = 1;
+                           results[0][i].taskList = results[1];
+
+                           filtratedArray.push(results[0][i]);;
+                         }
 
 
 
@@ -431,7 +433,7 @@ module.exports = function(io){
                        //console.log(filtratedArray);
                       //push_not
 
-                       io.sockets.in(data.deviceid).emit('checkvideoByProject', cryptLibrary.encrypt({status: 'ok',count:results[0].length,montharray:montharray,monthcount:monthcount,data:results[0],taskList:results[1]}));
+                       io.sockets.in(data.deviceid).emit('checkvideoByProject', cryptLibrary.encrypt({status: 'ok',count:results[0].length,montharray:montharray,monthcount:monthcount,data:filtratedArray,taskList:results[1]}));
                      }else{
                        io.sockets.in(data.deviceid).emit('checkvideoByProject', cryptLibrary.encrypt({status: 'false'}));
                      }
@@ -486,9 +488,44 @@ module.exports = function(io){
                          }
                        }
 
-                       io.sockets.in(data.deviceid).emit('checkvideosByUser', cryptLibrary.encrypt({status: 'ok',count:results.length,montharray:montharray,monthcount:monthcount,data:results}));
+                       io.sockets.in(data.deviceid).emit('checkvideosByUser', cryptLibrary.encrypt({status: 'ok',count:results.length,montharray:montharray,monthcount:monthcount,data:results,editmode:true}));
                      }else{
-                       io.sockets.in(data.deviceid).emit('checkvideosByUser', cryptLibrary.encrypt({status: 'false'}));
+
+                         multiple_db.query('SELECT * FROM `usersvideo` WHERE `project_id` = ? AND `user_email` = ? AND `status` = ?', [project_id,blogger_email,1], function (error, results, fields) {
+                                 if(results.length > 0){
+
+                                   //console.log(results);
+
+                                   for(var i = 0;i < results.length;i++){
+                                     results[i].month = timeconverter.getunixMonth(results[i].date);
+
+                                     if(montharray.length > 0){
+                                       var fix = 0;
+                                       for(var j = 0;j < montharray.length;j++){
+                                         if(montharray[j].month == results[i].month){
+                                           fix = 1;
+                                           monthcount[j] = monthcount[j] + 1;
+                                         }
+                                       }
+
+                                       if(fix == 0){
+                                         montharray.push(results[i]);
+                                         monthcount.push(1);
+                                       }
+                                     }else{
+                                       montharray.push(results[i]);
+                                       monthcount.push(1);
+                                     }
+                                   }
+
+                                   io.sockets.in(data.deviceid).emit('checkvideosByUser', cryptLibrary.encrypt({status: 'ok',count:results.length,montharray:montharray,monthcount:monthcount,data:results,editmode:false}));
+                                 }else{
+                                   io.sockets.in(data.deviceid).emit('checkvideosByUser', cryptLibrary.encrypt({status: 'false'}));
+                                 }
+
+
+                               });
+
                      }
 
                        });
@@ -831,7 +868,7 @@ module.exports = function(io){
 
 
                                });
-
+                                //push_not
 
 
                              });
@@ -840,7 +877,27 @@ module.exports = function(io){
                          });
 
 
-                   }else if(approvetask == 1){
+                   }else if(approvetask == 4){
+
+                     multiple_db.query('UPDATE uniquenames SET status = ? WHERE user_email = ? AND project_id = ?', [4,data.email,update_id], function (error, results, fields) {
+
+                       io.sockets.in(deviceid).emit('closeorders', cryptLibrary.encrypt({status: 'updated',currentStatus:4}));
+
+
+                     });
+
+
+                   }else if(approvetask == 5){
+
+                     multiple_db.query('UPDATE uniquenames SET status = ? WHERE user_email = ? AND project_id = ?', [5,data.email,update_id], function (error, results, fields) {
+
+                       io.sockets.in(deviceid).emit('closeorders', cryptLibrary.encrypt({status: 'updated',currentStatus:5}));
+                       ////push_not  
+
+                     });
+
+
+                   }else if(approvetask == 1){//doubt
 
                      multiple_db.query('SELECT * FROM `UserApproveTasks`;SELECT * FROM `complete_approve_task` WHERE user_email = ?;', [data.email], function (error, results, fields) {
 
@@ -882,7 +939,7 @@ module.exports = function(io){
                          });
 
 
-                   }else if(approvetask == 4){
+                   }else if(approvetask == 6){//reject order
                      multiple_db.query('SELECT * FROM `rejected_task` WHERE `task_id` = ? AND user_email = ?', [update_id, data.email], function (error, results, fields) {
 
                        if(results.length > 0){

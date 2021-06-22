@@ -71,7 +71,7 @@ module.exports = function(io){
 
                      io.sockets.to(data.deviceid).emit('setTasks', cryptLibrary.encrypt({status:"ok",status:"ok"}));
 
-
+                     //push_not  
                    });
 
               });
