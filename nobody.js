@@ -102,6 +102,7 @@ require('./controllers/adminController.js')(io);	//
 require('./controllers/subscribersCore.js')(io);	//
 require('./controllers/updateUserData.js')(io);	//
 require('./controllers/liveTimeDataController.js')(io);	//
+require('./controllers/priceCore.js')(io);	//
 //require('./controllers/managementPaypal.js')(io);	//
 //https
 
