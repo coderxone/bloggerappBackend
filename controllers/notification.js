@@ -4,7 +4,10 @@ var timeconverter = require("../models/timeconverter.js");
 var notificationModel = require("../models/notificationModel.js");
 var nodemailer = require('nodemailer');
 var cryptLibrary = require("../models/cryptLibrary.js");
-
+let systemCoreLogics = require('../models/systemCoreLogics.js');
+let systemCoreLogicsAll = require('../models/systemCoreLogicsAll.js');
+let systemCoreLogicsFinalCount = require('../models/systemCoreLogicsFinalCount.js');
+let systemCoreLogicsPrice = require('../models/systemCoreLogicsPrice.js');
 
 module.exports = function(io){
 
@@ -287,54 +290,30 @@ module.exports = function(io){
         //sendFPMtoTopic();
         //sendWebFirebasetoSingle();
         //sendWebFPMtoAllUsers();
-        const checkPointValue = (array,userpoint) => {
-            for(let i = 0;i < array.length;i++){
-              let minRange = array[i].min;
-              let maxRange = array[i].max;
 
-              if(userpoint >= minRange && userpoint <= maxRange){
-                let point = array[i].point_value;
-                return parseInt(point);
-                break;
-              }
-            }
+
+
+
+
+        const test = () => {
+            // systemCoreLogics.checkCoreFunction("hhh@gmail.com").then(result => {
+            //   //console.log(result);
+            // });
+
+            // systemCoreLogicsAll.checkCoreFunctionAll().then(result => {  //check all database and record check once a day
+            //   console.log(result);
+            // });
+
+            //systemCoreLogicsFinalCount.finalCount(94,"hhh@gmail.com");//project_id,email //check with final step
+
+            //calculate bloggers price
+            systemCoreLogicsPrice.countPrice();
+
+
+
         }
 
-        const checkCoreFunction = () => {
-          let email = "hhh@gmail.com";
-
-          // io.sockets.in(data.deviceid).emit('subscriberCore', cryptLibrary.encrypt({subscribersResult:readableData,originalNumber:countOfSubscribers,countOfBloggers:ThirstCount,NewCheckingAmount:NewCheckingAmount}));
-          //accountAge
-          multiple_db.query('SELECT * FROM followersCount;SELECT * FROM followersViews;SELECT * FROM Users WHERE email = ? LIMIT 1;SELECT * FROM countryPrices;', [email], function (error, results, fields) {
-
-            //0 id followersCount
-            let followersCountData = results[0];
-            //checkPointValue(followersCountData,userpoint);
-            //1 followersViews
-            let followersViews = results[1];
-            //2 users
-            let userData = results[2];
-            //3 countryPrices
-            let countryPriceData = results[3];
-
-
-            console.log("-------------")
-            console.log(followersCountData);
-            console.log("-------------")
-            console.log(followersViews);
-            console.log("-------------")
-            console.log(userData);
-            console.log("-------------")
-            console.log(countryPriceData);
-            console.log("-------------")
-
-              //io.sockets.in(data.deviceid).emit('subscriberCore', cryptLibrary.encrypt({status: 'false'}));
-
-          });
-        }
-
-        checkCoreFunction();
-
+        test();
 
 
         setInterval(function(){

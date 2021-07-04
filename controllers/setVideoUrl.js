@@ -3,6 +3,7 @@ var formHelper = require("../models/formHelpers.js");
 var timeconverter = require("../models/timeconverter.js");
 var cryptLibrary = require("../models/cryptLibrary.js");
 var timeLibrary = require("../models/timeconverter.js");
+let systemCoreLogics = require('../models/systemCoreLogics.js');
 
 module.exports = function(io){
 
@@ -672,21 +673,16 @@ module.exports = function(io){
                    socket.join(data.deviceid);
                    var project_id = data.project_id;
 
-                   multiple_db.query('SELECT uniquenames.hash FROM `uniquenames` WHERE `project_id` = ?;', [project_id], function (error, results, fields) {
 
-                      if(results.length > 0){
-                        var hash = results[0].hash;
+                   systemCoreLogics.checkViews(project_id).then(result => {
+                     if(result.status !== false){
+                       let count = result.count;
 
-                        multiple_db.query('SELECT * FROM `views` WHERE `hash` = ?', [hash], function (error, results, fields) {
+                       io.sockets.in(data.deviceid).emit('checkviews', cryptLibrary.encrypt({status: 'ok',count:count}));
+                     }
+                   })
 
 
-                              io.sockets.in(data.deviceid).emit('checkviews', cryptLibrary.encrypt({status: 'ok',count:results.length}));
-
-
-                            });
-                      }
-
-                       });
 
 
 

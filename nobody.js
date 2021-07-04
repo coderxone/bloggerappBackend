@@ -23,17 +23,7 @@ var options = {
   rejectUnauthorized: false
 };
 
-//var https = require('http').createServer(function(req,res){
-var http = require('http').createServer(app,function(req,res){
 
-    // Set CORS headers
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Request-Method', '*');
-    res.setHeader('Access-Control-Allow-Methods', '*');
-    res.setHeader('Access-Control-Allow-Headers', '*');
-
-
-});
 
 var https = require('https').createServer(options,app,function(req,res){
 
@@ -46,18 +36,7 @@ var https = require('https').createServer(options,app,function(req,res){
 
 });
 
-var iohttp = require('socket.io')(http, {
-    handlePreflightRequest: (req, res) => {
-        const headers = {
-            "Access-Control-Allow-Headers": "*",
-            "Access-Control-Allow-Origin": "*", //or the specific origin you want to give access to,
-            //"Access-Control-Allow-Origin": req.headers.origin, //or the specific origin you want to give access to,
-          //  "Access-Control-Allow-Credentials": true
-        };
-        res.writeHead(200, headers);
-        res.end();
-    }
-});
+
 
 var io = require('socket.io')(https, {
     handlePreflightRequest: (req, res) => {
@@ -73,8 +52,6 @@ var io = require('socket.io')(https, {
 });
 
 io.sockets.setMaxListeners(0);
-iohttp.sockets.setMaxListeners(0);
-
 
 //https
 //1 Start initialUserData table contains request from Form and Users contains Data
@@ -105,35 +82,6 @@ require('./controllers/liveTimeDataController.js')(io);	//
 require('./controllers/priceCore.js')(io);	//
 //require('./controllers/managementPaypal.js')(io);	//
 //https
-
-//http
-//1 Start initialUserData table contains request from Form and Users contains Data
-require('./controllers/getAllData.js')(iohttp);
-require('./controllers/google_auto_login.js')(iohttp);	//google login
-require('./controllers/setRole.js')(iohttp);		//setUsersRole
-require('./controllers/searchCity.js')(iohttp);		//main page searchCities
-//Role 1 searching people //role 2 delivering people
-require('./controllers/sendFormData.js')(iohttp);	//send from Form UsersData table from role 1 and role 2
-require('./controllers/getDetailsData.js')(iohttp);	//
-require('./controllers/message.js')(iohttp);	//
-require('./controllers/onlineUsers.js')(iohttp);	//
-require('./controllers/notification.js')(iohttp);	//
-require('./controllers/favorite.js')(iohttp);	//
-require('./controllers/setPhoneNumber.js')(iohttp);	//
-require('./controllers/authorization.js')(iohttp);	//
-require('./controllers/sendmail.js')(iohttp);	//
-require('./controllers/myrequest.js')(iohttp);	//
-require('./controllers/load_all_info.js')(iohttp);	//
-require('./controllers/setVideoUrl.js')(iohttp);	//
-require('./controllers/check_user_pay.js')(iohttp);	//
-require('./controllers/getmoney.js')(iohttp);	//
-require('./controllers/publicmodule.js')(iohttp);	//
-require('./controllers/adminController.js')(iohttp);	//
-require('./controllers/subscribersCore.js')(iohttp);	//
-require('./controllers/updateUserData.js')(iohttp);	//
-require('./controllers/liveTimeDataController.js')(iohttp);	//
-//require('./controllers/managementPaypal.js')(io);	//
-//http
 
 
 //socket io another files
@@ -173,20 +121,6 @@ io.on('connection', function(socket){
 
 
 });
-
-iohttp.on('connection', function(socket){
-  //console.log('a user connected');
-
-  socket.on('disconnect', function(){
-    //console.log("disconnected memory cleared");
-    delete iohttp;
-  });
-
-
-
-
-});
-
 
 
 
