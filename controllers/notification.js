@@ -307,7 +307,10 @@ module.exports = function(io){
             //systemCoreLogicsFinalCount.finalCount(94,"hhh@gmail.com");//project_id,email //check with final step
 
             //calculate bloggers price
-            systemCoreLogicsPrice.countPrice();
+            systemCoreLogicsPrice.countPrice().then(res => {
+              console.log(res)
+            })
+            //calculate bloggers price
 
 
 

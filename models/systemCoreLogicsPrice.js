@@ -5,25 +5,29 @@ const exp = {
 
 
     countPrice:() => {
-      multiple_db.query('SELECT * FROM Users WHERE email_confirmed = ? AND points != ? AND pointsStatus != ? AND verified = ? AND role = ?;', [1,0,0,1,1], function (error, results, fields) {
 
-        let n = results.length;
-        let resultPrice = 0;
+      return new Promise(resolve => {
+        multiple_db.query('SELECT * FROM Users WHERE email_confirmed = ? AND points != ? AND pointsStatus != ? AND verified = ? AND role = ?;', [1,0,0,1,1], function (error, results, fields) {
 
-
-
-        if(n > 0){
-
-          for(let i = 0;i < n;i++){
-            resultPrice += results[i].points;
-          }
-
-          console.log(resultPrice);
-
-            }
+          let n = results.length;
+          let resultPrice = 0;
 
 
-          });
+
+            if(n > 0){
+
+                for(let i = 0;i < n;i++){
+                  resultPrice += results[i].points;
+                }
+
+                resolve(resultPrice);
+
+              }
+
+
+            });
+      })
+
     }
     //
 
