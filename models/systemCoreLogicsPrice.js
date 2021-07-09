@@ -28,6 +28,19 @@ const exp = {
             });
       })
 
+    },
+    test:() => {
+
+      multiple_db.query("SELECT OrderDetails.Price, Orders.OrderId  FROM OrderDetails INNER JOIN Orders ON Orders.OrderId = OrderDetails.OrderId WHERE Orders.OrderDate = 'October 2017' AND (SELECT SUM(OrderDetails.Price) FROM OrderDetails INNER JOIN Orders ON Orders.OrderId = OrderDetails.OrderId WHERE Orders.OrderDate = 'October 2017') > '10000'", function (error, results, fields) {
+
+        //(SELECT SUM(OrderDetails.Price) FROM OrderDetails INNER JOIN Orders ON Orders.OrderId = OrderDetails.OrderId WHERE Orders.OrderDate = 'October 2017')
+        //(select SUM(purch_amt) FROM orders where ord_date ='10/10/2012')
+        console.log(results)
+
+
+
+          });
+
     }
     //
 
