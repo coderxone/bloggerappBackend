@@ -84,6 +84,42 @@ module.exports = function(io){
 
               });
 
+              socket.on('updateUserDataField', function (encrypt) {
+
+                try{
+                  var data = cryptLibrary.decrypt(encrypt);
+
+                  var deviceId = data.deviceId;
+                  var email = data.email;
+                  var includedData = data.data;
+
+                  socket.join(deviceId);
+
+                  var updateData = [
+
+
+                    FormHelper.cleanString(includedData.firstName),
+                    FormHelper.cleanString(includedData.lastName),
+                    FormHelper.cleanString(includedData.bio),
+                    email
+                  ];
+              
+                  db_multiple.query('UPDATE Users SET firstName = ?,lastName = ?,bio = ? WHERE email = ?', updateData, function (error, results, fields) {
+
+                    io.sockets.in(deviceId).emit('updateUserDataField',cryptLibrary.encrypt({status:"ok"}));
+
+
+                  });
+                }catch(e){
+
+                }
+
+
+
+
+
+              });
+
 
               socket.on('checkRate', function (encrypt) {
 
