@@ -14,6 +14,13 @@ module.exports = {
         return './images/uploads';
       }
     },
+    getprofileImagesUrl:function(){
+      if(production){
+        return '../../echohub/profileImages';
+      }else{
+        return './images/profileImages';
+      }
+    },
     getVideoUploadUrl:function(){
       if(production){
         return '../../echohub/videoUploads';

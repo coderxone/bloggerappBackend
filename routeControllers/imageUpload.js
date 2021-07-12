@@ -5,7 +5,7 @@ var config = require("../config/config.js");
 
 var storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, config.getPhotoUploadUrl)
+    cb(null, config.getPhotoUploadUrl())
   },
   filename: function (req, file, cb) {
     cb(null, file.fieldname + '-' + Date.now())
@@ -15,6 +15,8 @@ var storage = multer.diskStorage({
   var upload = multer({ storage: storage,
   limits:{fileSize:10485760}
 });
+
+
 
 const exportConst = function(app){
 

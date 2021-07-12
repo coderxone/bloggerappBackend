@@ -1,3 +1,6 @@
+var ncp = require('ncp').ncp;
+var path = require('path');
+const fs = require('fs');
 
 module.exports = {
 
@@ -27,7 +30,44 @@ module.exports = {
 
       },
 
-      
+      deletePictures:(deletePath) => {
+
+
+        return new Promise((resolve) => {
+
+          console.log(deletePath);
+          fs.unlink(deletePath, err => {
+            if(err){
+              resolve(false);
+            }else{
+              resolve(true);
+            }
+          });
+
+        });
+
+      },
+      copuPicture:(inputPath,outPutPath) => {
+
+        ncp.limit = 16;
+
+        return new Promise((resolve) => {
+          ncp(inputPath, outPutPath, function (err) {
+           if (err) {
+             resolve(false);
+           }
+
+           resolve(true);
+           //console.log('done!');
+          });
+        })
+
+
+
+      }
+
+
+
 
 
 
