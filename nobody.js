@@ -107,6 +107,7 @@ app.use('/service', [checkob]);
 var imageUpload = require('./routeControllers/imageUpload')(app);
 var videoUpload = require('./routeControllers/videoUpload')(app);
 var profileImages = require('./routeControllers/profileImageUpload')(app);
+var profileBackgroundImageUpload = require('./routeControllers/profileBackgroundImageUpload')(app);
 //app.use('/image', [imageUpload]);
 
 

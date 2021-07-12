@@ -7,7 +7,7 @@ var config = require("../config/config.js");
 
   var profileStorage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, config.getprofileImagesUrl())
+    cb(null, config.getProfileBackgroundUrl())
   },
   filename: function (req, file, cb) {
     cb(null, file.fieldname + '-' + Date.now())
@@ -22,7 +22,7 @@ const exportConst = function(app){
 
   // Home page route.
 
-  app.post('/usermainphoto', upload.single("photo"), async function (req, res, next) {
+  app.post('/userbackgroundImage', upload.single("photo"), async function (req, res, next) {
 
         try{
           const path = req.file.path;
@@ -34,14 +34,14 @@ const exportConst = function(app){
                var insert  = { filename: name,email:email,uploadDate:timeconverter.getUnixtime(),};
 
 
-               db_multiple.query('SELECT image_url FROM `Users` WHERE `email` = ? LIMIT 1', [email], function (error, res, fields) {
+               db_multiple.query('SELECT background_image FROM `Users` WHERE `email` = ? LIMIT 1', [email], function (error, res, fields) {
 
                  if(res.length > 0){
 
-                        let currentProfileImage = res[0].image_url;
+                        let currentProfileImage = res[0].background_image;
 
-                        if(currentProfileImage === "no-image.png"){
-                          db_multiple.query('UPDATE Users SET image_url = ? WHERE email = ?', [name,email], function (error, results, fields) {
+                        if(currentProfileImage === "background.jpeg"){
+                          db_multiple.query('UPDATE Users SET background_image = ? WHERE email = ?', [name,email], function (error, results, fields) {
                             if (error){
                               resolve(error);
                             }else{
@@ -50,8 +50,8 @@ const exportConst = function(app){
 
                           });
                         }else{
-                          helpers.deletePictures(config.getprofileImagesUrl() + "/" + currentProfileImage).then(res => {
-                            db_multiple.query('UPDATE Users SET image_url = ? WHERE email = ?', [name,email], function (error, results, fields) {
+                          helpers.deletePictures(config.getProfileBackgroundUrl() + "/" + currentProfileImage).then(res => {
+                            db_multiple.query('UPDATE Users SET background_image = ? WHERE email = ?', [name,email], function (error, results, fields) {
                               if (error){
                                 resolve(error);
                               }else{

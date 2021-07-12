@@ -35,7 +35,7 @@ module.exports = {
 
         return new Promise((resolve) => {
 
-          console.log(deletePath);
+          
           fs.unlink(deletePath, err => {
             if(err){
               resolve(false);

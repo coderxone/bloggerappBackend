@@ -21,6 +21,13 @@ module.exports = {
         return './images/profileImages';
       }
     },
+    getProfileBackgroundUrl:function(){
+      if(production){
+        return '../../echohub/backgroundImages';
+      }else{
+        return './images/backgroundImages';
+      }
+    },
     getVideoUploadUrl:function(){
       if(production){
         return '../../echohub/videoUploads';
