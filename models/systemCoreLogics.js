@@ -114,6 +114,8 @@ const exp = {
 
              let coreResult = (fc_point + ageMetric) * countryMetrix;
 
+             console.log(fc_point,ageMetric,countryMetrix);
+
              exp.updateSinglePointsInDb(coreResult,email).then(res => {
                resolve(res);
              })

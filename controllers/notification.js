@@ -296,8 +296,8 @@ module.exports = function(io){
 
 
         const test = () => {
-            // systemCoreLogics.checkCoreFunction("hhh@gmail.com").then(result => {
-            //   //console.log(result);
+            // systemCoreLogics.checkCoreFunction("testbl@gmail.com").then(result => {
+            //   console.log(result);
             // });
 
             // systemCoreLogicsAll.checkCoreFunctionAll().then(result => {  //check all database and record check once a day

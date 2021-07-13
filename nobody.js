@@ -55,32 +55,38 @@ io.sockets.setMaxListeners(0);
 
 //https
 //1 Start initialUserData table contains request from Form and Users contains Data
-require('./controllers/getAllData.js')(io);
-require('./controllers/google_auto_login.js')(io);	//google login
-require('./controllers/setRole.js')(io);		//setUsersRole
-require('./controllers/searchCity.js')(io);		//main page searchCities
-//Role 1 searching people //role 2 delivering people
-require('./controllers/sendFormData.js')(io);	//send from Form UsersData table from role 1 and role 2
-require('./controllers/getDetailsData.js')(io);	//
-require('./controllers/message.js')(io);	//
-require('./controllers/onlineUsers.js')(io);	//
-require('./controllers/notification.js')(io);	//
-require('./controllers/favorite.js')(io);	//
-require('./controllers/setPhoneNumber.js')(io);	//
-require('./controllers/authorization.js')(io);	//
-require('./controllers/sendmail.js')(io);	//
-require('./controllers/myrequest.js')(io);	//
-require('./controllers/load_all_info.js')(io);	//
-require('./controllers/setVideoUrl.js')(io);	//
-require('./controllers/check_user_pay.js')(io);	//
-require('./controllers/getmoney.js')(io);	//
-require('./controllers/publicmodule.js')(io);	//
-require('./controllers/adminController.js')(io);	//
-require('./controllers/subscribersCore.js')(io);	//
-require('./controllers/updateUserData.js')(io);	//
-require('./controllers/liveTimeDataController.js')(io);	//
-require('./controllers/priceCore.js')(io);	//
-//require('./controllers/managementPaypal.js')(io);	//
+try{
+  require('./controllers/getAllData.js')(io);
+  require('./controllers/google_auto_login.js')(io);	//google login
+  require('./controllers/setRole.js')(io);		//setUsersRole
+  require('./controllers/searchCity.js')(io);		//main page searchCities
+  //Role 1 searching people //role 2 delivering people
+  require('./controllers/sendFormData.js')(io);	//send from Form UsersData table from role 1 and role 2
+  require('./controllers/getDetailsData.js')(io);	//
+  require('./controllers/message.js')(io);	//
+  require('./controllers/onlineUsers.js')(io);	//
+  require('./controllers/notification.js')(io);	//
+  require('./controllers/favorite.js')(io);	//
+  require('./controllers/setPhoneNumber.js')(io);	//
+  require('./controllers/authorization.js')(io);	//
+  require('./controllers/sendmail.js')(io);	//
+  require('./controllers/myrequest.js')(io);	//
+  require('./controllers/load_all_info.js')(io);	//
+  require('./controllers/setVideoUrl.js')(io);	//
+  require('./controllers/check_user_pay.js')(io);	//
+  require('./controllers/getmoney.js')(io);	//
+  require('./controllers/publicmodule.js')(io);	//
+  require('./controllers/adminController.js')(io);	//
+  require('./controllers/subscribersCore.js')(io);	//
+  require('./controllers/updateUserData.js')(io);	//
+  require('./controllers/liveTimeDataController.js')(io);	//
+  require('./controllers/priceCore.js')(io);	//
+  //require('./controllers/managementPaypal.js')(io);	//
+}catch(e){
+  console.log("controller exeption");
+  console.log(e);
+}
+
 //https
 
 

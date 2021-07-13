@@ -4,6 +4,7 @@ var cryptLibrary = require("../models/cryptLibrary.js");
 var config = require("../config/config.js");
 var Serialize = require('php-serialize');
 var formHelper = require("../models/formHelpers.js");
+let systemCoreLogics = require('../models/systemCoreLogics.js');
 
 module.exports = function(io){
 
@@ -36,13 +37,45 @@ module.exports = function(io){
                   email
                 ];
 
-                db_multiple.query('UPDATE Users SET country = ?,category = ?,age = ?,firstName = ?,lastName = ?,nickName = ?,subscribers_count = ?,paypal = ?,socialNetworks = ?,ssn = ?,identityPicture = ? WHERE email = ?', updateData, function (error, results, fields) {
+                //update db
+                const UpdateDb = (updateData) => {
+                  return new Promise(resolve => {
+                    db_multiple.query('UPDATE Users SET country = ?,category = ?,age = ?,firstName = ?,lastName = ?,nickName = ?,subscribers_count = ?,paypal = ?,socialNetworks = ?,ssn = ?,identityPicture = ? WHERE email = ?', updateData, function (error, results, fields) {
 
+                      resolve(true);
+
+                    });
+                  })
+                }
+                //update db
+
+                //running core function to count points
+                const CountUserPoints = () => {
+                  return new Promise(resolve => {
+                    systemCoreLogics.checkCoreFunction(email).then(result => {
+                      //console.log(result);
+                      resolve(true);
+                    });
+                  })
+                }
+
+                //running core function to count points
+
+
+                const StepByStep = async () => {
+                  try{
+                    const responseOne = await UpdateDb(updateData);
+                    const responseTwo = await CountUserPoints(responseOne);
+                    return responseTwo;
+                  }catch(e){
+
+                  }
+
+                }
+
+                StepByStep().then(response => {
                   io.sockets.in(deviceId).emit('updateUserData',cryptLibrary.encrypt({status:"ok"}));
-
-
-                });
-
+                })
 
 
               });
