@@ -32,10 +32,9 @@ module.exports = {
 
       deletePictures:(deletePath) => {
 
-
         return new Promise((resolve) => {
 
-          
+
           fs.unlink(deletePath, err => {
             if(err){
               resolve(false);
