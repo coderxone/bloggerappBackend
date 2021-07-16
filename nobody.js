@@ -55,7 +55,7 @@ io.sockets.setMaxListeners(0);
 
 //https
 //1 Start initialUserData table contains request from Form and Users contains Data
-try{
+//try{
   require('./controllers/getAllData.js')(io);
   require('./controllers/google_auto_login.js')(io);	//google login
   require('./controllers/setRole.js')(io);		//setUsersRole
@@ -82,10 +82,10 @@ try{
   require('./controllers/liveTimeDataController.js')(io);	//
   require('./controllers/priceCore.js')(io);	//
   //require('./controllers/managementPaypal.js')(io);	//
-}catch(e){
-  console.log("controller exeption");
-  console.log(e);
-}
+// }catch(e){
+//   console.log("controller exeption");
+//   console.log(e);
+// }
 
 //https
 

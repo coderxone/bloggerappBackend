@@ -23,6 +23,17 @@ module.exports = function(io){
                    var name = formHelper.cleanString(data.name);
                    var picture = formHelper.cleanString(data.picture);
                    var social = data.social;
+                   var facebookToken = data.facebookToken;
+                   var googleToken = data.googleToken;
+
+                   var socialUpdateOption = 0;
+                   if(facebookToken == 0){
+                     socialUpdateOption = 1;
+                   }
+                   if(googleToken == 0){
+                     socialUpdateOption = 0;
+                   }
+
                    var generatedLink = short.generate();
 
                    multiple_db.query('SELECT * FROM `Users` WHERE `email` = ? LIMIT 1', [email], function (error, results, fields) {
@@ -42,9 +53,34 @@ module.exports = function(io){
                               validate_pass = true;
                             }
 
-                            io.sockets.in(data.deviceid).emit('setRegistration', cryptLibrary.encrypt({status: 'olduser',password:validate_pass,role:role,additionalData:additionalData}));
+                            //picture update profile picture
+                            multiple_db.query('UPDATE `Users` SET `image_url` = ? WHERE `email` = ?', [picture,email], function (error, results, fields) {
+                                io.sockets.in(data.deviceid).emit('setRegistration', cryptLibrary.encrypt({status: 'olduser',password:validate_pass,role:role,additionalData:additionalData}));
+                            });
+                            //picture update profile picture
+
+                            //update social token
+                            if(socialUpdateOption == 0){
+                              multiple_db.query('UPDATE `Users` SET `facebookAccessToken` = ? WHERE `email` = ?', [facebookToken,email], function (error, results, fields) {
+                                  io.sockets.in(data.deviceid).emit('setRegistration', cryptLibrary.encrypt({status: 'olduser',password:validate_pass,role:role,additionalData:additionalData}));
+                              });
+
+                            }else{
+                              multiple_db.query('UPDATE `Users` SET `googleAccessToken` = ? WHERE `email` = ?', [googleToken,email], function (error, results, fields) {
+                                  io.sockets.in(data.deviceid).emit('setRegistration', cryptLibrary.encrypt({status: 'olduser',password:validate_pass,role:role,additionalData:additionalData}));
+                              });
+                            }
+                            //update social token
+
+
+
+
+
+
+
+
                          }else{
-                           var insert  = { email: email,password:password,name:name,image_url:picture,link:generatedLink};
+                           var insert  = { email: email,password:password,name:name,image_url:picture,link:generatedLink,facebookAccessToken:facebookToken,googleAccessToken:googleToken};
 
                            var query = multiple_db.query('INSERT INTO Users SET ?', insert, function (error, results, fields) {
                              if (error) throw error;

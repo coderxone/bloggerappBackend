@@ -8,6 +8,7 @@ let systemCoreLogics = require('../models/systemCoreLogics.js');
 let systemCoreLogicsAll = require('../models/systemCoreLogicsAll.js');
 let systemCoreLogicsFinalCount = require('../models/systemCoreLogicsFinalCount.js');
 let systemCoreLogicsPrice = require('../models/systemCoreLogicsPrice.js');
+let instagramCore = require('../models/instagramCore.js');
 
 module.exports = function(io){
 
@@ -296,6 +297,19 @@ module.exports = function(io){
 
 
         const test = () => {
+            const token = "EAADZCHZCQRjJ4BALXN5O0cuAJqx5JsudoywsqKWmXbFpjhuTGIgZC8NZAS5rCqDN0drvlb0gYRNYNllJmHf9lABx1Dq9JyKtZCt0StmsYgYLcxsg9EsSRY7hcrh7fElGoCyyZA2Hu2OziZBK18KRRRbhZA9dasEE0YZBV7zXZCtl83YsBsGJKhFhFfcKInHgNJZCe7GBPAmMMQvRjpeVebwBESfYEtPRA2JKUgZD";
+            //"17841401349212053",token
+            //1 step
+            //instagramCore.getAccounts(token);
+            //2 step
+            //instagramCore.getInstagramBusinessAccount("100882208840250",token);
+            //3 step 17841401349212053
+            instagramCore.checkInstagramAccount("2clickorg@gmail.com");
+
+
+
+
+
             // systemCoreLogics.checkCoreFunction("testbl@gmail.com").then(result => {
             //   console.log(result);
             // });
