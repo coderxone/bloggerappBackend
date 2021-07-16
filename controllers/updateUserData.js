@@ -22,29 +22,80 @@ module.exports = function(io){
 
                 socket.join(deviceId);
 
-                var updateData = [
-                  formHelper.cleanString(includedData.country),
-                  Serialize.serialize(includedData.category),
-                  formHelper.cleanString(includedData.age),
-                  formHelper.cleanString(includedData.firstName),
-                  formHelper.cleanString(includedData.lastName),
-                  formHelper.cleanString(includedData.nickName),
-                  formHelper.cleanString(includedData.subscribers_count),
-                  formHelper.cleanString(includedData.paypal),
-                  Serialize.serialize(includedData.socialNetworks),
-                  Serialize.serialize(includedData.ssn),
-                  formHelper.cleanString(includedData.photo),
-                  email
-                ];
-
                 //update db
-                const UpdateDb = (updateData) => {
+                const UpdateDb = (includedData) => {
                   return new Promise(resolve => {
-                    db_multiple.query('UPDATE Users SET country = ?,category = ?,age = ?,firstName = ?,lastName = ?,nickName = ?,subscribers_count = ?,paypal = ?,socialNetworks = ?,ssn = ?,identityPicture = ? WHERE email = ?', updateData, function (error, results, fields) {
 
-                      resolve(true);
 
-                    });
+
+                    let checkssn = includedData.savetype.checkssn;
+                    let socialcheck = includedData.savetype.socialcheck;
+
+                    if((checkssn === true) && (socialcheck === true)){
+
+                          var updateData = [
+                            formHelper.cleanString(includedData.country),
+                            Serialize.serialize(includedData.category),
+                            formHelper.cleanString(includedData.age),
+                            formHelper.cleanString(includedData.accountage),
+                            formHelper.cleanString(includedData.firstName),
+                            formHelper.cleanString(includedData.lastName),
+                            formHelper.cleanString(includedData.nickName),
+                            formHelper.cleanString(includedData.subscribers_count),
+                            formHelper.cleanString(includedData.paypal),
+                            Serialize.serialize(includedData.socialNetworks),
+                            Serialize.serialize(includedData.ssn),
+                            formHelper.cleanString(includedData.photo),
+                            email
+                          ];
+
+                          db_multiple.query('UPDATE Users SET country = ?,category = ?,age = ?,accountAge = ?,firstName = ?,lastName = ?,nickName = ?,subscribers_count = ?,paypal = ?,socialNetworks = ?,ssn = ?,identityPicture = ? WHERE email = ?', updateData, function (error, results, fields) {
+
+                            resolve(true);
+
+                          });
+                      }else if((checkssn === false) && (socialcheck === true)){
+                          var updateData = [
+                            formHelper.cleanString(includedData.country),
+                            Serialize.serialize(includedData.category),
+                            formHelper.cleanString(includedData.age),
+                            formHelper.cleanString(includedData.accountage),
+                            formHelper.cleanString(includedData.firstName),
+                            formHelper.cleanString(includedData.lastName),
+                            formHelper.cleanString(includedData.nickName),
+                            formHelper.cleanString(includedData.subscribers_count),
+                            formHelper.cleanString(includedData.paypal),
+                            Serialize.serialize(includedData.socialNetworks),
+                            Serialize.serialize(includedData.ssn),
+                            email
+                          ];
+
+                          db_multiple.query('UPDATE Users SET country = ?,category = ?,age = ?,accountAge = ?,firstName = ?,lastName = ?,nickName = ?,subscribers_count = ?,paypal = ?,socialNetworks = ?,ssn = ? WHERE email = ?', updateData, function (error, results, fields) {
+
+                            console.log(error)
+                            resolve(true);
+
+                          });
+                      }else if((checkssn === false) && (socialcheck === false)){
+                          var updateData = [
+                            formHelper.cleanString(includedData.country),
+                            Serialize.serialize(includedData.category),
+                            formHelper.cleanString(includedData.age),
+                            formHelper.cleanString(includedData.accountage),
+                            formHelper.cleanString(includedData.firstName),
+                            formHelper.cleanString(includedData.lastName),
+                            formHelper.cleanString(includedData.paypal),
+                            Serialize.serialize(includedData.ssn),
+                            email
+                          ];
+
+                          db_multiple.query('UPDATE Users SET country = ?,category = ?,age = ?,accountAge = ?,firstName = ?,lastName = ?,paypal = ?,ssn = ? WHERE email = ?', updateData, function (error, results, fields) {
+
+                            resolve(true);
+
+                          });
+                      }
+
                   })
                 }
                 //update db
@@ -64,7 +115,7 @@ module.exports = function(io){
 
                 const StepByStep = async () => {
                   try{
-                    const responseOne = await UpdateDb(updateData);
+                    const responseOne = await UpdateDb(includedData);
                     const responseTwo = await CountUserPoints(responseOne);
                     return responseTwo;
                   }catch(e){

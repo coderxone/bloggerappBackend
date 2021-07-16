@@ -142,6 +142,26 @@ const instaCore = {
           });
       },
 
+      checkInstagramSubscribers:(email) => {
+        return new Promise(resolve => {
+          multiple_db.query('SELECT instagramBusinessId FROM `Users` WHERE `email` = ?', [email], function (error, results, fields) {
+
+            if(results.length > 0){
+
+                let instagramBusinessId = results[0].instagramBusinessId;
+                  if(instagramBusinessId != 0){
+                    resolve(true);
+                  }else{
+                    resolve(false);
+                  }
+
+                }
+
+
+              });
+        })
+      },
+
 
 
 

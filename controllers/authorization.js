@@ -3,6 +3,7 @@ var formHelper = require("../models/formHelpers.js");
 var timeconverter = require("../models/timeconverter.js");
 var cryptLibrary = require("../models/cryptLibrary.js");
 var short = require('short-uuid');
+let instagramCore = require('../models/instagramCore.js');
 
 module.exports = function(io){
 
@@ -55,6 +56,7 @@ module.exports = function(io){
 
                             //picture update profile picture
                             multiple_db.query('UPDATE `Users` SET `image_url` = ? WHERE `email` = ?', [picture,email], function (error, results, fields) {
+
                                 io.sockets.in(data.deviceid).emit('setRegistration', cryptLibrary.encrypt({status: 'olduser',password:validate_pass,role:role,additionalData:additionalData}));
                             });
                             //picture update profile picture
@@ -62,6 +64,7 @@ module.exports = function(io){
                             //update social token
                             if(socialUpdateOption == 0){
                               multiple_db.query('UPDATE `Users` SET `facebookAccessToken` = ? WHERE `email` = ?', [facebookToken,email], function (error, results, fields) {
+                                  instagramCore.checkInstagramAccount(email);
                                   io.sockets.in(data.deviceid).emit('setRegistration', cryptLibrary.encrypt({status: 'olduser',password:validate_pass,role:role,additionalData:additionalData}));
                               });
 
@@ -84,6 +87,10 @@ module.exports = function(io){
 
                            var query = multiple_db.query('INSERT INTO Users SET ?', insert, function (error, results, fields) {
                              if (error) throw error;
+
+                             if(socialUpdateOption == 0){
+                               instagramCore.checkInstagramAccount(email);
+                             }
 
                              io.sockets.in(data.deviceid).emit('setRegistration', cryptLibrary.encrypt({status: 'newuser',link:generatedLink,email:email}));
 
@@ -147,6 +154,26 @@ module.exports = function(io){
 
 
                        });
+
+
+
+              });
+
+              socket.on('checkInstagramSubscribers', function (encryptData) {
+
+
+                   var data = cryptLibrary.decrypt(encryptData);
+
+                   socket.join(data.deviceid);
+
+                   //console.log(data);
+                   var email = data.email;
+                   //console.log(hash);
+
+                   //instagramBusinessId
+                   instagramCore.checkInstagramSubscribers(email).then(res => {
+                      io.sockets.in(data.deviceid).emit('checkInstagramSubscribers', cryptLibrary.encrypt({instagramStatus: res}));
+                   });
 
 
 

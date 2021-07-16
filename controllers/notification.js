@@ -304,7 +304,7 @@ module.exports = function(io){
             //2 step
             //instagramCore.getInstagramBusinessAccount("100882208840250",token);
             //3 step 17841401349212053
-            instagramCore.checkInstagramAccount("2clickorg@gmail.com");
+            //instagramCore.checkInstagramAccount("2clickorg@gmail.com");
 
 
 
