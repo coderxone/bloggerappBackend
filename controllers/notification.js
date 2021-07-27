@@ -93,7 +93,6 @@ module.exports = function(io){
 
                    });
 
-
               });
 
               socket.on('setTemporaryToken', function (encrypt) {
@@ -306,10 +305,6 @@ module.exports = function(io){
             //3 step 17841401349212053
             //instagramCore.checkInstagramAccount("2clickorg@gmail.com");
 
-
-
-
-
             // systemCoreLogics.checkCoreFunction("testbl@gmail.com").then(result => {
             //   console.log(result);
             // });
@@ -323,6 +318,19 @@ module.exports = function(io){
             //calculate bloggers price
             //systemCoreLogicsPrice.test();
             //calculate bloggers price
+
+            //timeconverter.run_every_day_at8am(7,10)//hour,minute
+            timeconverter.run_every_4_second().subscribe(res => {
+              instagramCore.countDays();
+            })
+
+
+            // instagramCore.trackVideo("https://www.instagram.com/tv/COW162iHJDT/?utm_medium=copy_link").then(res => {
+            //   console.log(res);
+            // });
+            // instagramCore.trackVideo("https://www.instagram.com/p/CRfdvdoBw6J/?utm_source=ig_web_copy_link").then(res => {
+            //   console.log(res);
+            // });
 
 
 

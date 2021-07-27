@@ -3,7 +3,7 @@ var formHelper = require("../models/formHelpers.js");
 var timeconverter = require("../models/timeconverter.js");
 var notificationBox = require("../models/notificationBox.js");
 var cryptLibrary = require("../models/cryptLibrary.js");
-
+let notificationBoxCentralMessages = require('../models/notificationBoxCentralMessages.js');
 
 module.exports = function(io){
 
@@ -38,7 +38,7 @@ module.exports = function(io){
 
 
                    //send aadditional notifications
-                   notificationBox.sendHyperSingle("new message from " + data.email,"<a href='echohub.io'>" + message + "</a>",message,data.sendemail);
+                   notificationBoxCentralMessages.sendHyperSingle(data.email,message,data.sendemail);
                    //send aadditional notifications
 
                    io.sockets.to(data.sendemail).emit('Message', cryptLibrary.encrypt({message: data.message,fromEmail:data.email,toEmail:data.sendemail,date:date}));

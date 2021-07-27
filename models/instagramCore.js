@@ -1,5 +1,10 @@
 const axios = require('axios');
 var multiple_db = require('../config/multiple_mysql.js');
+const fs = require('fs');
+let notificationBox = require('../models/notificationBox.js');
+let notificationBoxCentralMessages = require('../models/notificationBoxCentralMessages.js');
+let systemCoreLogicsFinalCount = require('../models/systemCoreLogicsFinalCount.js');
+let helpers = require("../models/helpers.js");
 //const token = "EAADZCHZCQRjJ4BAI284ZCGX7MUGH1bQmTDEJka7ifzl5eJYkwTNaXzrT1CuWi5HsTYuZC4wcFOIZApxH5z2ZAtVbXhDixC8y17fRUttP5kZBuTfSiJplvraWClgfgW0QZCuDI8hADfxZBpCEqQ8jxbRflWLIt4lPsuBS5VjN3h5Q9COn47W1gAnXIlIfCaijB6hlEhfl4KKZC2szxjgpZCkKyZBhWns4RIU9X9kZD";
 
 // pages_show_list
@@ -21,12 +26,16 @@ var multiple_db = require('../config/multiple_mysql.js');
  // instagram_manage_insights
  // pages_read_engagement
 
+
+
+
 const instaCore = {
 
      getAccountTokenFromDb:(email) => {
        return new Promise(resolve => {
 
          multiple_db.query('SELECT facebookAccessToken FROM `Users` WHERE email = ? LIMIT 1',[email], function (error, results, fields){
+
 
              resolve(results[0].facebookAccessToken);
 
@@ -41,8 +50,11 @@ const instaCore = {
          axios.get("https://graph.facebook.com/v11.0/me/accounts?access_token=" + token)
           .then(function (response) {
             // handle success
+
             //response.data.data
             //response.data.paging
+            //instaCore.keepRecord("instagramCoreGetAccounts.txt",response.data);
+            instaCore.keepRecord("instagramCoreGetAccounts.json",{response:response.data});
             let id = response.data.data[0].id;//100882208840250
             resolve(id);
           })
@@ -65,6 +77,7 @@ const instaCore = {
           axios.get("https://graph.facebook.com/v11.0/" + userpageid + "?fields=instagram_business_account&access_token=" + token)
            .then(function (response) {
              let business_page = response.data.instagram_business_account.id;//17841401349212053
+             instaCore.keepRecord("getInstagramBusinessAccountId.json",{response:response.data});
              resolve(business_page);
            })
            .catch(function (error) {
@@ -86,6 +99,7 @@ const instaCore = {
           axios.get(url)
            .then(function (response) {
              let result = response.data;//17841401349212053
+             instaCore.keepRecord("getInstagramFollowersAndMediaCount.json",{response:response.data});
              resolve(result);
            })
            .catch(function (error) {
@@ -161,6 +175,199 @@ const instaCore = {
               });
         })
       },
+
+      keepRecord:(fileName,content) => {
+        fs.writeFile('./models/instagramCoreLogs/' + fileName, JSON.stringify(content),{ flag: 'w+' }, err => {
+          if (err) {
+            console.error(err)
+            return
+          }
+          //file written successfully
+          })
+      },
+
+      readRecord:((fileName) => {
+        const fs = require('fs')
+
+          fs.readFile('./models/instagramCoreLogs/' + fileName, 'utf8' , (err, data) => {
+            if (err) {
+              console.error(err)
+              return
+            }
+
+            let found = data.indexOf("ix6czkEiP36JfWnLFhMomQ");
+
+            console.log(data.indexOf("ix6czkEiP36JfWnLFhMomQ"))
+            //https://echohub.io/follow/ix6czkEiP36JfWnLFhMomQ
+
+            if(found >= 0){
+              console.log(found)
+            }else{
+              console.log("link not found")
+            }
+
+
+
+
+
+          })
+      }),
+
+      trackVideo:(url) => {
+
+        //instaCore.keepRecord("track.json",{response:response.data});
+        //instaCore.readRecord("track.json");
+
+        return new Promise(resolve => {
+            axios.get(url)
+            .then(function (response) {
+
+              if(response.status === 200){
+                resolve(true);
+              }else{
+                resolve(false);
+              }
+
+            })
+            .catch(function (error) {
+              // handle error
+
+            })
+            .then(function () {
+              // always executed
+            });
+        });
+
+      },
+      trackVideoByResponse_200_and_projectId:(project_id,user_email) => {
+
+        //instaCore.keepRecord("track.json",{response:response.data});
+        //instaCore.readRecord("track.json");
+
+        const checkVideosByProjectId = (project_id,user_email) => {
+          return new Promise(resolve => {
+            multiple_db.query('SELECT url FROM usersvideo WHERE project_id = ? AND user_email = ? LIMIT 1', [project_id, user_email], function (error, results, fields) {
+
+                if(results.length > 0){
+                  resolve(results[0].url);
+                }
+
+                });
+          });
+        }
+
+        const checkUrl = (url) => {
+          return new Promise(resolve => {
+              axios.get(url)
+              .then(function (response) {
+
+                if(response.status === 200){
+                  resolve(true);
+                }else{
+                  resolve(false);
+                }
+
+              })
+              .catch(function (error) {
+                // handle error
+                resolve(false);
+              })
+              .then(function () {
+                // always executed
+                resolve(false);
+              });
+          });
+        }
+
+        const Stepper = async() => {
+          const stepOne = await checkVideosByProjectId(project_id,user_email);
+          const stepTwo = await checkUrl(stepOne);
+          return stepTwo;
+        }
+
+        return Stepper();
+
+
+
+      },
+
+      countDays:() => {
+        //verifiedDays
+        //count_of_video
+        multiple_db.query('SELECT * FROM `uniquenames` WHERE `status` = ? AND `open_for_verification` != ?;SELECT count_of_video FROM `appParams`;', [4,3], function (error, results, fields) {
+
+          if(results.length > 0){
+                let limit = results[1][0].count_of_video;
+
+                let countUsers = results[0];
+                for(let i = 0;i < countUsers.length;i++){
+                  let current_day = countUsers[i].verifiedDays;
+                  let currentEmail = countUsers[i].user_email;
+                  let id = countUsers[i].id;
+                  let project_id = countUsers[i].project_id;
+                  let open_for_verification = countUsers[i].open_for_verification;
+
+                  //increment days
+                  current_day++;
+                  if(current_day <= limit){
+
+                      const updateDayAndOpenTask = (status,current_day,id) => {
+
+                        multiple_db.query('UPDATE uniquenames SET open_for_verification = ?,verifiedDays = ? WHERE id = ?', [status,current_day,id], function (error, results, fields) {
+                        });
+
+                      }
+
+                      if(current_day === 1){
+
+
+                        const checkVideo = instaCore.trackVideoByResponse_200_and_projectId(project_id,currentEmail).then(res => {
+                          if(res === true){
+                            updateDayAndOpenTask(1,current_day,id);//confirmed
+                            notificationBoxCentralMessages.notifyBusinessAndCreator(current_day,project_id,currentEmail,limit);
+                            //notificationBox.sendHyperSingle("new message from " + data.email,"<a href='echohub.io'>" + message + "</a>",message,data.sendemail);
+                          }else{
+                            updateDayAndOpenTask(3,current_day,id);//confirmed
+                          }
+                        });
+
+
+                      }else if(current_day === 3){
+                        const checkVideo = instaCore.trackVideoByResponse_200_and_projectId(project_id,currentEmail).then(res => {
+                          if(res === true){
+                            updateDayAndOpenTask(1,current_day,id);//confirmed
+                            notificationBoxCentralMessages.notifyBusinessAndCreator(current_day,project_id,currentEmail,limit);
+                          }else{
+                            updateDayAndOpenTask(3,current_day,id);//confirmed
+                          }
+                        });
+                      }else if(current_day === 7){
+                        const checkVideo = instaCore.trackVideoByResponse_200_and_projectId(project_id,currentEmail).then(res => {
+                          if(res === true){
+                            updateDayAndOpenTask(1,current_day,id);//confirmed
+                            notificationBoxCentralMessages.notifyBusinessAndCreator(current_day,project_id,currentEmail,limit);
+                            systemCoreLogicsFinalCount.finalCount(project_id,currentEmail);
+                            helpers.closeCreatorTask(project_id,currentEmail);
+                          }else{
+                            updateDayAndOpenTask(3,current_day,id);//confirmed
+                          }
+                        });
+                      }else{
+                        multiple_db.query('UPDATE uniquenames SET verifiedDays = ? WHERE id = ?', [current_day,id], function (error, results, fields) {
+
+                        });
+                      }
+                  }
+
+                }
+
+
+              }
+
+
+            });
+      }
+
 
 
 

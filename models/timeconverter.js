@@ -1,6 +1,12 @@
+// import cron from 'node-cron'
+var cron = require('node-cron');
 var moment = require('moment-timezone');
+var rx = require('rxjs');
+
 
 module.exports = {
+
+
 
      timeConverter:function(UNIX_timestamp){
       var a = new Date(UNIX_timestamp * 1000);
@@ -186,6 +192,37 @@ module.exports = {
 
      return dd;
     },
+    run_every_day_at8am:(hour,minute) => {
+
+
+      // # ┌────────────── second (optional)
+      // # │ ┌──────────── minute
+      // # │ │ ┌────────── hour
+      // # │ │ │ ┌──────── day of month
+      // # │ │ │ │ ┌────── month
+      // # │ │ │ │ │ ┌──── day of week
+      // # │ │ │ │ │ │
+      // # │ │ │ │ │ │
+      // # * * * * * *
+      cron.schedule('0 ' + minute + ' ' + hour + ' * * *', () => {
+        console.log('running a task every minute at the 5th second');
+      });
+
+    },
+
+    run_every_minute:() => {
+      cron.schedule('5 * * * * *', () => {
+        console.log('running a task every minute at the 5th second');
+      });
+    },
+    run_every_2_second:() => {
+      const source = rx.timer(1000,2000);
+      return source;
+    },
+    run_every_4_second:() => {
+      const source = rx.timer(1000,4000);
+      return source;
+    }
 
 
 }

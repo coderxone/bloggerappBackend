@@ -266,7 +266,7 @@ module.exports = function(io){
 
 
                 function searchWithoutLocation(){
-                                                  //0                                                                                                                                                                                                                                                                                                                                             //1                                   //2                                             //3
+                                                  //0                                                                                                            //1                                   //2                                             //3
                     db_multiple.query('SELECT * FROM UsersData WHERE role = ? AND pay_status = 1 AND status = 1 AND gps = 2 ORDER BY priority DESC; SELECT * FROM `Users` WHERE email = ?;SELECT * FROM `complete_task` WHERE `user_email` = ?;SELECT * FROM `UserApproveTasks` ORDER BY priority DESC;SELECT * FROM `complete_approve_task` WHERE `user_email` = ?;SELECT * FROM `rejected_task` WHERE `user_email` = ?;SELECT execute_day FROM `appParams`;',[role,email,email,email,email], function (error, results, fields) {
 
             //check user approve status

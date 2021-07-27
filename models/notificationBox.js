@@ -1,6 +1,7 @@
 var moment = require('moment-timezone');
 var notificationModel = require("./notificationModel.js");
 var domainName = "https://echohub.io";
+let helper = require('./helpers.js');
 
 module.exports = {
 
@@ -51,6 +52,52 @@ module.exports = {
               };
 
               sendWebFirebasetoSingle();
+
+              return "ok";
+      },
+      sendHyperSingleByProjectId:function(projectId,title,htmlmessage,cleanmessage,url){
+
+
+              let toUser = "";
+
+              const sendMessage = async (title,htmlmessage,toUser) => {
+                   await notificationModel.sendMessage(title,htmlmessage,toUser).then(function(result) {
+
+                      console.log(result.response);
+
+                  });
+              };
+
+
+
+              const sendFirebasetoSingleAndroid = async (title,cleanmessage,toUser) => {
+                   await notificationModel.sendFPMtoSingle(toUser,title,cleanmessage,"new message","new message").then(function(result) {
+
+                      console.log(result);
+
+                  });
+              };
+
+
+
+              const sendWebFirebasetoSingle = async (toUser,title,cleanmessage,domainName) => {
+                   await notificationModel.sendWebFPMtoSingle(toUser,title,cleanmessage,domainName).then(function(result) {
+
+                      console.log(result);
+
+                  });
+              };
+
+
+
+              helper.getUserEmailByProjectId(projectId).then(res => {
+                let email = res.email;
+
+                sendMessage(title,htmlmessage,email);
+                sendFirebasetoSingleAndroid(title,cleanmessage,email);
+                sendWebFirebasetoSingle(email,title,cleanmessage,url);
+
+              })
 
               return "ok";
       },

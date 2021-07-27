@@ -26,8 +26,6 @@ module.exports = function(io){
                 const UpdateDb = (includedData) => {
                   return new Promise(resolve => {
 
-
-
                     let checkssn = includedData.savetype.checkssn;
                     let socialcheck = includedData.savetype.socialcheck;
 

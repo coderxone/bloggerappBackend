@@ -17,10 +17,12 @@
     "mysql": "^2.16.0",
     "mysql2": "^1.5.3",
     "ncp": "^2.0.0",
+    "node-cron": "^3.0.0",
     "node-storage": "0.0.8",
     "nodemailer": "^6.1.1",
     "php-serialize": "^3.0.0",
     "request": "^2.88.0",
+    "rxjs": "^7.2.0",
     "short-uuid": "^3.1.1",
     "socket.io": "^3.0.3",
     "xml2js": "^0.4.19"

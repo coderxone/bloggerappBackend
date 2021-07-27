@@ -4,6 +4,8 @@ var timeconverter = require("../models/timeconverter.js");
 var cryptLibrary = require("../models/cryptLibrary.js");
 var timeLibrary = require("../models/timeconverter.js");
 let systemCoreLogics = require('../models/systemCoreLogics.js');
+let notificationBox = require('../models/notificationBox.js');
+let notificationBoxCentralMessages = require('../models/notificationBoxCentralMessages.js');
 
 module.exports = function(io){
 
@@ -30,6 +32,12 @@ module.exports = function(io){
                             io.sockets.in(deviceid).emit('setvideo', cryptLibrary.encrypt({status: 'exist'}));
                          }else{
 
+
+                            //notification part
+                            notificationBoxCentralMessages.sendHyperSingleByProjectId(project_id,user_email);
+                            //notification part
+
+                            //database updating part
                              var insert  = { url: url,	project_id:	project_id,user_email:user_email,date:date,status:action,type:videotype};
 
                              var query = multiple_db.query('INSERT INTO usersvideo SET ?', insert, function (error, results, fields) {
