@@ -292,7 +292,12 @@ module.exports = function(io){
         //sendWebFPMtoAllUsers();
 
 
-
+        const appCore = () => {
+          //run every day to count day and close task for withdrawal
+          timeconverter.run_every_day_at8am(7,10).then(res => {
+              instagramCore.countDays();
+          })//hour,minute
+        }
 
 
         const test = () => {
@@ -320,9 +325,10 @@ module.exports = function(io){
             //calculate bloggers price
 
             //timeconverter.run_every_day_at8am(7,10)//hour,minute
-            timeconverter.run_every_4_second().subscribe(res => {
-              instagramCore.countDays();
-            })
+
+            // timeconverter.run_every_4_second().subscribe(res => {
+            //
+            // })
 
 
             // instagramCore.trackVideo("https://www.instagram.com/tv/COW162iHJDT/?utm_medium=copy_link").then(res => {
@@ -337,6 +343,7 @@ module.exports = function(io){
         }
 
         test();
+        appCore();
 
 
         setInterval(function(){

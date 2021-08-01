@@ -204,9 +204,14 @@ module.exports = {
       // # │ │ │ │ │ │
       // # │ │ │ │ │ │
       // # * * * * * *
-      cron.schedule('0 ' + minute + ' ' + hour + ' * * *', () => {
-        console.log('running a task every minute at the 5th second');
-      });
+
+      return new Promise((resolve) => {
+        cron.schedule('0 ' + minute + ' ' + hour + ' * * *', () => {
+          resolve("run");
+          //console.log('running a task every minute at the 5th second');
+        });
+      })
+
 
     },
 
