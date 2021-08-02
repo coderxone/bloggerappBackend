@@ -544,6 +544,38 @@ module.exports = function(io){
               });
 
 
+              socket.on('checkVerifiedDays', function (encrypt) {
+
+                   var data = cryptLibrary.decrypt(encrypt);
+
+                   socket.join(data.deviceid);
+                   //timeconverter.getunixMonth
+                   //console.log(data);
+                   var project_id = data.data.project_id;
+                   var user_email = data.email;
+                   var blogger_email = data.data.blogger_email;
+
+                   //console.log(blogger_email);
+                   //console.log(project_id);
+
+                   multiple_db.query('SELECT * FROM `uniquenames` WHERE `project_id` = ? AND `user_email` = ?', [project_id,blogger_email], function (error, res, fields) {
+
+                     //console.log(error);
+                     //console.log(results);
+                     if(res.length > 0){
+
+                       let verifiedDays = res[0].verifiedDays;
+
+
+
+                       io.sockets.in(data.deviceid).emit('checkVerifiedDays', cryptLibrary.encrypt({status: 'ok',verifiedDays:verifiedDays}));
+                     }
+
+                       });
+
+              });
+
+
 
               socket.on('checkvideoApproved', function (encrypt) {
 
