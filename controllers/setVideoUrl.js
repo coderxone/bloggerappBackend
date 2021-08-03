@@ -228,7 +228,7 @@ module.exports = function(io){
                    var user_email = data.email;
 
 
-                   multiple_db.query('SELECT UsersData.id, UsersData.date,UsersData.description,UsersData.email,UsersData.time,UsersData.sum,UsersData.pay_status,UsersData.peoplecount,UsersData.subscribers,UsersData.url,UsersData.location_name,UsersData.location_points,UsersData.peoplecount,UsersData.countvideo,UsersData.lat,UsersData.lng,UsersData.gps,UsersData.famous,uniquenames.project_id,uniquenames.user_email,uniquenames.status,uniquenames.hash FROM uniquenames INNER JOIN UsersData ON uniquenames.project_id = UsersData.id WHERE uniquenames.user_email = ? AND uniquenames.project_id ORDER BY uniquenames.project_id DESC LIMIT 1;SELECT execute_day FROM `appParams`;', [user_email,project_id], function (error, results, fields) {
+                   multiple_db.query('SELECT UsersData.id, UsersData.date,UsersData.description,UsersData.email,UsersData.time,UsersData.sum,UsersData.pay_status,UsersData.peoplecount,UsersData.subscribers,UsersData.url,UsersData.location_name,UsersData.location_points,UsersData.peoplecount,UsersData.countvideo,UsersData.lat,UsersData.lng,UsersData.gps,UsersData.famous,uniquenames.project_id,uniquenames.user_email,uniquenames.status,uniquenames.hash,uniquenames.verifiedDays FROM uniquenames INNER JOIN UsersData ON uniquenames.project_id = UsersData.id WHERE uniquenames.user_email = ? AND uniquenames.project_id ORDER BY uniquenames.project_id DESC LIMIT 1;SELECT execute_day FROM `appParams`;', [user_email,project_id], function (error, results, fields) {
 
                           var executeDay = results[1][0].execute_day;
 

@@ -296,6 +296,7 @@ module.exports = function(io){
           //run every day to count day and close task for withdrawal
           timeconverter.run_every_day_at8am(7,10).then(res => {
               instagramCore.countDays();
+              systemCoreLogicsPrice.updateDataCentralPrice();
           })//hour,minute
         }
 
@@ -337,6 +338,8 @@ module.exports = function(io){
             // instagramCore.trackVideo("https://www.instagram.com/p/CRfdvdoBw6J/?utm_source=ig_web_copy_link").then(res => {
             //   console.log(res);
             // });
+
+
 
 
 

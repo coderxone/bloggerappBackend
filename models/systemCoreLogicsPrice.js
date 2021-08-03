@@ -3,6 +3,17 @@ var multiple_db = require('../config/multiple_mysql.js');
 
 const exp = {
 
+    updateDataCentralPrice:() => {
+
+
+      exp.countPrice().then(price => {
+        multiple_db.query('UPDATE appParams SET postamount = ? WHERE id = ?', [price,1], function (error, results, fields) {
+
+        });
+      })
+
+
+    },
 
     countPrice:() => {
 
