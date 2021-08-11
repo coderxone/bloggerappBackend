@@ -41,6 +41,17 @@ const exp = {
        notificationBox.sendHyperSingle(message,"<a href='echohub.io/mdetailtask/" + project_id + "'>" + message + "</a>",message,currentEmail);
      },
 
+     sendNewTaskNotificationToAllBloggers:(id) => {
+       multiple_db.query('SELECT * FROM `UsersData` WHERE `id` = ?', [id], function (error, results, fields) {
+
+         if(results.length > 0){
+
+             }
+
+
+           });
+     },
+
 
 
 

@@ -123,6 +123,7 @@ module.exports = function(io){
                 }
 
                 StepByStep().then(response => {
+
                   io.sockets.in(deviceId).emit('updateUserData',cryptLibrary.encrypt({status:"ok"}));
                 })
 

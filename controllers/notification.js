@@ -194,7 +194,10 @@ module.exports = function(io){
 
                   // console.log(htmlData);
 
+
                   sendHtmlMessage(title,htmlData,sendMail);//(title,htmldata,sendemail)
+
+
 
                   io.sockets.to(deviceid).emit('sendHtmlMail', {status:"ok"});
 
@@ -330,7 +333,8 @@ module.exports = function(io){
             // timeconverter.run_every_4_second().subscribe(res => {
             //
             // })
-
+            
+            notificationBoxCentralMessages.sendNewTaskNotificationToAllBloggers(96);
 
             // instagramCore.trackVideo("https://www.instagram.com/tv/COW162iHJDT/?utm_medium=copy_link").then(res => {
             //   console.log(res);

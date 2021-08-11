@@ -3,7 +3,7 @@ var request = require('request');
 var cryptLibrary = require("../models/cryptLibrary.js");
 var FormHelper = require("../models/formHelpers.js");
 var Serialize = require('php-serialize');
-
+let systemCoreLogicsPrice = require('../models/systemCoreLogicsPrice.js');
 
 module.exports = function(io){
 
@@ -56,6 +56,7 @@ module.exports = function(io){
 
                 db_multiple.query('UPDATE Users SET verified = ? WHERE id = ?', [action,id], function (error, results, fields) {
 
+                  systemCoreLogicsPrice.updateDataCentralPrice();
                   io.sockets.in(email).emit('ApproveUser',cryptLibrary.encrypt({"status":"ok"}));
 
                 });
@@ -103,7 +104,7 @@ module.exports = function(io){
                     FormHelper.cleanString(includedData.bio),
                     email
                   ];
-              
+
                   db_multiple.query('UPDATE Users SET firstName = ?,lastName = ?,bio = ? WHERE email = ?', updateData, function (error, results, fields) {
 
                     io.sockets.in(deviceId).emit('updateUserDataField',cryptLibrary.encrypt({status:"ok"}));

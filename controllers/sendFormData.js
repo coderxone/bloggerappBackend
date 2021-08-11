@@ -4,6 +4,7 @@ var Serialize = require('php-serialize');
 var timeconverter = require("../models/timeconverter.js");
 var cryptLibrary = require("../models/cryptLibrary.js");
 var timeLibrary = require("../models/timeconverter.js");
+var notificationBoxCentralMessages = require("../models/notificationBoxCentralMessages.js");
 
 
 module.exports = function(io){
@@ -73,7 +74,7 @@ module.exports = function(io){
 
                    }
 
-                   
+
 
 
 
@@ -203,6 +204,10 @@ module.exports = function(io){
                            monthcount.push(1);
                          }
                        }
+
+                       //send push notification to every creator in the system about new request
+                       //checkid
+                       notificationBoxCentralMessages.sendNewTaskNotificationToAllBloggers(checkid);
 
                        io.sockets.in(data.deviceid).emit('checkPayments', cryptLibrary.encrypt({status: 'ok',count:results.length,montharray:montharray,monthcount:monthcount,data:results}));
 
