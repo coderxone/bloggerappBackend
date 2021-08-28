@@ -152,11 +152,11 @@ module.exports = {
        return new Promise(function(resolve, reject) {
          //promise
 
-          for(var i = 0;i < UserArray.length;i++){
+          if(UserArray.length > 0){
 
             var mailOptions = {
                 from: 'info@echohub.io',
-                to: UserArray[i],
+                to: UserArray,
                 subject: title,
                 text: message,
                 html: message
@@ -326,6 +326,41 @@ module.exports = {
 
     },
 
+     sendFPMtoCurrentArrayToken:async function(title,body,dopmessageone,dopmessagetwo,array){
+
+       return new Promise(function(resolve, reject) {
+
+              if(array.length > 0){
+                var message = {
+                        notification:{
+                          title:title,
+                          body:body
+                        },
+                         data: {
+                           variableone: dopmessageone,
+                           variabletwo: dopmessagetwo
+                         },
+                         tokens: array
+                       };
+
+                       admin.messaging().sendMulticast(message)
+                         .then((response) => {
+                           // Response is a message ID string.
+                           resolve(response);
+                           console.log('Successfully sent message:', response);
+                         })
+                         .catch((error) => {
+                           console.log('Error sending message:', error);
+                         });
+              }
+
+
+
+          //promise
+        });
+
+    },
+
 
      sendWebFPMtoSingle:async function(sendemail,title,body,url){
 
@@ -440,6 +475,42 @@ module.exports = {
 
 
 
+
+
+          //promise
+        });
+
+    },
+
+     sendWebFPMtoAllUsersArray:async function(title,body,url,array){
+
+       return new Promise(function(resolve, reject) {
+         //promise
+
+                if(array.length > 0){
+                      var message = {
+                              notification:{
+                                title:title,
+                                body:body
+                              },
+                          webpush: {
+                              fcm_options: {
+                                link: url
+                              }
+                            },
+                           tokens: array
+                         };
+
+                         admin.messaging().sendMulticast(message)
+                           .then((response) => {
+                             // Response is a message ID string.
+                             resolve(response);
+                             console.log('Successfully sent message:', response);
+                           })
+                           .catch((error) => {
+                             console.log('Error sending message:', error);
+                           });
+                }
 
 
           //promise

@@ -18,18 +18,21 @@ const exp = {
     countPrice:() => {
 
       return new Promise(resolve => {
-        multiple_db.query('SELECT * FROM Users WHERE email_confirmed = ? AND points != ? AND pointsStatus != ? AND verified = ? AND role = ?;', [1,0,0,1,1], function (error, results, fields) {
+        multiple_db.query('SELECT * FROM Users WHERE email_confirmed = ? AND points != ? AND pointsStatus != ? AND verified = ? AND role = ?;SELECT * FROM appParams WHERE id = ?;', [1,0,0,1,1,1], function (error, results, fields) {
 
-          let n = results.length;
+          let n = results[0].length;
+          let first = results[0];
+          let second = Math.floor(results[1][0].platform_percent);
+
           let resultPrice = 0;
-
-
 
             if(n > 0){
 
                 for(let i = 0;i < n;i++){
-                  resultPrice += results[i].points;
+                  resultPrice += first[i].points;
                 }
+
+                resultPrice += (Math.floor((resultPrice / 100) * second));
 
                 resolve(resultPrice);
 

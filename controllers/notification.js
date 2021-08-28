@@ -9,6 +9,7 @@ let systemCoreLogicsAll = require('../models/systemCoreLogicsAll.js');
 let systemCoreLogicsFinalCount = require('../models/systemCoreLogicsFinalCount.js');
 let systemCoreLogicsPrice = require('../models/systemCoreLogicsPrice.js');
 let instagramCore = require('../models/instagramCore.js');
+let notificationBoxCentralMessages = require('../models/notificationBoxCentralMessages.js');
 
 module.exports = function(io){
 
@@ -333,8 +334,8 @@ module.exports = function(io){
             // timeconverter.run_every_4_second().subscribe(res => {
             //
             // })
-            
-            notificationBoxCentralMessages.sendNewTaskNotificationToAllBloggers(96);
+
+            //notificationBoxCentralMessages.sendNewTaskNotificationToAllBloggers(96);
 
             // instagramCore.trackVideo("https://www.instagram.com/tv/COW162iHJDT/?utm_medium=copy_link").then(res => {
             //   console.log(res);
@@ -344,7 +345,7 @@ module.exports = function(io){
             // });
 
 
-
+          //  systemCoreLogicsPrice.updateDataCentralPrice();
 
 
         }

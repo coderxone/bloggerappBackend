@@ -134,6 +134,40 @@ module.exports = {
 
         sendWebFPMtoAllUsers();
 
+      },
+
+      sendAllHyperToArrayToken:function(title,htmlmessage,cleanmessage,EmailArray,webtokenArray,firebasetokenArray){
+
+        const sendToAllMessage = async () => {
+             await notificationModel.sendToAllMessage(title,htmlmessage,EmailArray).then(function(result) {
+
+                console.log(result.response);
+
+            });
+        };
+
+        sendToAllMessage();
+
+        const sendFPMtoAllUsersAndroid = async () => {
+             await notificationModel.sendFPMtoCurrentArrayToken(title,cleanmessage,"new message","new message",firebasetokenArray).then(function(result) {
+
+                console.log(result);
+
+            });
+        };
+
+        sendFPMtoAllUsersAndroid();
+
+        const sendWebFPMtoAllUsers = async () => {
+             await notificationModel.sendWebFPMtoAllUsersArray(title,cleanmessage,domainName,webtokenArray).then(function(result) {
+
+                console.log(result);
+
+            });
+        };
+
+        sendWebFPMtoAllUsers();
+
       }
 
 }
