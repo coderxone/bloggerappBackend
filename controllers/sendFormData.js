@@ -20,14 +20,17 @@ module.exports = function(io){
 
                    var type = data.data.type;
 
-                   var LocationData = JSON.parse(data.data.coord);
-                   var locationPoints = LocationData.fullData;
-                   var geometryLat = LocationData.geometry.lat;
-                   var geometryLong = LocationData.geometry.lng;
+                   var timeNow = timeLibrary.newUnixTimeNow();
 
                    var insert = {};
 
                    if(type == 2){
+
+                     var LocationData = JSON.parse(data.data.coord);
+                     var locationPoints = LocationData.fullData;
+                     var geometryLat = LocationData.geometry.lat;
+                     var geometryLong = LocationData.geometry.lng;
+
                      insert  = {
                        url: formHelper.cleanString(data.data.url),
                        location_name:formHelper.cleanString(LocationData.title),
@@ -52,7 +55,10 @@ module.exports = function(io){
                      };
                    }else if(type == 1){
 
-                     var timeNow = timeLibrary.newUnixTimeNow();
+                     var LocationData = JSON.parse(data.data.coord);
+                     var locationPoints = LocationData.fullData;
+                     var geometryLat = LocationData.geometry.lat;
+                     var geometryLong = LocationData.geometry.lng;
 
                      insert  = {
                        url: formHelper.cleanString(data.data.url),
@@ -72,23 +78,168 @@ module.exports = function(io){
                        type:type
                      };
 
+                   }else if(type == 3){
+
+                     let automatic = data.data.automatic;
+                     if(automatic){
+                       automatic = 1;
+                     }else{
+                       automatic = 0;
+                     }
+                     insert  = {
+                       url: 'company',
+                       location_name:'temp',
+                       location_points:Serialize.serialize('temp'),//shifr
+                       lat:0,
+                       lng:0,
+                       date: timeNow,
+                       time: timeNow,
+                       sum: formHelper.cleanString(data.data.amount),
+                       description: 'temp',
+                       role:2,
+                       email:'temp',
+                       subscribers:0,
+                       companyName:'temp',
+                       videourl:'temp',
+                       automatic:automatic,
+                       type:type,
+                     };
+                   }else if(type == 4){
+
+                     var LocationData = JSON.parse(data.data.coord);
+                     var locationPoints = LocationData.fullData;
+                     var geometryLat = LocationData.geometry.lat;
+                     var geometryLong = LocationData.geometry.lng;
+
+                     insert  = {
+                       url: formHelper.cleanString(data.data.url),
+                       location_name:formHelper.cleanString(LocationData.title),
+                       location_points:Serialize.serialize(locationPoints),//shifr
+                       lat:geometryLat,
+                       lng:geometryLong,
+                       description: formHelper.cleanText(data.data.description),
+                       email:data.email,
+                       subscribers:formHelper.cleanString(data.data.subscribers),
+                       companyName:formHelper.cleanString(data.data.companyName),
+                       videourl:formHelper.cleanUrlString(data.data.videourl),
+                       type:1
+                     };
+                   }else if(type == 5){
+                       var LocationData = JSON.parse(data.data.coord);
+                       var locationPoints = LocationData.fullData;
+                       var geometryLat = LocationData.geometry.lat;
+                       var geometryLong = LocationData.geometry.lng;
+
+                       insert  = {
+                         url: formHelper.cleanString(data.data.url),
+                         location_name:formHelper.cleanString(LocationData.title),
+                         location_points:Serialize.serialize(locationPoints),//shifr
+                         lat:geometryLat,
+                         lng:geometryLong,
+                         description: formHelper.cleanText(data.data.description),
+                         email:data.email,
+                         peoplecount:formHelper.cleanString(data.data.peopleCount),
+                         subscribers:formHelper.cleanString(data.data.subscribers),
+                         countvideo:formHelper.cleanString(data.data.countvideo),
+                         gps:data.data.gps,
+                         famous:data.data.famous,
+                         companyName:formHelper.cleanString(data.data.companyName),
+                         category:formHelper.cleanString(data.data.category),
+                         businessAnswers:Serialize.serialize(data.data.businessAnswers),
+                         type:2
+                       };
                    }
 
 
 
+                    if(type == 1 || type == 2){
+                      var query = multiple_db.query('INSERT INTO UsersData SET ?', insert, function (error, results, fields) {
+                        if (error){
+                           //console.log(error);
+                        }
 
 
-                     var query = multiple_db.query('INSERT INTO UsersData SET ?', insert, function (error, results, fields) {
-                       if (error){
-                          //console.log(error);
-                       }
+                        var encrypt = cryptLibrary.encrypt({status:"ok",insertId:results.insertId,type:1});
+
+                        io.sockets.in(data.deviceid).emit('sendFormData',encrypt );
+
+                      });
+                    }else if(type == 3){
 
 
-                       var encrypt = cryptLibrary.encrypt({status:"ok",insertId:results.insertId});
+                      const stepOne = (insert) => {
+                        return new Promise((resolve) => {
+                          var query = multiple_db.query('INSERT INTO UsersData SET ?', insert, function (error, results, fields) {
+                              resolve(results.insertId);
+                          });
+                        })
+                      }
 
-                       io.sockets.in(data.deviceid).emit('sendFormData',encrypt );
+                      const stepTwo = (creator,UsersDataId) => {
 
-                     });
+                        return new Promise((resolve) => {
+
+                            let obj = {
+                              UsersDataId:UsersDataId,
+                              email:creator.email,
+                              userId:creator.id
+                            }
+                            var query = multiple_db.query('INSERT INTO UsersDataCreators SET ?', obj, function (error, results, fields) {
+                                resolve("ok");
+                            });
+                        })
+                      }
+
+                      const requestStepTwoWithList = async (list,UsersDataId) => {
+                          return await Promise.all(list.map(item => stepTwo(item,UsersDataId)))
+                      }
+
+
+                      const run = async (tableOneData,creators) => {
+                        const insertId = await stepOne(tableOneData);
+                        let result;
+                        if(creators.length > 0){
+                           result = await requestStepTwoWithList(creators,insertId);
+                        }else{
+                          result = [];
+                        }
+
+
+                        return {usersInserted:result.length,insertId:insertId};
+                      }
+
+                      run(insert,data.data.creators).then(response => {
+                          var encrypt = cryptLibrary.encrypt({status:"ok",insertId:response.insertId,type:3});
+                          io.sockets.in(data.deviceid).emit('sendFormData',encrypt );
+                      });
+
+
+
+
+
+                    }else if(type == 4){
+                      let updateId = parseInt(data.data.updateId);
+
+                      multiple_db.query('UPDATE UsersData SET ? WHERE id =' + updateId, insert , function (error, results, fields) {
+
+
+                        var encrypt = cryptLibrary.encrypt({status:"ok",insertId:updateId,type:4});
+                        io.sockets.in(data.deviceid).emit('sendFormData',encrypt);
+
+
+                      });
+                    }else if(type == 5){
+                      let updateId = parseInt(data.data.updateId);
+
+                      multiple_db.query('UPDATE UsersData SET ? WHERE id =' + updateId, insert , function (error, results, fields) {
+
+                        var encrypt = cryptLibrary.encrypt({status:"ok",insertId:updateId,type:5});
+                        io.sockets.in(data.deviceid).emit('sendFormData',encrypt);
+
+                      });
+                    }
+
+
 
 
 
