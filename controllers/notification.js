@@ -45,12 +45,18 @@ module.exports = function(io){
 
                    multiple_db.query('SELECT UsersData.email, complete_task.task_id FROM UsersData INNER JOIN complete_task ON UsersData.id=complete_task.task_id WHERE UsersData.email = ? AND complete_task.status = ? LIMIT 1;',[email,0], function (error, result, fields) {
                      //console.log(error);
-                     console.log(result);
-                     if(result.length > 0){
-                       io.sockets.to(data.deviceid).emit('checkTasks', cryptLibrary.encrypt({status:"ok",result: result}));
-                     }else{
-                       io.sockets.to(data.deviceid).emit('checkTasks', cryptLibrary.encrypt({status:"false"}));
+
+                     try{
+                       console.log(result);
+                       if(result.length > 0){
+                         io.sockets.to(data.deviceid).emit('checkTasks', cryptLibrary.encrypt({status:"ok",result: result}));
+                       }else{
+                         io.sockets.to(data.deviceid).emit('checkTasks', cryptLibrary.encrypt({status:"false"}));
+                       }
+                     }catch(e){
+                       
                      }
+
 
 
                    });

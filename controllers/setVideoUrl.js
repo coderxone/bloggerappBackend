@@ -308,6 +308,8 @@ module.exports = function(io){
 
                    socket.join(deviceid);
 
+                   console.log(data)
+
                    //timeconverter.getunixMonth
                    //console.log(data);
                    var user_email = data.email;
@@ -316,36 +318,45 @@ module.exports = function(io){
 
                    multiple_db.query('SELECT * FROM `usersvideo` WHERE `user_email` = ? AND `status` = ?', [user_email,3], function (error, results, fields) {
 
-                     if(results.length > 0){
+                     if(results){
 
-                       for(var i = 0;i < results.length;i++){
-                         results[i].month = timeconverter.getunixMonth(results[i].date);
+                       if(results.length > 0){
 
-                         if(montharray.length > 0){
-                           var fix = 0;
-                           for(var j = 0;j < montharray.length;j++){
-                             if(montharray[j].month == results[i].month){
-                               fix = 1;
-                               monthcount[j] = monthcount[j] + 1;
+                         for(var i = 0;i < results.length;i++){
+                           results[i].month = timeconverter.getunixMonth(results[i].date);
+
+                           if(montharray.length > 0){
+                             var fix = 0;
+                             for(var j = 0;j < montharray.length;j++){
+                               if(montharray[j].month == results[i].month){
+                                 fix = 1;
+                                 monthcount[j] = monthcount[j] + 1;
+                               }
                              }
-                           }
 
-                           if(fix == 0){
+                             if(fix == 0){
+                               montharray.push(results[i]);
+                               monthcount.push(1);
+                             }
+                           }else{
                              montharray.push(results[i]);
                              monthcount.push(1);
                            }
-                         }else{
-                           montharray.push(results[i]);
-                           monthcount.push(1);
                          }
+
+                         io.sockets.in(data.deviceid).emit('checkAllBannedvideo', cryptLibrary.encrypt({status: 'ok',count:results.length,montharray:montharray,monthcount:monthcount,data:results}));
+                       }else{
+                         io.sockets.in(data.deviceid).emit('checkAllBannedvideo', cryptLibrary.encrypt({status: 'false'}));
                        }
 
-                       io.sockets.in(data.deviceid).emit('checkAllBannedvideo', cryptLibrary.encrypt({status: 'ok',count:results.length,montharray:montharray,monthcount:monthcount,data:results}));
                      }else{
                        io.sockets.in(data.deviceid).emit('checkAllBannedvideo', cryptLibrary.encrypt({status: 'false'}));
                      }
 
                        });
+
+
+
 
               });
 
