@@ -18,7 +18,7 @@ module.exports = function(io){
 
                 socket.join(deviceId);
 
-                db_multiple.query('SELECT * FROM Users WHERE role = ? ORDER BY raiting_stars DESC', [1], function (error, results, fields) {
+                db_multiple.query('SELECT * FROM Users WHERE role = ? AND verified = ? ORDER BY raiting_stars DESC', [1,1], function (error, results, fields) {
 
 
                   if(results.length > 0){
