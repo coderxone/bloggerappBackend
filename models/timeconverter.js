@@ -63,6 +63,14 @@ module.exports = {
 
    },
 
+   timeConverter_us_dateSimple:function(UNIX_timestamp){
+
+     var databaseTime = moment.unix(UNIX_timestamp).format("MM/DD/YYYY");
+
+     return databaseTime;
+
+   },
+
     timeConverter_us_time:function(UNIX_timestamp){
 
      return moment.unix(UNIX_timestamp).format("hh:mm A");

@@ -33,7 +33,7 @@ module.exports = function(io){
                   // connected!
                   //console.log(results);
                   for(var i = 0;i < results[0].length;i++){
-                    results[0][i].date = timeconverter.timeConverter_us_date(results[0][i].date);
+                    results[0][i].date = timeconverter.timeConverter_us_dateSimple(results[0][i].date);
                     results[0][i].time = timeconverter.timeConverter_us_time(results[0][i].time);
                   }
 

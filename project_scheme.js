@@ -80,9 +80,9 @@ setvideo --- setVideoUrl Controller  https://echohub.io/detail/96
 
                     style={{
                       shape: 'rect',
-                      color: 'white',
-                      layout: 'horizontal',
-                      label: 'paypal',
+                      color: 'blue',
+                      layout: 'vertical',
+                      label: 'paypal'
                     }}
                   />
 
@@ -111,7 +111,7 @@ setvideo --- setVideoUrl Controller  https://echohub.io/detail/96
 </script>
 
 
-//plan 50
+//plan 100
                   <div id="paypal-button-container-P-9CD531006F2107427ME6GE4Q"></div>
                   <script src="https://www.paypal.com/sdk/js?client-id=AQBizLLv9gVfG0uMcTMIDHqXhbviVFaAAi-bhlPDJbOaSsaudsPjSf88-ac-czpp9AR-FsqFaZUoUuEw&vault=true&intent=subscription" data-sdk-integration-source="button-factory"></script>
                   <script>
