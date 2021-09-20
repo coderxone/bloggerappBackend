@@ -268,22 +268,53 @@ module.exports = function(io){
                    //      "amount":amount
                    //    }
 
-                   multiple_db.query('UPDATE UsersData SET pay_status = ? WHERE id = ?', [1,insertId], function (error, results, fields) {
+
 
                     if(transactionData.type == "payment"){
-                        var insert  = {
-                          transactionId: transactionData.transactionId,
-                          orderId:transactionData.orderId,
-                          unix_time:timeLibrary.convertPayPalDateToUnix(transactionData.create_time),
-                          payerID:transactionData.payerID,
-                          email:transactionData.payerEmail,
-                          given_name:transactionData.given_name,
-                          surname:transactionData.surname,
-                          amount:transactionData.amount
-                        };
+
+                      multiple_db.query('UPDATE UsersData SET pay_status = ? WHERE id = ?', [1,insertId], function (error, results, fields) {
+
+                            var insert  = {
+                              transactionId: transactionData.transactionId,
+                              orderId:transactionData.orderId,
+                              unix_time:timeLibrary.convertPayPalDateToUnix(transactionData.create_time),
+                              payerID:transactionData.payerID,
+                              email:transactionData.payerEmail,
+                              given_name:transactionData.given_name,
+                              surname:transactionData.surname,
+                              amount:transactionData.amount
+                            };
 
 
-                        var query = multiple_db.query('INSERT INTO transactions SET ?', insert, function (error, results, fields) {
+                            var query = multiple_db.query('INSERT INTO transactions SET ?', insert, function (error, results, fields) {
+
+                              if(error){
+                                console.log(error);
+                              }
+
+                              io.sockets.in(data.deviceid).emit('setPaymentDb', cryptLibrary.encrypt({status:"ok"}));
+
+                            });
+
+                        });
+                    }else if(transactionData.type == "subscription"){
+
+                      multiple_db.query('UPDATE Users SET membership = ? WHERE email = ?', [1,email], function (error, results, fields) {
+
+                        let insert = {
+                          "insertId":insertId,
+                          "billingToken":transactionData.billingToken,
+                          "facilitatorAccessToken":transactionData.facilitatorAccessToken,
+                          "orderID":transactionData.orderID,
+                          "paymentID":transactionData.paymentID,
+                          "subscriptionID":transactionData.subscriptionID,
+                          "email":email,
+                          "amount":transactionData.amount,
+                          "date":timeLibrary.newUnixTimeNow()
+                        }
+                        //xxx
+
+                        var query = multiple_db.query('INSERT INTO paypal_subscriptions SET ?', insert, function (error, results, fields) {
 
                           if(error){
                             console.log(error);
@@ -292,37 +323,18 @@ module.exports = function(io){
                           io.sockets.in(data.deviceid).emit('setPaymentDb', cryptLibrary.encrypt({status:"ok"}));
 
                         });
-                    }else if(transactionData.type == "subscription"){
 
-                      let insert = {
-                        "insertId":insertId,
-                        "billingToken":transactionData.billingToken,
-                        "facilitatorAccessToken":transactionData.facilitatorAccessToken,
-                        "orderID":transactionData.orderID,
-                        "paymentID":transactionData.paymentID,
-                        "subscriptionID":transactionData.subscriptionID,
-                        "email":email,
-                        "amount":transactionData.amount,
-                        "date":timeLibrary.newUnixTimeNow()
-                      }
-                      //xxx
-
-                      var query = multiple_db.query('INSERT INTO paypal_subscriptions SET ?', insert, function (error, results, fields) {
-
-                        if(error){
-                          console.log(error);
-                        }
-
-                        io.sockets.in(data.deviceid).emit('setPaymentDb', cryptLibrary.encrypt({status:"ok"}));
 
                       });
+
+
 
                     }
 
 
 
 
-                   });
+
 
 
 

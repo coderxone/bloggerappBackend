@@ -77,9 +77,11 @@ module.exports = function(io){
                   db_multiple.query('SELECT * FROM `Users` WHERE email = ?',[checkemail], function (error, results, fields) {
 
                     let profileObj = results[0];
-//xxx
-                    profileObj.socialNetworks = Serialize.unserialize(profileObj.socialNetworks);
 
+                    if(profileObj.socialNetworks != null){
+                      profileObj.socialNetworks = Serialize.unserialize(profileObj.socialNetworks);
+                    }
+//xxx
                     io.sockets.in(deviceid).emit('getUserData',cryptLibrary.encrypt({result:profileObj}));
 
                   });
