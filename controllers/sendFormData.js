@@ -347,68 +347,93 @@ module.exports = function(io){
                    var data = cryptLibrary.decrypt(encrypt);
                    socket.join(data.deviceid);
                    var checkid = data.id;
+                   let type = data.type;
+                   let email = data.email;
 
-                   var montharray = new Array();//filtration copy
-                   var monthcount = new Array();//count array
+                   if(type == "payment"){
 
-                   multiple_db.query('SELECT * FROM UsersData WHERE pay_status = ? AND id = ?', [1,checkid], function (error, results, fields) {
+                         var montharray = new Array();//filtration copy
+                         var monthcount = new Array();//count array
 
-
-                     if(results.length > 0){
-
-                       for(var i = 0;i < results.length;i++){
-                         results[i].month = timeconverter.getunixMonth(results[i].date);
-                         var CurrentMonth = timeconverter.getcurrentMonth();
-
-                         var unixDate = timeconverter.getUnixDate(results[i].date);
-                         var currentDate = timeconverter.getcurrentDate();
-
-                         if(results[i].month == CurrentMonth){
-                           results[i].monthVerified = true;
-                         }else{
-                           results[i].monthVerified = false;
-                         }
-
-                         if(unixDate == currentDate){
-                           results[i].dateVerified = true;
-                         }else{
-                           results[i].dateVerified = false;
-                         }
+                         multiple_db.query('SELECT * FROM UsersData WHERE pay_status = ? AND id = ?', [1,checkid], function (error, results, fields) {
 
 
+                           if(results.length > 0){
 
-                         if(montharray.length > 0){
-                           var fix = 0;
-                           for(var j = 0;j < montharray.length;j++){
-                             if(montharray[j].month == results[i].month){
-                               fix = 1;
-                               monthcount[j] = monthcount[j] + 1;
+                             for(var i = 0;i < results.length;i++){
+                               results[i].month = timeconverter.getunixMonth(results[i].date);
+                               var CurrentMonth = timeconverter.getcurrentMonth();
+
+                               var unixDate = timeconverter.getUnixDate(results[i].date);
+                               var currentDate = timeconverter.getcurrentDate();
+
+                               if(results[i].month == CurrentMonth){
+                                 results[i].monthVerified = true;
+                               }else{
+                                 results[i].monthVerified = false;
+                               }
+
+                               if(unixDate == currentDate){
+                                 results[i].dateVerified = true;
+                               }else{
+                                 results[i].dateVerified = false;
+                               }
+
+
+
+                               if(montharray.length > 0){
+                                 var fix = 0;
+                                 for(var j = 0;j < montharray.length;j++){
+                                   if(montharray[j].month == results[i].month){
+                                     fix = 1;
+                                     monthcount[j] = monthcount[j] + 1;
+                                   }
+                                 }
+
+                                 if(fix == 0){
+                                   montharray.push(results[i]);
+                                   monthcount.push(1);
+                                 }
+                               }else{
+                                 montharray.push(results[i]);
+                                 monthcount.push(1);
+                               }
                              }
+
+                             //send push notification to every creator in the system about new request
+                             //checkid
+                             notificationBoxCentralMessages.sendNewTaskNotificationToAllBloggers(checkid);
+
+                             io.sockets.in(data.deviceid).emit('checkPayments', cryptLibrary.encrypt({status: 'ok',count:results.length,montharray:montharray,monthcount:monthcount,data:results}));
+
+                           }else{
+                             io.sockets.in(data.deviceid).emit('checkPayments', cryptLibrary.encrypt({status: 'false'}));
                            }
 
-                           if(fix == 0){
-                             montharray.push(results[i]);
-                             monthcount.push(1);
+                         });
+
+                   }else if(type == "subscription"){
+                     multiple_db.query('SELECT * FROM `Users` WHERE `email` = ? LIMIT 1', [email], function (error, results, fields) {
+
+                       if(results.length > 0){
+                                let res = results[0].membership;
+
+                                if(res == 1){
+                                  notificationBoxCentralMessages.sendHyperSingle('info@echohub.io','Congratulations! now you are member of new big comunity echohub.io!',email);
+                                  io.sockets.in(data.deviceid).emit('checkPayments', cryptLibrary.encrypt({status: 'ok',result:res}));
+                                }else{
+                                  io.sockets.in(data.deviceid).emit('checkPayments', cryptLibrary.encrypt({status: 'false',result:res}));
+                                }
+
+
+
                            }
-                         }else{
-                           montharray.push(results[i]);
-                           monthcount.push(1);
-                         }
-                       }
-
-                       //send push notification to every creator in the system about new request
-                       //checkid
-                       notificationBoxCentralMessages.sendNewTaskNotificationToAllBloggers(checkid);
-
-                       io.sockets.in(data.deviceid).emit('checkPayments', cryptLibrary.encrypt({status: 'ok',count:results.length,montharray:montharray,monthcount:monthcount,data:results}));
-
-                     }else{
-                       io.sockets.in(data.deviceid).emit('checkPayments', cryptLibrary.encrypt({status: 'false'}));
-                     }
 
 
+                         });
+                   }
 
-                   });
+
 
 
               });

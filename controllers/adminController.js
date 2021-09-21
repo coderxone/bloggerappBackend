@@ -69,6 +69,7 @@ module.exports = function(io){
                 var data = cryptLibrary.decrypt(encrypt);
 
                 var checkemail = data.checkEmail;
+                var email = data.email;
                 var deviceid = data.deviceid;
 
                 socket.join(deviceid);
