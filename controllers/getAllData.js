@@ -393,6 +393,152 @@ module.exports = function(io){
 
 
 
+              socket.on('getAllDataBusinessOrders', function (encrypt) {//role 1 for employeer
+                // lat:this.latitude,
+                // long:this.longitude,
+                //console.log(data);
+                var data = cryptLibrary.decrypt(encrypt);
+
+                var deviceId = data.deviceId;
+                var role = 2; //show promote records
+                var email = data.email;
+                var gps = data.gps;
+
+                console.log(data)
+
+                if(email == ''){
+                  return false;
+                }
+
+                socket.join(deviceId);
+
+
+
+//insert date 7 days
+//when done or rejected
+//create story reject and create done tasks
+//and date for local search
+//add task counter with limit in UsersData
+
+
+                function searchWithoutLocation(){
+                                                  //0                                                                                                            //1                                   //2                                             //3
+                    db_multiple.query('SELECT UsersData.date,UsersData.description, UsersData.email,UsersData.sum,UsersData.time,UsersData.status,UsersData.url,UsersData.location_name,UsersData.location_points,UsersData.peoplecount,UsersData.pay_status,UsersData.lat,UsersData.lng,UsersData.priority,UsersData.approvetask,UsersData.gps,UsersData.companyName,UsersData.type,UsersData.videourl,UsersData.automatic,Users.image_url FROM UsersData INNER JOIN Users ON UsersData.email = Users.email WHERE UsersData.role = ? AND UsersData.pay_status = 1 AND UsersData.status = 1 AND UsersData.gps = 2 ORDER BY priority DESC; SELECT * FROM `Users` WHERE email = ?;SELECT * FROM `complete_task` WHERE `user_email` = ?;SELECT * FROM `UserApproveTasks` ORDER BY priority DESC;SELECT * FROM `complete_approve_task` WHERE `user_email` = ?;SELECT * FROM `rejected_task` WHERE `user_email` = ?;SELECT execute_day FROM `appParams`;',[role,email,email,email,email], function (error, results, fields) {
+
+
+            //check user approve status
+              var approve_status = results[1][0].approvestatus;
+              var execute_day = results[6][0].execute_day;
+              //check user approve status
+                  //task main model
+                  var jObject;
+
+                  //if(approve_status == 1){
+
+                      for(var i = 0;i < results[0].length;i++){
+                        results[0][i].date = timeconverter.timeConverter_us_date(results[0][i].date,execute_day);
+                        results[0][i].time = timeconverter.timeConverter_us_time(results[0][i].time);
+                      }
+
+                      var deleteArray = new Array();
+
+                        //find and add done task
+                        for(var u = 0;u < results[2].length;u++){
+                          for(var h = 0;h < results[0].length;h++){
+                            if(results[0][h].id == results[2][u].task_id){
+                              deleteArray.push(results[0][h].id);
+                            }
+                          }
+                        }
+                        //find done task
+
+                        //find and add rejected tasks
+                        //console.log(error);
+                        for(var ux = 0;ux < results[5].length;ux++){
+                          for(var hx = 0;hx < results[0].length;hx++){
+                            if(results[0][hx].id == results[5][ux].task_id){
+
+                              var searchFromDelete = 0;
+                              deleteArray.map((element) => {
+                                if(element == results[0][hx].id){
+                                  searchFromDelete = 1;
+                                }
+                              });
+
+                              if(searchFromDelete == 0){
+                                deleteArray.push(results[0][hx].id);
+                              }
+
+                            }
+                          }
+                        }
+                        //find and add rejected tasks
+
+                        //create new find array without completed task
+                        var newsendarray = new Array();
+                        //deleting from array
+
+
+                        for(var b = 0;b < results[0].length;b++){
+
+                          var fixf = 0;
+
+                          for(var l = 0;l < deleteArray.length;l++){
+                            if(results[0][b].id == deleteArray[l]){
+                                fixf = 1;
+                            }
+                          }
+                          if(fixf == 0){
+                            if(newsendarray.length < 1){ //only 1 task
+                              newsendarray.push(results[0][b]);
+                            }
+
+                          }
+                        }
+
+
+                        if(deleteArray.length > 0){
+                              jObject = {
+                                sdata:newsendarray,
+                                userdata:results[1],
+                                message:data.message,
+                                findtask:results[2],
+                                approvestatus:1,
+                                status:"ok",
+                                gps:gps,
+                              };
+                          }else{
+                              jObject = {
+                                sdata:results[0],
+                                userdata:results[1],
+                                message:data.message,
+                                findtask:results[2],
+                                approvestatus:1,
+                                status:"ok",
+                                gps:gps,
+                              };
+                          }
+                          //console.log("searchAll");
+                          io.sockets.in(deviceId).emit('getAllDataBusinessOrders', cryptLibrary.encrypt(jObject));
+
+
+
+
+
+
+                    });
+
+
+                }
+
+
+                  searchWithoutLocation();
+
+
+              });
+
+
+
               socket.on('getAllDataTask', function (encrypt) {//role 1 for employeer
                 // lat:this.latitude,
                 // long:this.longitude,
