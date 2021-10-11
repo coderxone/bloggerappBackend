@@ -68,6 +68,7 @@ module.exports = function(io){
 
                 var data = cryptLibrary.decrypt(encrypt);
 
+                console.log(data)
                 var checkemail = data.checkEmail;
                 var email = data.email;
                 var deviceid = data.deviceid;

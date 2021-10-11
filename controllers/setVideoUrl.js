@@ -379,7 +379,7 @@ module.exports = function(io){
                    var monthcount = new Array();//count array
                     //console.log(project_id);
 
-                   multiple_db.query('SELECT Users.raiting_stars, Users.approvestatus,Users.online,Users.image_url, usersvideo.id,usersvideo.url,usersvideo.project_id,usersvideo.user_email,usersvideo.date,usersvideo.status,usersvideo.type FROM Users INNER JOIN usersvideo ON usersvideo.user_email = Users.email WHERE usersvideo.project_id = ? AND usersvideo.status = ? OR usersvideo.project_id = ? AND usersvideo.status = ?;SELECT * FROM social_network_list;', [project_id,2,project_id,1], function (error, results, fields) {
+                   multiple_db.query('SELECT Users.raiting_stars, Users.approvestatus,Users.online,Users.image_url, usersvideo.id,usersvideo.url,usersvideo.project_id,usersvideo.user_email,usersvideo.date,usersvideo.status,usersvideo.type,uniquenames.verifiedDays, uniquenames.status AS uniquenames_status FROM Users INNER JOIN usersvideo ON usersvideo.user_email = Users.email INNER JOIN uniquenames ON uniquenames.project_id = usersvideo.project_id WHERE usersvideo.project_id = ? AND usersvideo.status = ? OR usersvideo.project_id = ? AND usersvideo.status = ? OR usersvideo.project_id = ? AND usersvideo.status = ?;SELECT * FROM social_network_list;', [project_id,2,project_id,1,project_id,3], function (error, results, fields) {
 
                       if(error){
                         return false;
