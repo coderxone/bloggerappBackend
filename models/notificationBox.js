@@ -101,6 +101,54 @@ module.exports = {
 
               return "ok";
       },
+      
+      
+      sendHyperSingleByProjectIdFromBusinessToCreator:function(projectId,title,htmlmessage,cleanmessage,url){
+
+
+              let toUser = "";
+
+              const sendMessage = async (title,htmlmessage,toUser) => {
+                   await notificationModel.sendMessage(title,htmlmessage,toUser).then(function(result) {
+
+                      console.log(result.response);
+
+                  });
+              };
+
+
+
+              const sendFirebasetoSingleAndroid = async (title,cleanmessage,toUser) => {
+                   await notificationModel.sendFPMtoSingle(toUser,title,cleanmessage,"new message","new message").then(function(result) {
+
+                      console.log(result);
+
+                  });
+              };
+
+
+
+              const sendWebFirebasetoSingle = async (toUser,title,cleanmessage,domainName) => {
+                   await notificationModel.sendWebFPMtoSingle(toUser,title,cleanmessage,domainName).then(function(result) {
+
+                      console.log(result);
+
+                  });
+              };
+
+
+
+              helper.getUserEmailByProjectIdFromVideo(projectId).then(res => {
+                let email = res.user_email;
+
+                sendMessage(title,htmlmessage,email);
+                sendFirebasetoSingleAndroid(title,cleanmessage,email);
+                sendWebFirebasetoSingle(email,title,cleanmessage,url);
+
+              })
+
+              return "ok";
+      },
 
       sendAllHyper:function(title,htmlmessage,cleanmessage,EmailArray){
 

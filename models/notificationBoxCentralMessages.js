@@ -9,6 +9,10 @@ const exp = {
      sendHyperSingleByProjectId:function(project_id,email){
         notificationBox.sendHyperSingleByProjectId(project_id,"new post from user " + email,"<a href=" + "echohub.io/detail/" + project_id + ">" + "new post, check your progress in detail by clicking this url" + "</a>","new post from user " + email + " check your progress in detail","echohub.io/detail/" + project_id);
      },
+      //sending message from business to creator by ID
+     sendCreatorHyperSingleByProjectId:function(project_id,email){
+        notificationBox.sendHyperSingleByProjectIdFromBusinessToCreator(project_id,"user " + email + " requested to change video publication go to detail page for details","<a href=" + "echohub.io/mdetailtask/" + project_id + "> user" + email + " requested to change video publication go to detail page for details click this url" + "</a>","business owner with " + email + " requested to change video publication go to detail page for details","echohub.io/mdetailtask/" + project_id);
+     },
 
      sendHyperSingle:(fromEmail,message,toEmail) => {
        notificationBox.sendHyperSingle("new message from " + fromEmail,"<a href='echohub.io'>" + message + "</a>",message,toEmail);

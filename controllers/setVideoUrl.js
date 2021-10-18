@@ -6,6 +6,7 @@ var timeLibrary = require("../models/timeconverter.js");
 let systemCoreLogics = require('../models/systemCoreLogics.js');
 let notificationBox = require('../models/notificationBox.js');
 let notificationBoxCentralMessages = require('../models/notificationBoxCentralMessages.js');
+const { response } = require('express');
 
 module.exports = function(io){
 
@@ -32,19 +33,44 @@ module.exports = function(io){
                             io.sockets.in(deviceid).emit('setvideo', cryptLibrary.encrypt({status: 'exist'}));
                          }else{
 
-
                             //notification part
                             notificationBoxCentralMessages.sendHyperSingleByProjectId(project_id,user_email);
                             //notification part
 
                             //database updating part
-                             var insert  = { url: url,	project_id:	project_id,user_email:user_email,date:date,status:action,type:videotype};
+                            const insertVideo = (obj) => {
+                              return new Promise(resolve => {
+                                var query = multiple_db.query('INSERT INTO usersvideo SET ?', insert, function (error, results, fields) {
 
-                             var query = multiple_db.query('INSERT INTO usersvideo SET ?', insert, function (error, results, fields) {
+                                    resolve(obj);
+   
+                                });
+                              });
+                            }
 
-                               io.sockets.in(deviceid).emit('setvideo', cryptLibrary.encrypt({status: 'inserted',videotype:videotype}));
+                            const updateStatus = (obj) => {
 
-                             });
+                              return new Promise(resolve => {
+                                  multiple_db.query('UPDATE uniquenames SET status = ? WHERE project_id = ? AND user_email = ?', [2,obj.project_id,obj.user_email], function (error, results, fields) {
+                                      resolve("ok");
+                                  });
+                              });
+                              
+                            }
+
+                            const Stepper = async (obj) => {
+                                const first = await insertVideo(obj);
+                                const second = await updateStatus(first);
+                                return second;
+                            }
+
+                            var insert  = { url: url,	project_id:	project_id,user_email:user_email,date:date,status:action,type:videotype};
+
+                            Stepper(insert).then(response => {
+                              io.sockets.in(deviceid).emit('setvideo', cryptLibrary.encrypt({status: 'inserted',videotype:videotype}));
+                            });
+
+                             
                              //push_not
                          }
                          //
@@ -178,7 +204,7 @@ module.exports = function(io){
                    var montharray = new Array();//filtration copy
                    var monthcount = new Array();//count array
 
-                   multiple_db.query('SELECT * FROM `usersvideo` WHERE `project_id` = ? AND `user_email` = ? AND `status` = ?', [project_id,user_email,1], function (error, results, fields) {
+                   multiple_db.query('SELECT * FROM `usersvideo` WHERE `project_id` = ? AND `user_email` = ? AND (`status` = ? OR `status` = ?)', [project_id,user_email,1,2], function (error, results, fields) {
 
                      if(results.length > 0){
 
@@ -227,8 +253,7 @@ module.exports = function(io){
                    var project_id = data.project_id;
                    var user_email = data.email;
 
-
-                   multiple_db.query('SELECT UsersData.id, UsersData.date,UsersData.description,UsersData.email,UsersData.time,UsersData.sum,UsersData.pay_status,UsersData.peoplecount,UsersData.subscribers,UsersData.url,UsersData.location_name,UsersData.location_points,UsersData.peoplecount,UsersData.countvideo,UsersData.lat,UsersData.lng,UsersData.gps,UsersData.famous,uniquenames.project_id,uniquenames.user_email,uniquenames.status,uniquenames.hash,uniquenames.verifiedDays FROM uniquenames INNER JOIN UsersData ON uniquenames.project_id = UsersData.id WHERE uniquenames.user_email = ? AND uniquenames.project_id ORDER BY uniquenames.project_id DESC LIMIT 1;SELECT execute_day FROM `appParams`;', [user_email,project_id], function (error, results, fields) {
+                   multiple_db.query("SELECT  UsersData.id ,  UsersData.date , UsersData.description , UsersData.email , UsersData.time , UsersData.sum , UsersData.pay_status , UsersData.peoplecount , UsersData.subscribers , UsersData.url , UsersData.location_name , UsersData.location_points , UsersData.peoplecount , UsersData.countvideo , UsersData.lat , UsersData.lng , UsersData.gps , UsersData.famous , uniquenames.project_id , uniquenames.user_email , uniquenames.status , uniquenames.hash , uniquenames.verifiedDays  FROM  uniquenames  INNER JOIN  UsersData  ON  uniquenames.project_id  =  UsersData.id  WHERE  uniquenames.user_email  = ? AND  uniquenames.project_id  = ?;SELECT execute_day FROM appParams;", [user_email,project_id], function (error, results, fields) {
 
                           var executeDay = results[1][0].execute_day;
 
@@ -640,7 +665,6 @@ module.exports = function(io){
               });
 
 
-
               socket.on('setBan', function (encrypt) {
 
                    var data = cryptLibrary.decrypt(encrypt);
@@ -650,8 +674,11 @@ module.exports = function(io){
                    //console.log(data);
                    var update_id = data.id;
                    var projectId = data.projectId;
+                   let email = data.email;
 
                    multiple_db.query('UPDATE usersvideo SET status = ? WHERE id = ?;UPDATE uniquenames SET status = ? WHERE project_id = ?;', [3,update_id,1,projectId], function (error, results, fields) {
+                        //send notification to creator from business
+                        notificationBoxCentralMessages.sendCreatorHyperSingleByProjectId(projectId,email);
 
                        io.sockets.in(data.deviceid).emit('setBan', cryptLibrary.encrypt({status: 'ok'}));
 

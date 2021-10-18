@@ -74,6 +74,15 @@ module.exports = {
               });
         });
       },
+      getUserEmailByProjectIdFromVideo:(project_id) => {
+        return new Promise(resolve => {
+          multiple_db.query('SELECT `user_email` FROM `usersvideo` WHERE `project_id` = ?', [project_id], function (error, results, fields) {
+
+              resolve(results[0]);
+
+              });
+        });
+      },
 
       closeCreatorTask:(projectId,email) => {
         multiple_db.query('UPDATE uniquenames SET status = ? WHERE user_email = ? AND project_id = ?', [5,email,projectId], function (error, results, fields) {
