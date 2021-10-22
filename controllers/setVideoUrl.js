@@ -333,7 +333,7 @@ module.exports = function(io){
 
                    socket.join(deviceid);
 
-                   console.log(data)
+                   //console.log(data)
 
                    //timeconverter.getunixMonth
                    //console.log(data);
