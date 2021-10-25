@@ -2,11 +2,11 @@ var multiple_db = require('../config/multiple_mysql.js');
 var formHelper = require("../models/formHelpers.js");
 var timeconverter = require("../models/timeconverter.js");
 var cryptLibrary = require("../models/cryptLibrary.js");
-var timeLibrary = require("../models/timeconverter.js");
 let systemCoreLogics = require('../models/systemCoreLogics.js');
 let notificationBox = require('../models/notificationBox.js');
 let notificationBoxCentralMessages = require('../models/notificationBoxCentralMessages.js');
 const { response } = require('express');
+const { timeConverter } = require('../models/timeconverter.js');
 
 module.exports = function(io){
 
@@ -483,6 +483,38 @@ module.exports = function(io){
                        io.sockets.in(data.deviceid).emit('checkvideoByProject', cryptLibrary.encrypt({status: 'ok',count:results[0].length,montharray:montharray,monthcount:monthcount,data:filtratedArray,taskList:results[1]}));
                      }else{
                        io.sockets.in(data.deviceid).emit('checkvideoByProject', cryptLibrary.encrypt({status: 'false'}));
+                     }
+
+                       });
+
+              });
+              
+              
+              socket.on('lastCreatorPosts', function (encrypt) {
+
+
+                   var data = cryptLibrary.decrypt(encrypt);
+                   var deviceid = data.deviceid;
+
+                   socket.join(deviceid);
+                   //console.log(data);
+
+                  
+                   multiple_db.query('SELECT Users.raiting_stars, Users.firstName,Users.lastName,Users.name,Users.email,Users.role,Users.online,Users.subscribers_count,Users.raiting_stars,Users.number_of_task,Users.country,Users.age, Users.approvestatus,Users.online,Users.image_url, usersvideo.id,usersvideo.url,usersvideo.project_id,usersvideo.user_email,usersvideo.date,usersvideo.status,usersvideo.type FROM Users INNER JOIN usersvideo ON usersvideo.user_email = Users.email ORDER BY usersvideo.id DESC;', function (error, results, fields) {
+  
+                      if(error){
+                        return false;
+                      }
+
+                     if(results.length > 0){
+                      
+                        for(let i = 0;i < results.length;i++){
+                          results[i].postedTime = timeconverter.countPassedTimeFromUnix(results[i].date);
+                        }
+
+                       io.sockets.in(data.deviceid).emit('lastCreatorPosts', cryptLibrary.encrypt({status: 'ok',data:results}));
+                     }else{
+                       io.sockets.in(data.deviceid).emit('lastCreatorPosts', cryptLibrary.encrypt({status: 'false'}));
                      }
 
                        });

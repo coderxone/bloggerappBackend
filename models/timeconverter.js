@@ -4,8 +4,7 @@ var moment = require('moment-timezone');
 var rx = require('rxjs');
 
 
-module.exports = {
-
+const currentModule = {
 
 
      timeConverter:function(UNIX_timestamp){
@@ -62,6 +61,7 @@ module.exports = {
      return databaseTime;
 
    },
+
 
    timeConverter_us_dateSimple:function(UNIX_timestamp){
 
@@ -146,11 +146,55 @@ module.exports = {
 
     },
 
+    converUnixTojsTimeByObj:function(UNIX_timestamp){
+
+      var a = new Date(UNIX_timestamp  * 1000);
+      var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      var year = a.getFullYear();
+      var month = months[a.getMonth()];
+      var date = a.getDate();
+      var hour = a.getHours();
+      var min = a.getMinutes();
+      var sec = a.getSeconds();
+      //var time = date + ' ' + month + ' ' + year + ' ' + hour + ':' + min + ':' + sec ;
+      var timeObj = {
+        date:date,
+        month:month,
+        year:year,
+        hour:hour,
+        min:min,
+        sec:sec
+      }
+
+      return timeObj;
+
+    },
+
     getUnixfromDate_Time:function(value){
 
        return moment(value, "MM/dd/yyyy HH:mm:ss").unix();
 
      },
+
+     //xxx
+    countPassedTimeFromUnix:function(UNIX_timestamp){
+
+      //count current time
+      const currentTime = currentModule.getUnixtime();
+      const currentConvertedTime = currentModule.converUnixTojsTimeByObj(currentTime);
+      //count current time
+
+      //count passed time 
+      const passedTime = currentModule.converUnixTojsTimeByObj(UNIX_timestamp);
+
+      //count different time
+      //const days = currentConvertedTime.date - passedTime.date;
+      const hours = currentConvertedTime.hour - passedTime.hour;
+      //const mins = currentConvertedTime.min - passedTime.min;
+      
+      return hours;
+ 
+    },
 
     getUnixtime:function(){
 
@@ -239,3 +283,5 @@ module.exports = {
 
 
 }
+
+module.exports = currentModule;
