@@ -353,6 +353,10 @@ module.exports = function(io){
 
           //  systemCoreLogicsPrice.updateDataCentralPrice();
 
+          notificationBoxCentralMessages.sendNotificationToAllBloggersToCompleteProfile();
+
+
+
 
         }
 

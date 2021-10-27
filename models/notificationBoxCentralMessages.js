@@ -46,6 +46,7 @@ const exp = {
        notificationBox.sendHyperSingle(message,"<a href='echohub.io/mdetailtask/" + project_id + "'>" + message + "</a>",message,currentEmail);
      },
 
+     //sending notification about the task
      sendNewTaskNotificationToAllBloggers:(id) => {
 
            let companyName = async (id) => {
@@ -111,6 +112,76 @@ const exp = {
 
 
      },
+
+     sendNotificationToAllBloggersToCompleteProfile:() => {
+
+          const findBloggers = async () => {
+            return new Promise(resolve => {
+
+              multiple_db.query('SELECT id, email, email_confirmed, points, verified, firstName, lastName, phone, link,	image_url, socialNetworks  FROM Users WHERE role = ?', [1], function (error, results, fields) {
+
+                    resolve(results);
+              
+              });
+
+            });
+          }
+          //analyse data
+          const notifierLogic = async (list) => {
+            return new Promise(resolve => {
+
+              let generateNotification = [];
+              //check link if generated
+              for(let i = 0;i < list.length;i++){
+
+                  let initNotificationObject = {
+                    id:list[i].id,
+                    email:list[i].email,
+                    sendEmailConfirmation:false,
+                    completeRegistration:false,
+                    completeProfileFirstName:false,
+                    completeProfileLastName:false,
+                    completeProfileImage:false
+                  };
+
+                  if(list[i].link != '0' && list[i].email_confirmed == 0){
+                    initNotificationObject.sendEmailConfirmation = true;
+                  }
+                  if(list[i].socialNetworks == null){
+                    initNotificationObject.completeRegistration = true;
+                  }
+                  if(list[i].firstName == 0){
+                    initNotificationObject.completeProfileFirstName = true;
+                  }
+                  if(list[i].lastName == 0){
+                    initNotificationObject.completeProfileLastName = true;
+                  }
+                  if(list[i].image_url == 'no-image.png' || list[i].image_url == '0'){
+                    initNotificationObject.completeProfileImage = true;
+                  }
+
+                  generateNotification.push(initNotificationObject);
+                  
+              }
+
+              resolve(generateNotification);
+
+            });
+          }
+
+          const stepper = async () => {
+            let foundBloggers = await findBloggers();
+            let notifierList = await notifierLogic(foundBloggers);
+            return notifierList;
+          }
+
+          stepper().then(response => {
+              console.log(response);
+          });
+
+     },
+
+
 
 
 
