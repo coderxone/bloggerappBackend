@@ -1,7 +1,8 @@
-
 let notificationBox = require('../models/notificationBox.js');
 var multiple_db = require('../config/multiple_mysql.js');
 var NotificationEmailTemplate = require('../models/emailTemplatesModels/NotificationEmailTemplate.js');
+var ActionEmailTemplate = require('../models/emailTemplatesModels/ActionEmailTemplate.js');
+let LocalizeComponent = require('../localization/localization.js');
 
 const exp = {
 
@@ -104,7 +105,7 @@ const exp = {
 
            stepper(id).then(result => {
              let template = NotificationEmailTemplate.template_1("notification from echohub.io: new task to post video from " + result.companyName);
-
+              
              notificationBox.sendAllHyperToArrayToken("notification from echohub.io: new task to post video from " + result.companyName,template, "new task from " + result.companyName,result.bloggerList.emails,result.bloggerList.webtokens,result.bloggerList.firebaseTokens);
            })
 
@@ -115,10 +116,11 @@ const exp = {
 
      sendNotificationToAllBloggersToCompleteProfile:() => {
 
+      
           const findBloggers = async () => {
             return new Promise(resolve => {
 
-              multiple_db.query('SELECT id, email, email_confirmed, points, verified, firstName, lastName, phone, link,	image_url, socialNetworks  FROM Users WHERE role = ?', [1], function (error, results, fields) {
+              multiple_db.query('SELECT id, email, email_confirmed, points, verified, firstName, lastName, phone, link,	image_url, socialNetworks,country  FROM Users WHERE role = ?', [1], function (error, results, fields) {
 
                     resolve(results);
               
@@ -138,26 +140,41 @@ const exp = {
                     id:list[i].id,
                     email:list[i].email,
                     sendEmailConfirmation:false,
+                    country:'',
+                    emailConfirmationLink:'',
                     completeRegistration:false,
                     completeProfileFirstName:false,
                     completeProfileLastName:false,
-                    completeProfileImage:false
+                    completeProfileImage:false,
+                    status:false,
                   };
+
 
                   if(list[i].link != '0' && list[i].email_confirmed == 0){
                     initNotificationObject.sendEmailConfirmation = true;
+                    initNotificationObject.emailConfirmationLink = list[i].link;
+                    initNotificationObject.status = true;
                   }
+
+                  if(list[i].country != 0){
+                    initNotificationObject.country = list[i].country;
+                  }
+                  
                   if(list[i].socialNetworks == null){
                     initNotificationObject.completeRegistration = true;
+                    initNotificationObject.status = true;
                   }
                   if(list[i].firstName == 0){
                     initNotificationObject.completeProfileFirstName = true;
+                    initNotificationObject.status = true;
                   }
                   if(list[i].lastName == 0){
                     initNotificationObject.completeProfileLastName = true;
+                    initNotificationObject.status = true;
                   }
                   if(list[i].image_url == 'no-image.png' || list[i].image_url == '0'){
                     initNotificationObject.completeProfileImage = true;
+                    initNotificationObject.status = true;
                   }
 
                   generateNotification.push(initNotificationObject);
@@ -168,16 +185,79 @@ const exp = {
 
             });
           }
+          
+          
+          
+          const LiGenerator = async (objArray) => {
+            return new Promise(resolve => {
+
+
+              for(let i = 0;i < objArray.length;i++){
+                let collector = '';
+
+                if(objArray[i].status){
+                    if(objArray[i].sendEmailConfirmation){
+                      collector += '<li style="padding-bottom:4px"><a  target="_blank" href="https://echohub.io/confirm/' + objArray[i].emailConfirmationLink + '">Please confirm your email</a></li>';
+                    }
+                    if(objArray[i].completeRegistration){
+                      collector += '<li style="padding-bottom:4px"><a  target="_blank" href="echohub.io/login"> Please complete registration</a></li>';
+                    }
+                    if(objArray[i].completeProfileFirstName){
+                      collector += '<li style="padding-bottom:4px"><a  target="_blank" href="echohub.io/login">Please fill out First name</a></li>';
+                    }
+                    if(objArray[i].completeProfileLastName){
+                      collector += '<li style="padding-bottom:4px"><a  target="_blank" href="echohub.io/login">Please fill out Last name</a></li>';
+                    }
+                    if(objArray[i].completeProfileImage){
+                      collector += '<li style="padding-bottom:4px"><a  target="_blank" href="echohub.io/login">Please download Profile image</a></li>';
+                    }
+    
+                    objArray[i].liTag = ActionEmailTemplate.activationTemplate(objArray[i].email,collector);
+                }
+                
+              }
+  
+              resolve(objArray);
+
+            });
+          }
+          
+          const SendToMass = async (objArray) => {
+            return new Promise(resolve => {
+
+
+              for(let i = 0;i < objArray.length;i++){
+
+                if(objArray[i].status){
+                  notificationBox.sendHyperSingle("Notification from echohub.io: actions required ",objArray[i].liTag,"Notification from echohub.io: actions required ",objArray[i].email);
+                  objArray[i].messageStatus = "sended";
+                }else{
+                  objArray[i].messageStatus = "not";
+                }
+                
+              }
+  
+              resolve(objArray);
+
+            });
+          }
+
+
 
           const stepper = async () => {
             let foundBloggers = await findBloggers();
             let notifierList = await notifierLogic(foundBloggers);
-            return notifierList;
+            let notifierListWithTemplate = await LiGenerator(notifierList);
+            let finalRes = await SendToMass(notifierListWithTemplate);
+            return finalRes;
           }
 
           stepper().then(response => {
-              console.log(response);
-          });
+            //https://echohub.io/confirm/jeVrNH45vQr2SVyfsqgyct
+              console.log("daily notifications sended");
+              //ReactDOMServer
+              
+            });
 
      },
 

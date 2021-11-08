@@ -307,6 +307,7 @@ module.exports = function(io){
           timeconverter.run_every_day_at8am(7,10).then(res => {
               instagramCore.countDays();
               systemCoreLogicsPrice.updateDataCentralPrice();
+              notificationBoxCentralMessages.sendNotificationToAllBloggersToCompleteProfile();
           })//hour,minute
         }
 
@@ -353,7 +354,7 @@ module.exports = function(io){
 
           //  systemCoreLogicsPrice.updateDataCentralPrice();
 
-          notificationBoxCentralMessages.sendNotificationToAllBloggersToCompleteProfile();
+          //notificationBoxCentralMessages.sendNotificationToAllBloggersToCompleteProfile();
 
 
 
