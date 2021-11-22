@@ -1,9 +1,9 @@
 var db_multiple = require('../config/multiple_mysql.js');
-var request = require('request');
 var cryptLibrary = require("../models/cryptLibrary.js");
 var FormHelper = require("../models/formHelpers.js");
 var Serialize = require('php-serialize');
 let systemCoreLogicsPrice = require('../models/systemCoreLogicsPrice.js');
+var timeconverter = require("../models/timeconverter.js");
 
 module.exports = function(io){
 
@@ -264,6 +264,80 @@ module.exports = function(io){
 
                     });
 
+              });
+              
+              
+              socket.on('addNews', function (encrypt) {
+
+                var data = cryptLibrary.decrypt(encrypt);
+
+                var deviceid = data.deviceid;
+                let email = data.email;
+
+                socket.join(deviceid);
+                
+                let date = timeconverter.getUnixtime();
+                let text = "example text";
+
+                var insert  = { date: date,description:text,email:email};
+
+                var query = db_multiple.query('INSERT INTO news SET ?', insert, function (error, results, fields) {
+                  if (error) throw error;
+
+                  let insertId = results.insertId;
+                  io.sockets.in(deviceid).emit('addNews',cryptLibrary.encrypt({status:"ok",id:insertId}));
+
+                });
+
+              });
+
+              socket.on('updateNewsData', function (encrypt) {
+
+                var data = cryptLibrary.decrypt(encrypt);
+
+                var deviceid = data.deviceid;
+                let email = data.email;
+                let obj = data.obj;
+
+                socket.join(deviceid);
+                
+                let date = timeconverter.getUnixtime();
+
+                let insertArray = [
+                  date,
+                  FormHelper.cleanString(obj.title),
+                  FormHelper.cleanString(obj.description),
+                  FormHelper.cleanString(obj.category),
+                  obj.id
+                ];
+
+                db_multiple.query('UPDATE news SET date = ?,title = ?,description = ?,category = ? WHERE id = ?', insertArray, function (error, results, fields) {
+
+                  console.log(error)
+                
+                });
+
+              });
+              
+              socket.on('requestNewsData', function (encrypt) {
+
+                var data = cryptLibrary.decrypt(encrypt);
+
+                var deviceid = data.deviceid;
+                let id = data.id;
+
+                socket.join(deviceid);
+                
+                db_multiple.query('SELECT * FROM `news` WHERE `id` = ?', [id], function (error, results, fields) {
+
+                  if(results.length > 0){
+                    
+                    results[0].date = timeconverter.countPassedTimeFromUnix(results[0].date);
+                    
+                    io.sockets.in(deviceid).emit('requestNewsData',cryptLibrary.encrypt({status:"ok",results:results}));
+                  }
+                
+                });
 
 
               });
