@@ -206,6 +206,81 @@ module.exports = {
 
 
     },
+     
+    
+    
+    sendToAllMessageFromDB:async function(title,message){
+
+       return new Promise(function(resolve, reject) {
+         //promise
+
+         multiple_db.query('SELECT email FROM `Users`', function (error, results, fields) {
+
+              let UserArray = [];
+
+              for(let i = 0;i < results.length;i++){
+
+                UserArray.push(results[i].email);
+
+              }
+
+              if(UserArray.length > 0){
+
+                var mailOptions = {
+                    from: 'info@echohub.io',
+                    to: UserArray,
+                    subject: title,
+                    text: message,
+                    html: message
+                }
+    
+                const connectMail = async () => {
+    
+                     var transporter = nodemailer.createTransport({
+                         host:'smtp.gmail.com',
+                         port:465,
+                         secure:true,
+                         auth: {
+                           type:'OAuth2',
+                           user: 'info@echohub.io',
+                           serviceClient:serviceGmailAccount.client_id,
+                           privateKey:serviceGmailAccount.private_key
+                         }
+                       });
+    
+                       await transporter.verify();
+                       await transporter.sendMail(mailOptions, function (err, res) {
+                           if(err){
+                               //console.log(err);
+                               console.log(err);
+                           } else {
+                             console.log(res);
+    
+                           }
+                       })
+    
+                     }
+    
+    
+                     connectMail().then(response => {
+                       resolve("ok");
+                     });
+    
+    
+    
+              }
+    
+    
+              resolve("ok");
+
+          });
+          
+
+          //promise
+        });
+
+
+    },
 
 
      sendFPMtoSingle:async function(sendemail,title,body,dopmessageone,dopmessagetwo){
@@ -273,7 +348,7 @@ module.exports = {
 
      sendFPMtoAllUsers:async function(title,body,dopmessageone,dopmessagetwo){
 
-       return new Promise(function(resolve, reject) {
+       return new Promise(function(resolve) {
          //promise
 
          multiple_db.query('SELECT * FROM `Users`', function (error, results, fields) {
@@ -289,28 +364,34 @@ module.exports = {
                         }
 
                     }
+                    
+                    if(registrationToken.length > 0){
+                      var message = {
+                        notification:{
+                          title:title,
+                          body:body
+                        },
+                         data: {
+                           variableone: dopmessageone,
+                           variabletwo: dopmessagetwo
+                         },
+                         tokens: registrationToken
+                       };
 
-                    var message = {
-                            notification:{
-                              title:title,
-                              body:body
-                            },
-                             data: {
-                               variableone: dopmessageone,
-                               variabletwo: dopmessagetwo
-                             },
-                             tokens: registrationToken
-                           };
+                       admin.messaging().sendMulticast(message)
+                         .then((response) => {
+                           // Response is a message ID string.
+                           resolve(response);
+                           console.log('Successfully sent message:', response);
+                         })
+                         .catch((error) => {
+                           console.log('Error sending message:', error);
+                         });
+                    }else{
+                      return false;
+                    }
 
-                           admin.messaging().sendMulticast(message)
-                             .then((response) => {
-                               // Response is a message ID string.
-                               resolve(response);
-                               console.log('Successfully sent message:', response);
-                             })
-                             .catch((error) => {
-                               console.log('Error sending message:', error);
-                             });
+                    
 
 
                }
@@ -428,53 +509,52 @@ module.exports = {
 
      sendWebFPMtoAllUsers:async function(title,body,url){
 
-       return new Promise(function(resolve, reject) {
+       return new Promise(function(resolve) {
          //promise
 
-         multiple_db.query('SELECT * FROM `Users`', function (error, results, fields) {
+            multiple_db.query('SELECT * FROM `Users`', function (error, results, fields) {
 
-           if(results.length > 0){
+                if(results.length > 0){
 
-                    var registrationToken = new Array();
+                      var registrationToken = new Array();
 
-                    for(var i = 0;i < results.length;i++){
-                        //not
-                        if(results[i].webtoken != "not"){
-                          registrationToken.push(results[i].webtoken);
-                        }
+                      for(var i = 0;i < results.length;i++){
+                          //not
+                          if(results[i].webtoken != "not"){
+                            registrationToken.push(results[i].webtoken);
+                          }
 
-                    }
+                      }
 
-                    var message = {
-                            notification:{
-                              title:title,
-                              body:body
+                      var message = {
+                          notification:{
+                            title:title,
+                            body:body
+                          },
+                          webpush: {
+                              fcm_options: {
+                                link: url
+                              }
                             },
-                            webpush: {
-                                fcm_options: {
-                                  link: url
-                                }
-                              },
-                             tokens: registrationToken
-                           };
+                          tokens: registrationToken
+                        };
 
-                           admin.messaging().sendMulticast(message)
-                             .then((response) => {
-                               // Response is a message ID string.
-                               resolve(response);
-                               console.log('Successfully sent message:', response);
-                             })
-                             .catch((error) => {
-                               console.log('Error sending message:', error);
-                             });
+                        admin.messaging().sendMulticast(message)
+                          .then((response) => {
+                            // Response is a message ID string.
+                            resolve(response);
+                            console.log('Successfully sent message:', response);
+                          })
+                          .catch((error) => {
+                            console.log('Error sending message:', error);
+                          });
 
 
-               }
+                }else{
+                  return false;
+                }
 
              });
-
-
-
 
 
           //promise

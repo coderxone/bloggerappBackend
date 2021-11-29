@@ -35,8 +35,8 @@ module.exports = {
     cleanString:function(checkString){
 
           try{
-
-            var validate = ["script","alert","php","xss","*","j&","#","X41","SRC","IMG","refresh","/html","base64","request","%","select","execute","document","-- -","--","<",">","concat","=","<script>","</script>","</"];
+            //exampledescriptionnsdsds2
+            var validate = ["script","alert","php","xss","*","j&","#","X41","SRC","IMG","refresh","/html","base64","request","%","select","execute","-- -","--","<",">","concat","=","<script>","</script>","</"];
 
               //validate function
 

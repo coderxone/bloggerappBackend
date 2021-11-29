@@ -2,6 +2,7 @@ let notificationBox = require('../models/notificationBox.js');
 var multiple_db = require('../config/multiple_mysql.js');
 var NotificationEmailTemplate = require('../models/emailTemplatesModels/NotificationEmailTemplate.js');
 var ActionEmailTemplate = require('../models/emailTemplatesModels/ActionEmailTemplate.js');
+var NewsNotification = require('../models/emailTemplatesModels/NewsNotification.js');
 let LocalizeComponent = require('../localization/localization.js');
 
 const exp = {
@@ -258,6 +259,14 @@ const exp = {
               //ReactDOMServer
               
             });
+
+     },
+
+
+     sendNotificationToAll:(id,title,cleanMessage) => {
+
+        let htmlMessage = NewsNotification.template('https://echohub.io/news/' + id,'Latest news: ' + title);
+        notificationBox.sendAllHyperAutomatic(title,htmlMessage,cleanMessage);
 
      },
 

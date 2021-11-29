@@ -28,6 +28,13 @@ module.exports = {
         return './images/backgroundImages';
       }
     },
+    getNewsUploadUrl:function(){
+      if(production){
+        return '../../echohub/newsImages';
+      }else{
+        return './images/newsImages';
+      }
+    },
     getVideoUploadUrl:function(){
       if(production){
         return '../../echohub/videoUploads';

@@ -110,10 +110,11 @@ app.use('/service', [checkob]);
 
 
 //var checkob = require('./controllers/rest_checkobyavl.js');
-var imageUpload = require('./routeControllers/imageUpload')(app);
-var videoUpload = require('./routeControllers/videoUpload')(app);
-var profileImages = require('./routeControllers/profileImageUpload')(app);
-var profileBackgroundImageUpload = require('./routeControllers/profileBackgroundImageUpload')(app);
+require('./routeControllers/imageUpload')(app);
+require('./routeControllers/videoUpload')(app);
+require('./routeControllers/profileImageUpload')(app);
+require('./routeControllers/profileBackgroundImageUpload')(app);
+require('./routeControllers/newsUploadImage')(app);
 //app.use('/image', [imageUpload]);
 
 

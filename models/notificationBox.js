@@ -183,6 +183,41 @@ module.exports = {
         sendWebFPMtoAllUsers();
 
       },
+      
+      
+      sendAllHyperAutomatic:function(title,htmlmessage,cleanmessage){
+
+        const sendToAllMessage = async () => {
+             await notificationModel.sendToAllMessageFromDB(title,htmlmessage).then(function(result) {
+
+                console.log(result.response);
+
+            });
+        };
+
+        sendToAllMessage();
+
+        const sendFPMtoAllUsersAndroid = async () => {
+             await notificationModel.sendFPMtoAllUsers(title,cleanmessage,"new message","new message").then(function(result) {
+
+                console.log(result);
+
+            });
+        };
+
+        sendFPMtoAllUsersAndroid();
+
+        const sendWebFPMtoAllUsers = async () => {
+             await notificationModel.sendWebFPMtoAllUsers(title,cleanmessage,domainName).then(function(result) {
+
+                console.log(result);
+
+            });
+        };
+
+        sendWebFPMtoAllUsers();
+
+      },
 
       sendAllHyperToArrayToken:function(title,htmlmessage,cleanmessage,EmailArray,webtokenArray,firebasetokenArray){
 

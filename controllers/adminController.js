@@ -4,6 +4,7 @@ var FormHelper = require("../models/formHelpers.js");
 var Serialize = require('php-serialize');
 let systemCoreLogicsPrice = require('../models/systemCoreLogicsPrice.js');
 var timeconverter = require("../models/timeconverter.js");
+let notificationBoxCentralMessages = require('../models/notificationBoxCentralMessages.js');
 
 module.exports = function(io){
 
@@ -303,17 +304,17 @@ module.exports = function(io){
                 
                 let date = timeconverter.getUnixtime();
 
-                let insertArray = [
+                let updateArray = [
                   date,
                   FormHelper.cleanString(obj.title),
-                  FormHelper.cleanString(obj.description),
+                  FormHelper.cleanText(obj.description),
                   FormHelper.cleanString(obj.category),
                   obj.id
                 ];
 
-                db_multiple.query('UPDATE news SET date = ?,title = ?,description = ?,category = ? WHERE id = ?', insertArray, function (error, results, fields) {
+                db_multiple.query('UPDATE news SET date = ?,title = ?,description = ?,category = ? WHERE id = ?', updateArray, function (error, results, fields) {
 
-                  console.log(error)
+                  //console.log(error)
                 
                 });
 
@@ -340,6 +341,51 @@ module.exports = function(io){
                 });
 
 
+              });
+              
+              
+              socket.on('publishNews', function (encrypt) {
+
+                var data = cryptLibrary.decrypt(encrypt);
+
+                var deviceid = data.deviceid;
+                let id = data.id;
+                let status = data.status;
+                let title = data.title;
+                let description = data.description;
+
+                socket.join(deviceid);
+
+                db_multiple.query('UPDATE news SET status = ? WHERE id = ?', [status,id], function (error, results, fields) {
+
+                  //send notifications
+                  notificationBoxCentralMessages.sendNotificationToAll(id,title,description);
+                  io.sockets.in(deviceid).emit('publishNews',cryptLibrary.encrypt({status:"ok"}));
+                
+                });
+                
+              });
+              
+              
+              socket.on('getNews', function (encrypt) {
+
+                var data = cryptLibrary.decrypt(encrypt);
+
+                var deviceid = data.deviceid;
+                let id = data.id;
+
+                socket.join(deviceid);
+
+                db_multiple.query('SELECT * FROM `news` WHERE `status` = ?', [1], function (error, results, fields) {
+
+                  for(let i = 0;i < results.length;i++){
+                    results[i].postedTime = timeconverter.countPassedTimeFromUnix(results[i].date);
+                  }
+                  //send notifications
+                  io.sockets.in(deviceid).emit('getNews',cryptLibrary.encrypt({status:"ok",data:results}));
+                
+                });
+                
               });
 
         });
