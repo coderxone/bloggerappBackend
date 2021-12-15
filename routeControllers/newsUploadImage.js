@@ -27,21 +27,21 @@ const exportConst = function(app){
         try{
           const path = req.file.path;
           const name = req.file.filename;
-          const { email } = req.body;
+          const { email,id } = req.body;
 
           const setRecord = new function () {
              return new Promise((resolve, reject) => {
                var insert  = { filename: name,email:email,uploadDate:timeconverter.getUnixtime(),};
 
 
-               db_multiple.query('SELECT image FROM `news` WHERE `email` = ? LIMIT 1', [email], function (error, res, fields) {
+               db_multiple.query('SELECT image FROM `news` WHERE `email` = ? AND `id` = ? LIMIT 1', [email,id], function (error, res, fields) {
 
                  if(res.length > 0){
 
                         let currentImage = res[0].image;
 
                         if(currentImage === "background.jpeg"){
-                          db_multiple.query('UPDATE news SET image = ? WHERE email = ?', [name,email], function (error, results, fields) {
+                          db_multiple.query('UPDATE news SET image = ? WHERE email = ? AND id = ?', [name,email,id], function (error, results, fields) {
                             if (error){
                               resolve(error);
                             }else{
@@ -51,7 +51,7 @@ const exportConst = function(app){
                           });
                         }else{
                           helpers.deletePictures(config.getNewsUploadUrl() + "/" + currentImage).then(res => {
-                            db_multiple.query('UPDATE news SET image = ? WHERE email = ?', [name,email], function (error, results, fields) {
+                            db_multiple.query('UPDATE news SET image = ? WHERE email = ? AND id = ?', [name,email,id], function (error, results, fields) {
                               if (error){
                                 resolve(error);
                               }else{

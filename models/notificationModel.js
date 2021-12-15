@@ -211,7 +211,7 @@ module.exports = {
     
     sendToAllMessageFromDB:async function(title,message){
 
-       return new Promise(function(resolve, reject) {
+       return new Promise(function(resolve) {
          //promise
 
          multiple_db.query('SELECT email FROM `Users`', function (error, results, fields) {
@@ -219,10 +219,11 @@ module.exports = {
               let UserArray = [];
 
               for(let i = 0;i < results.length;i++){
-
-                UserArray.push(results[i].email);
-
+                if(results[i].email != "ok" && results[i].email != " " && results[i].email != null && results[i].email != ""){
+                  UserArray.push(results[i].email);
+                }
               }
+            
 
               if(UserArray.length > 0){
 
@@ -359,7 +360,7 @@ module.exports = {
 
                     for(var i = 0;i < results.length;i++){
                         //not
-                        if(results[i].firebaseToken != "not"){
+                        if(results[i].firebaseToken != "not" && results[i].firebaseToken != "" && results[i].firebaseToken != null){
                           registrationToken.push(results[i].firebaseToken);
                         }
 
@@ -377,7 +378,7 @@ module.exports = {
                          },
                          tokens: registrationToken
                        };
-
+//xx
                        admin.messaging().sendMulticast(message)
                          .then((response) => {
                            // Response is a message ID string.
@@ -520,7 +521,8 @@ module.exports = {
 
                       for(var i = 0;i < results.length;i++){
                           //not
-                          if(results[i].webtoken != "not"){
+                        
+                          if(results[i].webtoken != "not" && results[i].webtoken != "" && results[i].webtoken != null){
                             registrationToken.push(results[i].webtoken);
                           }
 

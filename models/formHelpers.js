@@ -114,7 +114,7 @@ module.exports = {
 
                   try{
                       ////https://www.youtube.com/watch?v=uJNkLR4rQZM&t=3s
-                      var validate = ["<script","alert","php","xss","*","j&","#","X41","SRC","IMG","refresh","/html","base64","request","%","select","execute","document","-- -","--","<",">","concat","<script>","</script>","</"];
+                      var validate = ["<script","alert","php","xss","*","j&","#","X41","SRC","IMG","/html","base64","%","-- -","--","<",">","concat","<script>","</script>","</"];
 
                         //validate function
 
