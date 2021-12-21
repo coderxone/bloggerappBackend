@@ -115,6 +115,7 @@ require('./routeControllers/videoUpload')(app);
 require('./routeControllers/profileImageUpload')(app);
 require('./routeControllers/profileBackgroundImageUpload')(app);
 require('./routeControllers/newsUploadImage')(app);
+require('./routeControllers/fastRequestsController.js')(app);
 //app.use('/image', [imageUpload]);
 
 
