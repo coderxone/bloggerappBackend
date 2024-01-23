@@ -21,7 +21,7 @@ const exportConst = function(app){
                 results[0].date = timeconverter.countPassedTimeFromUnix(results[0].date);
                 res.json(cryptLibrary.encrypt({status:"ok",results:results}));
             }else{
-                res.status(400).send({ error: ex });
+                res.status(400).send({ error: "error" });
             }
             
             });

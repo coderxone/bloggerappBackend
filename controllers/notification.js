@@ -10,6 +10,8 @@ let systemCoreLogicsFinalCount = require('../models/systemCoreLogicsFinalCount.j
 let systemCoreLogicsPrice = require('../models/systemCoreLogicsPrice.js');
 let instagramCore = require('../models/instagramCore.js');
 let notificationBoxCentralMessages = require('../models/notificationBoxCentralMessages.js');
+let generateXmlModel = require('../models/generateXmlModel.js');
+
 
 module.exports = function(io){
 
@@ -284,11 +286,13 @@ module.exports = function(io){
         });
 
         const sendMessage = async (title,htmldata,sendemail) => {
+
              await notificationModel.sendMessage(title,htmldata,sendemail).then(function(result) {
 
                 console.log(result.response);
 
             });
+             
         };
 
 
@@ -307,13 +311,19 @@ module.exports = function(io){
           timeconverter.run_every_day_at8am(7,10).then(res => {
               instagramCore.countDays();
               systemCoreLogicsPrice.updateDataCentralPrice();
-              notificationBoxCentralMessages.sendNotificationToAllBloggersToCompleteProfile();
+              //notificationBoxCentralMessages.sendNotificationToAllBloggersToCompleteProfile();
+              generateXmlModel.generateXML();
           })//hour,minute
+          
         }
 
 
         const test = () => {
             const token = "EAADZCHZCQRjJ4BALXN5O0cuAJqx5JsudoywsqKWmXbFpjhuTGIgZC8NZAS5rCqDN0drvlb0gYRNYNllJmHf9lABx1Dq9JyKtZCt0StmsYgYLcxsg9EsSRY7hcrh7fElGoCyyZA2Hu2OziZBK18KRRRbhZA9dasEE0YZBV7zXZCtl83YsBsGJKhFhFfcKInHgNJZCe7GBPAmMMQvRjpeVebwBESfYEtPRA2JKUgZD";
+            
+            //generateXmlModel.generateXML();
+            //notificationBoxCentralMessages.sendNotificationToAllBloggersToCompleteProfile();
+            
             //"17841401349212053",token
             //1 step
             //instagramCore.getAccounts(token);

@@ -40,7 +40,7 @@ const exp = {
          message = "today is " + number + " day since you posted your video " + days;
          //administration notification to pay
          let adminMessage = "please check user " + currentEmail + " he(she) finished the post video task";
-         notificationBox.sendHyperSingle(adminMessage,"<a href='echohub.io/approve/" + project_id + "'>" + adminMessage + "</a>",adminMessage,"info@echohub.io");
+         notificationBox.sendHyperSingle(adminMessage,"<a href='echohub.io/approve/" + project_id + "'>" + adminMessage + "</a>",adminMessage,"2clickorg@gmail.com");
        }
 
 

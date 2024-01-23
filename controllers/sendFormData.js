@@ -419,7 +419,7 @@ module.exports = function(io){
                                 let res = results[0].membership;
 
                                 if(res == 1){
-                                  notificationBoxCentralMessages.sendHyperSingle('info@echohub.io','Congratulations! now you are member of new big comunity echohub.io!',email);
+                                  notificationBoxCentralMessages.sendHyperSingle('service@echohub.io','Congratulations! now you are member of new big comunity echohub.io!',email);
                                   io.sockets.in(data.deviceid).emit('checkPayments', cryptLibrary.encrypt({status: 'ok',result:res}));
                                 }else{
                                   io.sockets.in(data.deviceid).emit('checkPayments', cryptLibrary.encrypt({status: 'false',result:res}));

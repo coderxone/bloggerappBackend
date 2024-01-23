@@ -3,80 +3,72 @@ var request = require('request');
 var Storage = require('node-storage');
 var store = new Storage('./store/store.js');
 var multiple_db = require('../config/multiple_mysql.js');
+var config = require('../config/config.js');
 var nodemailer = require('nodemailer');
-
+var serviceGmailAccount = require('../store/echohubGmail.json');
 
 var admin = require('firebase-admin');
 var serviceAccount = require('../store/fire.json');
-var serviceGmailAccount = require('../store/echohubGmail.json');
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
   databaseURL: "https://click-f1304.firebaseio.com"
 });
+
+
 //store.put('zapros', '2');
 //var ball_store = store.get('ball_id');
 //var liveurl = 'https://api.paypal.com'; //live
+//https://stackoverflow.com/questions/26901445/why-is-oauth2-with-gmail-nodejs-nodemailer-producing-username-and-password-not
 
-module.exports = {
+
+const modules = {
+
+     createTransporter: async() => {
+
+      return new Promise((resolve) => {
+
+        var transporter = nodemailer.createTransport({
+          //host:'smtp.gmail.com',
+          host:'mail.privateemail.com',
+          port:465,
+          secure:true,
+          auth: {
+            user: 'service@echohub.io',
+            pass:'googlehackA77'
+            // serviceClient:serviceGmailAccount.client_id,
+            // privateKey:serviceGmailAccount.private_key
+          }
+        });
+
+        resolve(transporter);
+
+      })
+        
+     },
 
      sendMessage:async function(title,message,toUser){
 
-       return new Promise(function(resolve, reject) {
+       return new Promise(function(resolve) {
          //promise
-
+      
              var mailOptions = {
-                 from: 'info@echohub.io',
+                 from: 'service@echohub.io',
                  to: toUser,
                  subject: title,
                  text: message,
                  html: message
              }
 
-          const connectMail = async () => {
-
-               var transporter = nodemailer.createTransport({
-                   host:'smtp.gmail.com',
-                   port:465,
-                   secure:true,
-                   auth: {
-                     type:'OAuth2',
-                     user: 'info@echohub.io',
-                     serviceClient:serviceGmailAccount.client_id,
-                     privateKey:serviceGmailAccount.private_key
-                   }
-                 });
-
-                 await transporter.verify();
-                 await transporter.sendMail(mailOptions, function (err, res) {
-                     if(err){
-                         //console.log(err);
-                         //console.log(err);
-                     } else {
-                      // console.log(res);
-
-                     }
-                 })
-
-               }
-
-
-               connectMail().then(response => {
-                 resolve("ok");
-               });
-
-
-             // var transporter = nodemailer.createTransport({
-             //     service: 'gmail',
-             //     auth: {
-             //       user: 'info@echohub.io',
-             //       pass: 'gulzhahan1234567'
-             //     }
-             //   });
-
-
-
-
+              modules.createTransporter().then(transporter => {
+              transporter.verify();
+              transporter.sendMail(mailOptions)
+              .then(success => console.log('success: ', success))
+              .catch(error => console.log('error: ', error));
+              
+              resolve("ok");
+             });
+            
           //promise
         });
 
@@ -86,59 +78,26 @@ module.exports = {
 
      sendHtmlMessage:async function(title,message,HtmlMessage,toUser){
 
-       return new Promise(function(resolve, reject) {
+       return new Promise(function(resolve) {
          //promise
 
              var mailOptions = {
-                 from: 'info@echohub.io',
+              from: 'service@echohub.io',
                  to: toUser,
                  subject: title,
                  text: message,
                  html: HtmlMessage
              }
 
-          const connectMail = async () => {
+             modules.createTransporter().then(transporter => {
+              transporter.verify();
+              transporter.sendMail(mailOptions)
+              .then(success => console.log('success: ', success))
+              .catch(error => console.log('error: ', error));
+              
+              resolve("ok");
 
-               var transporter = nodemailer.createTransport({
-                   host:'smtp.gmail.com',
-                   port:465,
-                   secure:true,
-                   auth: {
-                     type:'OAuth2',
-                     user: 'info@echohub.io',
-                     serviceClient:serviceGmailAccount.client_id,
-                     privateKey:serviceGmailAccount.private_key
-                   }
-                 });
-
-                 await transporter.verify();
-                 await transporter.sendMail(mailOptions, function (err, res) {
-                     if(err){
-                         //console.log(err);
-                         console.log(err);
-                     } else {
-                       console.log(res);
-
-                     }
-                 })
-
-               }
-
-
-               connectMail().then(response => {
-                 resolve("ok");
-               });
-
-
-             // var transporter = nodemailer.createTransport({
-             //     service: 'gmail',
-             //     auth: {
-             //       user: 'info@echohub.io',
-             //       pass: 'gulzhahan1234567'
-             //     }
-             //   });
-
-
+            });
 
 
           //promise
@@ -147,59 +106,32 @@ module.exports = {
 
     },
 
-     sendToAllMessage:async function(title,message,UserArray){
+     sendToAllMessage:async (title,message,UserArray) => {
 
-       return new Promise(function(resolve, reject) {
+       return new Promise((resolve) => {
          //promise
 
           if(UserArray.length > 0){
 
             var mailOptions = {
-                from: 'info@echohub.io',
+                from: 'service@echohub.io',
                 to: UserArray,
                 subject: title,
                 text: message,
                 html: message
             }
 
-            const connectMail = async () => {
+            modules.createTransporter().then(transporter => {
+              transporter.verify();
+              transporter.sendMail(mailOptions)
+              .then(success => console.log('success: ', success))
+              .catch(error => console.log('error: ', error));
+              
+              resolve("ok");
 
-                 var transporter = nodemailer.createTransport({
-                     host:'smtp.gmail.com',
-                     port:465,
-                     secure:true,
-                     auth: {
-                       type:'OAuth2',
-                       user: 'info@echohub.io',
-                       serviceClient:serviceGmailAccount.client_id,
-                       privateKey:serviceGmailAccount.private_key
-                     }
-                   });
-
-                   await transporter.verify();
-                   await transporter.sendMail(mailOptions, function (err, res) {
-                       if(err){
-                           //console.log(err);
-                           console.log(err);
-                       } else {
-                         console.log(res);
-
-                       }
-                   })
-
-                 }
-
-
-                 connectMail().then(response => {
-                   resolve("ok");
-                 });
-
-
+            });
 
           }
-
-
-          resolve("ok");
 
           //promise
         });
@@ -228,51 +160,26 @@ module.exports = {
               if(UserArray.length > 0){
 
                 var mailOptions = {
-                    from: 'info@echohub.io',
+                    from: 'service@echohub.io',
                     to: UserArray,
                     subject: title,
                     text: message,
                     html: message
                 }
     
-                const connectMail = async () => {
-    
-                     var transporter = nodemailer.createTransport({
-                         host:'smtp.gmail.com',
-                         port:465,
-                         secure:true,
-                         auth: {
-                           type:'OAuth2',
-                           user: 'info@echohub.io',
-                           serviceClient:serviceGmailAccount.client_id,
-                           privateKey:serviceGmailAccount.private_key
-                         }
-                       });
-    
-                       await transporter.verify();
-                       await transporter.sendMail(mailOptions, function (err, res) {
-                           if(err){
-                               //console.log(err);
-                               console.log(err);
-                           } else {
-                             console.log(res);
-    
-                           }
-                       })
-    
-                     }
-    
-    
-                     connectMail().then(response => {
-                       resolve("ok");
-                     });
-    
-    
-    
+                
+                modules.createTransporter().then(transporter => {
+                  transporter.verify();
+                  transporter.sendMail(mailOptions)
+                  .then(success => console.log('success: ', success))
+                  .catch(error => console.log('error: ', error));
+                  
+                  resolve("ok");
+              
+                });
+  
               }
     
-    
-              resolve("ok");
 
           });
           
@@ -286,7 +193,7 @@ module.exports = {
 
      sendFPMtoSingle:async function(sendemail,title,body,dopmessageone,dopmessagetwo){
 
-       return new Promise(function(resolve, reject) {
+       return new Promise(function(resolve) {
          //promise
 
          multiple_db.query('SELECT * FROM `Users` WHERE `email` = ?', [sendemail], function (error, results, fields) {
@@ -410,7 +317,7 @@ module.exports = {
 
      sendFPMtoCurrentArrayToken:async function(title,body,dopmessageone,dopmessagetwo,array){
 
-       return new Promise(function(resolve, reject) {
+       return new Promise(function(resolve) {
 
               if(array.length > 0){
                 var message = {
@@ -446,7 +353,7 @@ module.exports = {
 
      sendWebFPMtoSingle:async function(sendemail,title,body,url){
 
-       return new Promise(function(resolve, reject) {
+       return new Promise(function(resolve) {
          //promise
 
          multiple_db.query('SELECT * FROM `Users` WHERE `email` = ?', [sendemail], function (error, results, fields) {
@@ -566,7 +473,7 @@ module.exports = {
 
      sendWebFPMtoAllUsersArray:async function(title,body,url,array){
 
-       return new Promise(function(resolve, reject) {
+       return new Promise(function(resolve) {
          //promise
 
                 if(array.length > 0){
@@ -603,7 +510,7 @@ module.exports = {
 
      sendFPMtoTopic:async function(topicName,title,body,dopmessageone,dopmessagetwo){
 
-       return new Promise(function(resolve, reject) {
+       return new Promise(function(resolve) {
          //promise
 
                     var message = {
@@ -637,7 +544,7 @@ module.exports = {
 
     subscribeTopic:async function(topicName,token){
 
-      return new Promise(function(resolve, reject) {
+      return new Promise(function(resolve) {
         //promise
         var registrationTokens = [token];
 
@@ -658,5 +565,11 @@ module.exports = {
 
 }
 
-
+module.exports = modules;
 //https://www.google.com/settings/security/lesssecureapps
+
+
+
+// @	MX	10	mx1.privateemail.com
+// @	MX	10	mx2.privateemail.com
+// @	TXT		   v=spf1 include:spf.privateemail.com ~all
